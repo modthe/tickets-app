@@ -509,7 +509,7 @@
                         <div class="upload-icon">📊</div>
                         <h3>اسحب ملف Excel هنا</h3>
                         <p>أو انقر للتصفح</p>
-                        <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls">
+                        <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv, .txt">
                     </div>
 
                     <div class="criteria-section">
@@ -1074,21 +1074,33 @@
         }
 
         function processExcelFile(file) {
-            const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                
-                // Get first worksheet
-                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(worksheet);
-                
-                validateTickets(jsonData);
-            };
-            
-            reader.readAsArrayBuffer(file);
-        }
+const reader = new FileReader();
+
+reader.onload = function(e) {
+const data = new Uint8Array(e.target.result);
+let workbook;
+
+// Check if file is CSV or Excel
+if (file.name.endsWith('.csv')) {
+const csvData = new TextDecoder().decode(data);
+workbook = XLSX.read(csvData, { type: 'string', raw: true });
+} else {
+workbook = XLSX.read(data, { type: 'array' });
+}
+
+// Get first worksheet
+const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+validateTickets(jsonData);
+};
+
+if (file.name.endsWith('.csv')) {
+reader.readAsArrayBuffer(file);
+} else {
+reader.readAsArrayBuffer(file);
+}
+}
 
         async function validateTickets(tickets) {
             const validationResults = tickets.map(ticket => validateSingleTicket(ticket));
