@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام التحقق من التذاكر - محاكم الأسرة</title>
+<title>نظام التحقق من التذاكر - متعدد المحاكم</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -141,6 +141,22 @@ box-shadow: 0 5px 15px rgba(0,0,0,0.1);
 border-left: 5px solid #3498db;
 }
 
+.ticket-card.oss-ticket {
+border-left-color: #e74c3c;
+}
+
+.ticket-card.jwb-ticket {
+border-left-color: #f39c12;
+}
+
+.ticket-card.eservices-ticket {
+border-left-color: #9b59b6;
+}
+
+.ticket-card.workplace-ticket {
+border-left-color: #1abc9c;
+}
+
 .ticket-header {
 display: flex;
 justify-content: space-between;
@@ -152,6 +168,26 @@ margin-bottom: 1rem;
 font-size: 1.3rem;
 font-weight: bold;
 color: #2c3e50;
+}
+
+.interaction-id {
+background: #e74c3c;
+color: white;
+padding: 6px 12px;
+border-radius: 20px;
+font-size: 0.9rem;
+font-weight: bold;
+margin-top: 8px;
+display: inline-block;
+}
+
+.service-badge {
+background: #3498db;
+color: white;
+padding: 4px 8px;
+border-radius: 15px;
+font-size: 0.8rem;
+margin-right: 8px;
 }
 
 .validation-score {
@@ -301,155 +337,6 @@ line-height: 1.8;
 text-align: right;
 }
 
-/* Admin Panel Styles */
-.admin-panel {
-background: #f8f9fa;
-padding: 2rem;
-border-radius: 10px;
-margin-top: 2rem;
-border: 2px dashed #dee2e6;
-}
-
-.admin-tabs {
-display: flex;
-margin-bottom: 1rem;
-border-bottom: 1px solid #dee2e6;
-flex-wrap: wrap;
-}
-
-.admin-tab {
-padding: 10px 20px;
-cursor: pointer;
-border-bottom: 3px solid transparent;
-}
-
-.admin-tab.active {
-border-bottom: 3px solid #3498db;
-font-weight: bold;
-}
-
-.admin-content {
-display: none;
-}
-
-.admin-content.active {
-display: block;
-}
-
-.keyword-input {
-display: flex;
-margin-bottom: 1rem;
-}
-
-.keyword-input input {
-flex: 1;
-padding: 10px;
-border: 1px solid #dee2e6;
-border-radius: 5px;
-margin-left: 10px;
-}
-
-.keyword-list {
-list-style: none;
-max-height: 200px;
-overflow-y: auto;
-}
-
-.keyword-item {
-padding: 10px;
-background: white;
-margin-bottom: 5px;
-border-radius: 5px;
-display: flex;
-justify-content: space-between;
-align-items: center;
-}
-
-.keyword-item button {
-background: #e74c3c;
-color: white;
-border: none;
-padding: 5px 10px;
-border-radius: 3px;
-cursor: pointer;
-}
-
-/* Login Styles */
-.login-section {
-background: #f8f9fa;
-padding: 2rem;
-border-radius: 10px;
-margin: 2rem;
-text-align: center;
-}
-
-.login-form {
-max-width: 400px;
-margin: 0 auto;
-}
-
-.login-form input {
-width: 100%;
-padding: 12px;
-margin: 10px 0;
-border: 1px solid #ddd;
-border-radius: 5px;
-}
-
-.user-info {
-background: #e8f5e8;
-padding: 1rem;
-border-radius: 10px;
-margin: 1rem 2rem;
-text-align: center;
-}
-
-.settings-item {
-margin-bottom: 1rem;
-padding: 1rem;
-background: white;
-border-radius: 5px;
-}
-
-.settings-item label {
-display: block;
-margin-bottom: 0.5rem;
-font-weight: bold;
-}
-
-.settings-item input {
-padding: 8px;
-border: 1px solid #ddd;
-border-radius: 5px;
-margin-left: 10px;
-}
-
-.history-item {
-padding: 10px;
-background: white;
-margin-bottom: 5px;
-border-radius: 5px;
-border-right: 4px solid #3498db;
-}
-
-.error-message {
-background: #f8d7da;
-color: #721c24;
-padding: 10px;
-border-radius: 5px;
-margin: 10px 0;
-text-align: center;
-}
-
-.success-message {
-background: #d4edda;
-color: #155724;
-padding: 10px;
-border-radius: 5px;
-margin: 10px 0;
-text-align: center;
-}
-
 .legal-highlight {
 background: #fff3cd;
 border-right: 4px solid #ffc107;
@@ -457,63 +344,83 @@ padding: 0.5rem;
 margin: 0.5rem 0;
 border-radius: 3px;
 }
+
+.court-filter {
+display: flex;
+gap: 10px;
+margin-bottom: 1rem;
+flex-wrap: wrap;
+}
+
+.court-filter-btn {
+padding: 8px 16px;
+border: 2px solid #3498db;
+background: white;
+border-radius: 20px;
+cursor: pointer;
+transition: all 0.3s;
+}
+
+.court-filter-btn.active {
+background: #3498db;
+color: white;
+}
+
+.court-filter-btn:hover {
+background: #2980b9;
+color: white;
+}
+
+.priority-indicators {
+margin: 0.5rem 0;
+display: flex;
+gap: 10px;
+flex-wrap: wrap;
+}
+
+.duplicate-warning {
+background: #fff3cd;
+border-right: 4px solid #ffc107;
+padding: 0.75rem;
+margin: 0.5rem 0;
+border-radius: 5px;
+font-weight: bold;
+}
+
+.reference-highlight {
+background: #d4edda;
+border-right: 4px solid #28a745;
+padding: 0.5rem;
+margin: 0.25rem 0;
+border-radius: 3px;
+font-family: monospace;
+}
 </style>
 </head>
 <body>
 <div class="container">
 <header>
-<h1>🎫 نظام التحقق من التذاكر - محاكم الأسرة</h1>
-<p class="subtitle">نظام متكامل للتحقق الآلي من جودة تذاكر الدعم الفني</p>
+<h1>🎫 نظام التحقق من التذاكر - متعدد المحاكم</h1>
+<p class="subtitle">نظام متكامل للتحقق الآلي من جودة تذاكر الدعم الفني لجميع المحاكم</p>
 </header>
 
-<!-- Login Section -->
-<div id="loginSection" class="login-section">
-<h2>🔐 تسجيل الدخول</h2>
-<div id="loginMessage"></div>
-<div class="login-form">
-<input type="email" id="loginEmail" placeholder="البريد الإلكتروني">
-<input type="password" id="loginPassword" placeholder="كلمة المرور">
-<button class="btn" onclick="login()">تسجيل الدخول</button>
-<button class="btn btn-secondary" onclick="showRegister()">إنشاء حساب جديد</button>
-</div>
-</div>
-
-<!-- Register Section -->
-<div id="registerSection" class="login-section" style="display: none;">
-<h2>👤 إنشاء حساب جديد</h2>
-<div id="registerMessage"></div>
-<div class="login-form">
-<input type="text" id="registerName" placeholder="الاسم الكامل">
-<input type="email" id="registerEmail" placeholder="البريد الإلكتروني">
-<input type="password" id="registerPassword" placeholder="كلمة المرور (6 أحرف على الأقل)">
-<button class="btn" onclick="register()">إنشاء حساب</button>
-<button class="btn btn-secondary" onclick="showLogin()">العودة لتسجيل الدخول</button>
-</div>
-</div>
-
-<!-- User Info Section -->
-<div id="userInfo" class="user-info" style="display: none;">
-<span>مرحباً, <span id="userName"></span> | </span>
-<span id="userEmail"></span>
-<button class="btn btn-danger" onclick="logout()" style="margin-right: 15px;">تسجيل الخروج</button>
-</div>
-
 <!-- Main App Content -->
-<div id="mainApp" style="display: none;">
+<div id="mainApp">
 <div class="main-content">
 <div class="upload-section">
 <h2>📤 تحميل ملف Excel أو CSV</h2>
 <p>قم بتحميل ملف Excel أو CSV الذي يحتوي على التذاكر بالأعمدة التالية:</p>
 <ul style="margin: 1rem 0; padding-right: 2rem;">
-<li><strong>Affected Service</strong> (CMS - SJC, E-Services - SJC, JWB - SJC)</li>
+<li><strong>Affected Service</strong> (CMS - SJC, OSS - SJC, E-Services - SJC, JWB - SJC, Workplace Services - SJC)</li>
 <li><strong>Description</strong> (بالعربية - يجب أن تحتوي على رقم الدعوى/الطلب)</li>
-<li><strong>Closure Code</strong> (Case Amended, Information Provided, Reports, Application)</li>
-<li><strong>Title</strong> (بالعربية - 5 كلمات كحد أقصى)</li>
+<li><strong>Closure Code</strong> (Case Amended, Information Provided, Reports, Application, Duplicate Ticket, etc.)</li>
+<li><strong>Title</strong> (بالعربية - 4-6 كلمات كحد أقصى)</li>
 <li><strong>Category</strong> (بالإنجليزية)</li>
 <li><strong>Subcategory</strong> (بالإنجليزية)</li>
 <li><strong>Classification</strong> (بالإنجليزية)</li>
 <li><strong>Resolution Method</strong> (بالإنجليزية)</li>
 <li><strong>Solution</strong> (بالعربية - يجب أن تحتوي على إشارة للإنجاز)</li>
+<li><strong>Interaction ID</strong> (رقم التذكرة - مثل SD1664592)</li>
 </ul>
 
 <div class="upload-area" id="uploadArea">
@@ -524,14 +431,14 @@ border-radius: 3px;
 </div>
 
 <div class="criteria-section">
-<h4>🔍 معايير التحقق الخاصة بمحاكم الأسرة</h4>
+<h4>🔍 معايير التحقق المحسنة</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>الخدمة المتأثرة:</strong> يجب أن تتطابق مع نوع الطلب (CMS للمحاكم، E-Services للبوابة)</li>
-<li class="criteria-item"><strong>الوصف:</strong> يجب أن يحتوي على رقم الدعوى أو رقم الطلب</li>
-<li class="criteria-item"><strong>كود الإغلاق:</strong> يجب أن يتناسب مع نوع الحل المقدم</li>
-<li class="criteria-item"><strong>العنوان:</strong> أقصى 5 كلمات، كلمات مفتاحية محددة</li>
-<li class="criteria-item"><strong>الفئة والتصنيف:</strong> يجب أن تتطابق مع نوع المشكلة</li>
-<li class="criteria-item"><strong>الحل:</strong> يجب أن يحتوي على إشارة للإنجاز (تم، انتهى، إلخ)</li>
+<li class="criteria-item"><strong>الوصف:</strong> يجب أن يحتوي على رقم الدعوى/الطلب (مثال: 14166/2025/جنحة/استئناف)</li>
+<li class="criteria-item"><strong>الحل:</strong> يجب أن يوضح الإجراء الملموس وليس مجرد توجيه</li>
+<li class="criteria-item"><strong>الفئة والتصنيف:</strong> يجب أن تتطابق مع نوع الخدمة المتأثرة</li>
+<li class="criteria-item"><strong>كود الإغلاق:</strong> يجب أن يكون مناسباً لنوع الخدمة</li>
+<li class="criteria-item"><strong>التكرار:</strong> الكشف عن التذاكر المكررة</li>
+<li class="criteria-item"><strong>المراجع:</strong> التأكد من وجود أرقام الدعاوى والطلبات</li>
 </ul>
 </div>
 
@@ -548,6 +455,16 @@ border-radius: 3px;
 
 <div class="validation-section">
 <h2>📋 نتائج التحقق</h2>
+
+<div class="court-filter" id="courtFilter">
+<button class="court-filter-btn active" onclick="filterTicketsByCourt('all')">جميع المحاكم</button>
+<button class="court-filter-btn" onclick="filterTicketsByCourt('CMS')">محاكم الأسرة (CMS)</button>
+<button class="court-filter-btn" onclick="filterTicketsByCourt('OSS')">الخدمة الموحدة (OSS)</button>
+<button class="court-filter-btn" onclick="filterTicketsByCourt('JWB')">منصة القضاة (JWB)</button>
+<button class="court-filter-btn" onclick="filterTicketsByCourt('E-Services')">الخدمات الإلكترونية</button>
+<button class="court-filter-btn" onclick="filterTicketsByCourt('Workplace')">خدمات مكان العمل</button>
+</div>
+
 <div id="summaryStats" class="summary-stats">
 <div class="stat-card">
 <span class="stat-number stat-valid" id="validCount">0</span>
@@ -560,6 +477,10 @@ border-radius: 3px;
 <div class="stat-card">
 <span class="stat-number stat-invalid" id="invalidCount">0</span>
 <span>تذاكر غير صالحة</span>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="totalCount" style="color: #3498db;">0</span>
+<span>إجمالي التذاكر</span>
 </div>
 </div>
 
@@ -576,270 +497,168 @@ border-radius: 3px;
 </div>
 </div>
 </div>
-
-<!-- Admin Panel -->
-<div class="admin-panel">
-<h2>👨‍💼 لوحة الإدارة</h2>
-<div class="admin-tabs">
-<div class="admin-tab active" onclick="switchAdminTab('keywords')">الكلمات المفتاحية</div>
-<div class="admin-tab" onclick="switchAdminTab('categories')">الفئات والتصنيفات</div>
-<div class="admin-tab" onclick="switchAdminTab('services')">الخدمات وأكواد الإغلاق</div>
-<div class="admin-tab" onclick="switchAdminTab('settings')">الإعدادات</div>
-<div class="admin-tab" onclick="switchAdminTab('history')">سجل التحقق</div>
-</div>
-
-<div id="keywordsTab" class="admin-content active">
-<h3>إدارة الكلمات المفتاحية</h3>
-<div class="keyword-input">
-<input type="text" id="newKeyword" placeholder="أضف كلمة مفتاحية جديدة">
-<button class="btn" onclick="addKeyword()">إضافة</button>
-</div>
-<ul id="keywordsList" class="keyword-list">
-<!-- Keywords loaded from Firebase -->
-</ul>
-</div>
-
-<div id="categoriesTab" class="admin-content">
-<h3>إدارة الفئات والتصنيفات</h3>
-<div class="keyword-input">
-<input type="text" id="newCategory" placeholder="أضف فئة جديدة">
-<button class="btn" onclick="addCategory()">إضافة فئة</button>
-</div>
-<h4>الفئات الرئيسية:</h4>
-<ul id="categoriesList" class="keyword-list">
-<!-- Categories loaded from Firebase -->
-</ul>
-<h4>التصنيفات:</h4>
-<ul id="classificationsList" class="keyword-list">
-<!-- Classifications loaded from Firebase -->
-</ul>
-</div>
-
-<div id="servicesTab" class="admin-content">
-<h3>الخدمات وأكواد الإغلاق</h3>
-<h4>الخدمات المتأثرة:</h4>
-<ul id="servicesList" class="keyword-list">
-<!-- Services loaded from Firebase -->
-</ul>
-<h4>أكواد الإغلاق:</h4>
-<ul id="closureCodesList" class="keyword-list">
-<!-- Closure codes loaded from Firebase -->
-</ul>
-</div>
-
-<div id="settingsTab" class="admin-content">
-<h3>إعدادات النظام</h3>
-<div class="settings-item">
-<label>حد الكلمات في العنوان:</label>
-<input type="number" id="titleMaxWords" value="5" min="3" max="10">
-<button class="btn" onclick="updateSettings()">حفظ الإعدادات</button>
-</div>
-<div class="settings-item">
-<label>الحد الأدنى لطول الوصف:</label>
-<input type="number" id="descMinLength" value="15" min="10" max="100">
-<button class="btn" onclick="updateSettings()">حفظ الإعدادات</button>
-</div>
-</div>
-
-<div id="historyTab" class="admin-content">
-<h3>سجل عمليات التحقق</h3>
-<div id="validationHistory">
-<!-- Validation history loaded from Firebase -->
-</div>
-</div>
-</div>
 </div>
 </div>
 
 <script>
-// 🔥 Firebase Configuration
-const firebaseConfig = {
-apiKey: "AIzaSyABv0GE8TLNkQi92NgtSGewxCOnXMevqjs",
-authDomain: "ticket-validation-system.firebaseapp.com",
-projectId: "ticket-validation-system",
-storageBucket: "ticket-validation-system.firebasestorage.app",
-messagingSenderId: "672112965367",
-appId: "1:672112965367:web:8a911668e5ab7765fb85f2"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-
-// Global variables
-let currentUser = null;
-let currentValidationResults = [];
-
-// Enhanced validation rules for Family Courts
+// Enhanced validation rules for multiple courts based on actual CSV analysis
 let validationRules = {
 title: {
-requiredKeywords: ['مشكلة', 'خطأ', 'عطل', 'خلل', 'إشكالية', 'طلب', 'تعديل', 'إنشاء', 'تصحيح', 'جدولة', 'متابعة'],
-maxWords: 5,
+maxWords: 6,
 minLength: 5,
-maxLength: 60,
-caseNumberPatterns: ['رقم الدعوى', 'رقم الطلب', 'رقم القضية'],
-shouldNotContain: ['اختبار', 'مؤقت', 'مسودة']
+maxLength: 80,
+shouldNotContain: ['اختبار', 'مؤقت', 'مسودة', 'يرجى', 'التكرم'],
+requiredKeywords: ['طلب', 'مشكلة', 'إضافة', 'تعديل', 'إغلاق', 'صلاحية', 'تحقق', 'تدقيق', 'بلاغ', 'دعوى']
 },
 description: {
 minLength: 15,
-requiredElements: ['رقم الدعوى', 'رقم الطلب', 'التفاصيل', 'السبب'],
-technicalTerms: ['خادم', 'قاعدة بيانات', 'تطبيق', 'نظام', 'إعدادات', 'محكمة', 'دعوى', 'قضية', 'جلسة', 'دائرة', 'قاضي']
+requiredElements: ['رقم', 'دعوى', 'طلب', 'بلاغ'],
+mustContainReference: true,
+referencePatterns: [
+/\d+\/\d+\/\w+\/\w+/, // Pattern for case numbers: 14166/2025/جنحة/استئناف
+/SD\d+/, // Interaction ID pattern
+/رقم\s+(الدعوى|الطلب|البلاغ)\s*[\d\/\w]+/,
+/\d{4}\/\d+\/\w+\/\w+/ // Another case number pattern
+]
 },
 solution: {
-minLength: 12,
-requiredElements: ['السبب الجذري', 'خطوات الحل', 'التحقق'],
-actionWords: ['تم التنفيذ', 'تم التهيئة', 'تم التحديث', 'تم الحل', 'تم الإصلاح', 'تم', 'تمت', 'انتهى', 'أكمل']
+minLength: 20,
+requiredElements: ['تم', 'إضافة', 'تعديل', 'إغلاق', 'تحقق', 'تحديث'],
+actionWords: ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'نفذ', 'أنجز', 'تم التحقق', 'تم التحديث', 'تم الإصلاح', 'تم الحل'],
+mustShowAction: true,
+forbiddenPhrases: ['تم التوجيه فقط', 'يجب التواصل مع', 'حسب المطلوب', 'يجب ارسال ايميل']
 },
+
+// Enhanced service-specific rules based on actual data
 affectedService: {
-validServices: ['CMS - SJC', 'E-Services - SJC', 'JWB - SJC'],
-cmsKeywords: ['دعوى', 'قضية', 'محكمة', 'قاضي', 'جلسة', 'دائرة', 'أسرة', 'تركات', 'استئناف', 'ابتدائي'],
-eservicesKeywords: ['بوابة', 'إلكتروني', 'موقع', 'online', 'portal', 'خدمة', 'طلب', 'مستخدم']
+validServices: ['CMS - SJC', 'OSS - SJC', 'E-Services - SJC', 'JWB - SJC', 'Workplace Services - SJC'],
+courtMapping: {
+'CMS - SJC': 'CMS',
+'OSS - SJC': 'OSS',
+'E-Services - SJC': 'E-Services',
+'JWB - SJC': 'JWB',
+'Workplace Services - SJC': 'Workplace'
 },
-closureCode: {
-validCodes: ['Case Amended', 'Information Provided', 'Reports', 'Application'],
-requiredElements: ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'نفذ', 'أنجز']
+serviceExpectations: {
+'CMS - SJC': {
+commonCategories: ['CMS - Cases', 'CMS - Requests', 'CMS - Access', 'CMS - Court Rooms', 'CMS - Case Management'],
+commonClosures: ['Application', 'Case Amended', 'Reports', 'Duplicate Ticket']
 },
-resolutionMethod: {
-validMethods: ['Remote resolution', 'On-site support', 'Phone support', 'Email support']
+'OSS - SJC': {
+commonCategories: ['CMS - Requests', 'Functional Support', 'CMS - Cases'],
+commonClosures: ['Information Provided', 'Application', 'Duplicate Ticket']
 },
-categories: {
-main: ['CMS - Cases', 'CMS - Reports', 'CMS - Case Management', 'CMS - Court Rooms', 'JWB - SJC', 'E-Services - SJC'],
-subcategories: {
-'CMS - Cases': ['Case Status', 'Panel Details', 'Parties', 'Case Related Case'],
-'CMS - Reports': ['statistical report', 'audit report', 'performance report'],
-'CMS - Case Management': ['FS Team Tasks', 'Investigation', 'Regression Test'],
-'CMS - Court Rooms': ['Panel Team', 'Scheduling', 'Session Management'],
-'JWB - SJC': ['Judge Workbench', 'Decision Management'],
-'E-Services - SJC': ['Portal Issues', 'Payment Issues', 'Registration Issues']
+'JWB - SJC': {
+commonCategories: ['JWB - SJC', 'Functional Support'],
+commonClosures: ['Information Provided', 'Application']
+},
+'E-Services - SJC': {
+commonCategories: ['E-Services - SJC', 'Functional Support'],
+commonClosures: ['Information Provided', 'Application']
+},
+'Workplace Services - SJC': {
+commonCategories: ['Functional Support', 'CMS - Cases'],
+commonClosures: ['Application', 'Information Provided']
+}
 }
 },
-classifications: ['Critical', 'High', 'Medium', 'Low', 'Emergency', 'Routine', 'Investigation', 'Regression Test']
+
+// Enhanced closure code validation
+closureCode: {
+validCodes: [
+'Case Amended', 'Information Provided', 'Reports', 'Application',
+'Duplicate Ticket', 'Functional Low', 'Functional High', 'No action taken/required',
+'Decision Amended', 'User Training', 'Request Amended'
+],
+// More specific service-closure mapping
+serviceSpecific: {
+'CMS - SJC': ['Case Amended', 'Application', 'Reports', 'Duplicate Ticket'],
+'OSS - SJC': ['Information Provided', 'Application', 'Duplicate Ticket'],
+'E-Services - SJC': ['Information Provided', 'Application'],
+'JWB - SJC': ['Information Provided', 'Application', 'Decision Amended'],
+'Workplace Services - SJC': ['Application', 'Information Provided']
+}
+},
+
+// Enhanced category validation based on actual data analysis
+categories: {
+main: [
+'CMS - Cases', 'CMS - Requests', 'CMS - Access', 'CMS - Court Rooms',
+'Functional Support', 'CMS - Case Management', 'Data Cleansing',
+'OSS - SJC', 'JWB - SJC', 'E-Services - SJC'
+],
+serviceMapping: {
+'CMS - SJC': ['CMS - Cases', 'CMS - Requests', 'CMS - Access', 'CMS - Court Rooms', 'CMS - Case Management', 'Data Cleansing'],
+'OSS - SJC': ['Functional Support', 'CMS - Requests', 'CMS - Cases'],
+'JWB - SJC': ['JWB - SJC', 'Functional Support'],
+'E-Services - SJC': ['E-Services - SJC', 'Functional Support'],
+'Workplace Services - SJC': ['Functional Support', 'CMS - Cases']
+},
+// Updated subcategories based on actual CSV data
+subcategories: {
+'CMS - Cases': ['Case Status', 'Panel Details', 'Case Details', 'Hearings', 'Attachments', 'Case Related Case', 'technical issue'],
+'CMS - Requests': ['Request Status', 'Attachments', 'Payments Details'],
+'CMS - Access': ['User Access', 'Grant/Revoke Access'],
+'CMS - Court Rooms': ['Panel Team', 'Panel Details'],
+'Functional Support': ['CMS Application', 'Request for Information'],
+'CMS - Case Management': ['FS Team Tasks', 'Summary Report', 'Investigation', 'Parties'],
+'Data Cleansing': ['CMS', 'Edit Request'],
+'OSS - SJC': ['Request Status', 'technical issue'],
+'JWB - SJC': ['Request Status', 'Judge Workbench'],
+'E-Services - SJC': ['Request Status', 'Portal Issues']
+}
+},
+
+// Updated classifications based on actual data
+classifications: [
+'add case subject', 'change case status', 'add related case', 'Change Panel',
+'amend request status', 'Grant/Revoke Access', 'Request for Information',
+'error message', 'unable to add related case', 'Change Attachment type',
+'Help user', 'Edit Request', 'amend hearing session type', 'RFI',
+'Investigation', 'add panel member', 'delete panel member', 'amend hearing session status',
+'Hearing session not created', 'Summary Report', 'FS Team Tasks'
+]
 };
 
-// Sample data for testing
-const sampleTickets = [
-{
-"Affected Service": "CMS - SJC",
-"Description": "تم تسجيل دعوى رقم 649/2025/ابتدائي/أسرة/جزئي وحالة الدعوى جدولة خطأ. مطلوب إعادة جدولة الدعوى",
-"Closure Code": "Case Amended",
-"Title": "جدولة خطأ",
-"Category": "CMS - Cases",
-"Subcategory": "Case Status",
-"Classification": "Scheduling Error",
-"Resolution Method": "Remote resolution",
-"Solution": "من شاشة إعداد الدوائر تم جدولة الدعوى في الدائرة الأسرة والتركات الجزئية الدائرة الثالثة جلسة تاريخ 2025/09/10"
-},
-{
-"Affected Service": "E-Services - SJC",
-"Description": "طلب إلكتروني من خلال البوابة للإطلاع على نسخة موثقة من الحكم رقم 2025\\144979",
-"Closure Code": "Information Provided",
-"Title": "خطأ بحالة الطلب",
-"Category": "E-Services - SJC",
-"Subcategory": "Portal Issues",
-"Classification": "High",
-"Resolution Method": "Remote resolution",
-"Solution": "تم التحقق من النظام وتبين أن حالة الطلب قيد الطباعة صحيحة"
-}
-];
+// Global variables
+let currentValidationResults = [];
+let filteredResults = [];
 
-// ==================== AUTHENTICATION FUNCTIONS ====================
-function showRegister() {
-document.getElementById('loginSection').style.display = 'none';
-document.getElementById('registerSection').style.display = 'block';
-document.getElementById('registerMessage').innerHTML = '';
-}
+// Enhanced validation functions for multiple courts
+function validateSingleTicket(ticket) {
+const validations = {
+title: validateTitle(ticket.Title),
+description: validateDescription(ticket.Description),
+solution: validateSolution(ticket.Solution),
+category: validateCategory(ticket.Category, ticket['Affected Service']),
+subcategory: validateSubcategory(ticket.Category, ticket.Subcategory),
+classification: validateClassification(ticket.Classification),
+affectedService: validateAffectedService(ticket['Affected Service']),
+closureCode: validateClosureCode(ticket['Closure Code'], ticket['Affected Service']),
+resolutionMethod: validateResolutionMethod(ticket['Resolution Method']),
+interactionId: validateInteractionId(ticket['Interaction ID'] || ticket['Interaction_ID'])
+};
 
-function showLogin() {
-document.getElementById('registerSection').style.display = 'none';
-document.getElementById('loginSection').style.display = 'block';
-document.getElementById('loginMessage').innerHTML = '';
-}
+const totalFields = Object.keys(validations).length;
+const validFields = Object.values(validations).filter(v => v.isValid).length;
+const warningFields = Object.values(validations).filter(v => v.hasWarning).length;
 
-async function register() {
-const name = document.getElementById('registerName').value;
-const email = document.getElementById('registerEmail').value;
-const password = document.getElementById('registerPassword').value;
+const score = Math.round((validFields / totalFields) * 100);
 
-if (!name || !email || !password) {
-showMessage('registerMessage', 'يرجى ملء جميع الحقول', 'error');
-return;
+// Determine court type for filtering
+const courtType = validationRules.affectedService.courtMapping[ticket['Affected Service']] || 'Other';
+
+return {
+ticket,
+validations,
+score,
+courtType: courtType,
+isValid: score >= 70,
+hasWarnings: warningFields > 0
+};
 }
 
-try {
-const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-const user = userCredential.user;
-
-await db.collection('users').doc(user.uid).set({
-name: name,
-email: email,
-role: 'admin',
-createdAt: firebase.firestore.FieldValue.serverTimestamp()
-});
-
-showMessage('registerMessage', 'تم إنشاء الحساب بنجاح! جاري تسجيل الدخول...', 'success');
-
-setTimeout(() => {
-showLogin();
-}, 2000);
-} catch (error) {
-showMessage('registerMessage', 'خطأ في إنشاء الحساب: ' + error.message, 'error');
-}
-}
-
-async function login() {
-const email = document.getElementById('loginEmail').value;
-const password = document.getElementById('loginPassword').value;
-
-if (!email || !password) {
-showMessage('loginMessage', 'يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error');
-return;
-}
-
-try {
-await auth.signInWithEmailAndPassword(email, password);
-showMessage('loginMessage', 'جاري تسجيل الدخول...', 'success');
-} catch (error) {
-showMessage('loginMessage', 'خطأ في تسجيل الدخول: ' + error.message, 'error');
-}
-}
-
-async function logout() {
-try {
-await auth.signOut();
-} catch (error) {
-console.error('Error logging out:', error);
-}
-}
-
-// Auth state listener
-auth.onAuthStateChanged(async (user) => {
-if (user) {
-currentUser = user;
-const userDoc = await db.collection('users').doc(user.uid).get();
-const userData = userDoc.data();
-
-if (userData) {
-document.getElementById('userName').textContent = userData.name;
-document.getElementById('userEmail').textContent = userData.email;
-document.getElementById('userInfo').style.display = 'block';
-document.getElementById('loginSection').style.display = 'none';
-document.getElementById('registerSection').style.display = 'none';
-document.getElementById('mainApp').style.display = 'block';
-
-await loadValidationRules();
-await loadValidationHistory();
-}
-} else {
-currentUser = null;
-document.getElementById('userInfo').style.display = 'none';
-document.getElementById('mainApp').style.display = 'none';
-document.getElementById('loginSection').style.display = 'block';
-}
-});
-
-// ==================== ENHANCED VALIDATION FUNCTIONS ====================
-function validateAffectedService(service, description, title) {
+function validateAffectedService(service) {
 const result = { isValid: true, hasWarning: false, feedback: [] };
 
 if (!service) {
@@ -851,38 +670,14 @@ return result;
 if (!validationRules.affectedService.validServices.includes(service)) {
 result.isValid = false;
 result.feedback.push(`خدمة غير صالحة. الخيارات: ${validationRules.affectedService.validServices.join(', ')}`);
-return result;
-}
-
-// Check if service matches content
-if (service === 'CMS - SJC') {
-const hasCMSKeywords = validationRules.affectedService.cmsKeywords.some(keyword =>
-description.includes(keyword) || title.includes(keyword)
-);
-if (!hasCMSKeywords) {
-result.hasWarning = true;
-result.feedback.push('يبدو أن المحتوى لا يتطابق مع نظام المحاكم (CMS)');
 } else {
-result.feedback.push('الخدمة متطابقة مع محتوى نظام المحاكم');
-}
-}
-
-if (service === 'E-Services - SJC') {
-const hasEServiceKeywords = validationRules.affectedService.eservicesKeywords.some(keyword =>
-description.includes(keyword) || title.includes(keyword)
-);
-if (!hasEServiceKeywords) {
-result.hasWarning = true;
-result.feedback.push('يبدو أن المحتوى لا يتطابق مع البوابة الإلكترونية');
-} else {
-result.feedback.push('الخدمة متطابقة مع محتوى البوابة الإلكترونية');
-}
+result.feedback.push(`الخدمة المتأثرة صحيحة (${service})`);
 }
 
 return result;
 }
 
-function validateClosureCode(closureCode, solution) {
+function validateClosureCode(closureCode, affectedService) {
 const result = { isValid: true, hasWarning: false, feedback: [] };
 
 if (!closureCode) {
@@ -897,16 +692,60 @@ result.feedback.push(`كود إغلاق غير صالح. الخيارات: ${val
 return result;
 }
 
-// Check if solution contains completion indicators
-const hasCompletion = validationRules.closureCode.requiredElements.some(element =>
-solution.includes(element)
-);
-
-if (!hasCompletion) {
+// Check if closure code is appropriate for the service
+const serviceCodes = validationRules.closureCode.serviceSpecific[affectedService];
+if (serviceCodes && !serviceCodes.includes(closureCode)) {
 result.hasWarning = true;
-result.feedback.push('الحل يجب أن يحتوي على إشارة للإنجاز (تم، انتهى، إلخ)');
+result.feedback.push(`كود الإغلاق "${closureCode}" غير معتاد للخدمة "${affectedService}"`);
 } else {
-result.feedback.push('الحل يحتوي على إشارة للإنجاز');
+result.feedback.push('كود الإغلاق مناسب للخدمة');
+}
+
+return result;
+}
+
+function validateCategory(category, affectedService) {
+const result = { isValid: true, hasWarning: false, feedback: [] };
+
+if (!category) {
+result.isValid = false;
+result.feedback.push('الفئة مطلوبة');
+return result;
+}
+
+if (!validationRules.categories.main.includes(category)) {
+result.isValid = false;
+result.feedback.push(`فئة غير صالحة: "${category}"`);
+return result;
+}
+
+// Check if category matches the affected service
+const serviceCategories = validationRules.categories.serviceMapping[affectedService];
+if (serviceCategories && !serviceCategories.includes(category)) {
+result.hasWarning = true;
+result.feedback.push(`الفئة "${category}" غير معتادة للخدمة "${affectedService}"`);
+} else {
+result.feedback.push(`الفئة مناسبة للخدمة`);
+}
+
+return result;
+}
+
+function validateSubcategory(category, subcategory) {
+const result = { isValid: true, hasWarning: false, feedback: [] };
+
+if (!subcategory) {
+result.isValid = false;
+result.feedback.push('الفئة الفرعية مطلوبة');
+return result;
+}
+
+const validSubcategories = validationRules.categories.subcategories[category];
+if (!validSubcategories || !validSubcategories.includes(subcategory)) {
+result.isValid = false;
+result.feedback.push(`فئة فرعية غير صالحة لـ "${category}"`);
+} else {
+result.feedback.push('الفئة الفرعية تطابق الفئة الرئيسية');
 }
 
 return result;
@@ -931,72 +770,27 @@ result.feedback.push('طريقة الحل مناسبة');
 return result;
 }
 
-function validateCaseNumbers(description, title, affectedService) {
+function validateInteractionId(interactionId) {
 const result = { isValid: true, hasWarning: false, feedback: [] };
 
-const hasCaseNumber = validationRules.title.caseNumberPatterns.some(pattern =>
-description.includes(pattern) || title.includes(pattern)
-);
+if (!interactionId) {
+result.isValid = false;
+result.feedback.push('رقم التذكرة (Interaction ID) مطلوب');
+return result;
+}
 
-if (!hasCaseNumber) {
-if (affectedService === 'CMS - SJC') {
+const interactionIdPattern = /^SD\d+$/;
+if (!interactionIdPattern.test(interactionId)) {
 result.hasWarning = true;
-result.feedback.push('مفقود رقم الدعوى في الوصف أو العنوان');
-} else if (affectedService === 'E-Services - SJC') {
-result.hasWarning = true;
-result.feedback.push('مفقود رقم الطلب في الوصف أو العنوان');
-}
+result.feedback.push('رقم التذكرة يجب أن يتبع التنسيق SD متبوعاً بأرقام');
 } else {
-// Extract and display case numbers
-const caseNumbers = [];
-validationRules.title.caseNumberPatterns.forEach(pattern => {
-if (description.includes(pattern)) {
-const startIndex = description.indexOf(pattern) + pattern.length;
-const restOfText = description.substring(startIndex, startIndex + 50);
-caseNumbers.push(`${pattern}: ${restOfText.split('\n')[0].substring(0, 30)}...`);
-}
-});
-
-if (caseNumbers.length > 0) {
-result.feedback.push(`تم العثور على: ${caseNumbers.join('، ')}`);
-} else {
-result.feedback.push('تم العثور على أرقام الدعاوى/الطلبات');
-}
+result.feedback.push('رقم التذكرة صحيح');
 }
 
 return result;
 }
 
-// ==================== EXISTING VALIDATION FUNCTIONS ====================
-function validateSingleTicket(ticket) {
-const validations = {
-title: validateTitle(ticket.Title),
-description: validateDescription(ticket.Description),
-solution: validateSolution(ticket.Solution),
-category: validateCategory(ticket.Category),
-subcategory: validateSubcategory(ticket.Category, ticket.Subcategory),
-classification: validateClassification(ticket.Classification),
-affectedService: validateAffectedService(ticket['Affected Service'], ticket.Description, ticket.Title),
-closureCode: validateClosureCode(ticket['Closure Code'], ticket.Solution),
-resolutionMethod: validateResolutionMethod(ticket['Resolution Method']),
-caseNumbers: validateCaseNumbers(ticket.Description, ticket.Title, ticket['Affected Service'])
-};
-
-const totalFields = Object.keys(validations).length;
-const validFields = Object.values(validations).filter(v => v.isValid).length;
-const warningFields = Object.values(validations).filter(v => v.hasWarning).length;
-
-const score = Math.round((validFields / totalFields) * 100);
-
-return {
-ticket,
-validations,
-score,
-isValid: score >= 70,
-hasWarnings: warningFields > 0
-};
-}
-
+// Enhanced validation functions
 function countWords(text) {
 if (!text) return 0;
 return text.trim().split(/[\s\u0600-\u06FF,.;:!?]+/).filter(word => word.length > 0).length;
@@ -1028,12 +822,12 @@ title.includes(keyword)
 );
 
 if (!hasKeyword) {
-result.isValid = false;
-result.feedback.push(`مفقود كلمات مفتاحية مطلوبة`);
+result.hasWarning = true;
+result.feedback.push(`يفضل إضافة كلمات مفتاحية مناسبة`);
 }
 
 if (result.feedback.length === 0) {
-result.feedback.push('العنوان يلبي جميع المتطلبات');
+result.feedback.push('العنوان يلبي المتطلبات');
 }
 
 return result;
@@ -1045,26 +839,31 @@ const result = { isValid: true, hasWarning: false, feedback: [] };
 if (!description || description.length < validationRules.description.minLength) {
 result.isValid = false;
 result.feedback.push(`الوصف قصير جداً (الحد الأدنى ${validationRules.description.minLength} حرف)`);
+return result;
 }
 
-validationRules.description.requiredElements.forEach(element => {
-if (!description.includes(element)) {
-result.hasWarning = true;
-result.feedback.push(`يفضل إضافة: ${element}`);
+// Check for case/request numbers using patterns
+const hasReference = validationRules.description.referencePatterns.some(pattern =>
+pattern.test(description)
+);
+
+if (!hasReference) {
+result.isValid = false;
+result.feedback.push('يجب ذكر رقم الدعوى أو الطلب أو البلاغ في الوصف (مثال: 14166/2025/جنحة/استئناف)');
 }
-});
 
-const technicalTermCount = validationRules.description.technicalTerms.filter(term =>
-description.includes(term)
-).length;
+// Check if description is just copied email (contains greetings)
+const isEmailCopy = description.includes('التحية والتقدير') ||
+description.includes('يرجى التكرم') ||
+description.includes('مع خالص الشكر');
 
-if (technicalTermCount < 2) {
+if (isEmailCopy) {
 result.hasWarning = true;
-result.feedback.push('أضف المزيد من التفاصيل التقنية');
+result.feedback.push('الوصف يحتوي على صيغ خطابية - يفضل صياغة الوصف بشكل تقني مباشر');
 }
 
 if (result.feedback.length === 0) {
-result.feedback.push('الوصف شامل وتقني');
+result.feedback.push('الوصف شامل ويحتوي على المراجع المطلوبة');
 }
 
 return result;
@@ -1076,65 +875,42 @@ const result = { isValid: true, hasWarning: false, feedback: [] };
 if (!solution || solution.length < validationRules.solution.minLength) {
 result.isValid = false;
 result.feedback.push(`الحل مختصر جداً (الحد الأدنى ${validationRules.solution.minLength} حرف)`);
+return result;
 }
 
-validationRules.solution.requiredElements.forEach(element => {
-if (!solution.includes(element)) {
-result.hasWarning = true;
-result.feedback.push(`مفقود: ${element}`);
-}
-});
-
+// Check for action words
 const hasActionWord = validationRules.solution.actionWords.some(word =>
 solution.includes(word)
 );
 
 if (!hasActionWord) {
+result.isValid = false;
+result.feedback.push('الحل يجب أن يحتوي على إشارة للإنجاز (تم، تمت، إلخ)');
+}
+
+// Check for weak solutions
+const hasForbiddenPhrase = validationRules.solution.forbiddenPhrases.some(phrase =>
+solution.includes(phrase)
+);
+
+if (hasForbiddenPhrase) {
 result.hasWarning = true;
-result.feedback.push('أضف إجراء محدد تم اتخاذه');
+result.feedback.push('الحل يحتوي على عبارات غير فعالة (يجب توضيح الإجراء الملموس)');
+}
+
+// Check if solution shows what was actually done
+const hasSpecificAction = solution.includes('تم إضافة') ||
+solution.includes('تم تعديل') ||
+solution.includes('تم إغلاق') ||
+solution.includes('تم التحقق');
+
+if (!hasSpecificAction) {
+result.hasWarning = true;
+result.feedback.push('يفضل توضيح الإجراء المحدد الذي تم تنفيذه');
 }
 
 if (result.feedback.length === 0) {
-result.feedback.push('الحل واضح وقابل للتنفيذ');
-}
-
-return result;
-}
-
-function validateCategory(category) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!category) {
-result.isValid = false;
-result.feedback.push('الفئة مطلوبة');
-return result;
-}
-
-if (!validationRules.categories.main.includes(category)) {
-result.isValid = false;
-result.feedback.push(`فئة غير صالحة`);
-} else {
-result.feedback.push('الفئة صالحة');
-}
-
-return result;
-}
-
-function validateSubcategory(category, subcategory) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!subcategory) {
-result.isValid = false;
-result.feedback.push('الفئة الفرعية مطلوبة');
-return result;
-}
-
-const validSubcategories = validationRules.categories.subcategories[category];
-if (!validSubcategories || !validSubcategories.includes(subcategory)) {
-result.isValid = false;
-result.feedback.push(`فئة فرعية غير صالحة لـ ${category}`);
-} else {
-result.feedback.push('الفئة الفرعية تطابق الفئة الرئيسية');
+result.feedback.push('الحل واضح ويوضح الإجراء والنتيجة');
 }
 
 return result;
@@ -1159,7 +935,28 @@ result.feedback.push('التصنيف مناسب');
 return result;
 }
 
-// ==================== FILE PROCESSING FUNCTIONS ====================
+// Duplicate detection function
+function detectPotentialDuplicates(tickets) {
+const duplicates = [];
+const titleMap = new Map();
+
+tickets.forEach((ticket, index) => {
+const simpleTitle = ticket.Title?.replace(/[^أ-يa-z0-9]/gi, '').toLowerCase();
+if (titleMap.has(simpleTitle)) {
+duplicates.push({
+ticket1: titleMap.get(simpleTitle),
+ticket2: index,
+title: ticket.Title
+});
+} else {
+titleMap.set(simpleTitle, index);
+}
+});
+
+return duplicates;
+}
+
+// File processing functions
 function handleFileUpload(event) {
 const file = event.target.files[0];
 if (!file) return;
@@ -1200,27 +997,35 @@ reader.readAsArrayBuffer(file);
 }
 }
 
-async function validateTickets(tickets) {
+function validateTickets(tickets) {
 const validationResults = tickets.map(ticket => validateSingleTicket(ticket));
+
+// Detect duplicates
+const duplicates = detectPotentialDuplicates(tickets);
+if (duplicates.length > 0) {
+console.log('Potential duplicates found:', duplicates);
+// Mark duplicates in results
+duplicates.forEach(dup => {
+validationResults[dup.ticket1].isDuplicate = true;
+validationResults[dup.ticket2].isDuplicate = true;
+});
+}
+
 currentValidationResults = validationResults;
+filteredResults = validationResults;
 displayResults(validationResults);
 updateSummaryStats(validationResults);
 
 document.getElementById('exportBtn').style.display = 'inline-block';
-
-if (currentUser) {
-await saveValidationHistory(tickets, validationResults);
-await loadValidationHistory();
-}
 }
 
-// ==================== UI FUNCTIONS ====================
+// UI functions
 function displayResults(results) {
 const container = document.getElementById('resultsContainer');
 container.innerHTML = '';
 
 if (results.length === 0) {
-container.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 2rem;">لا توجد تذاكر للتحقق</p>';
+container.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 2rem;">لا توجد تذاكر تطابق معايير التصفية</p>';
 return;
 }
 
@@ -1232,21 +1037,43 @@ container.appendChild(ticketCard);
 
 function createTicketCard(result, index) {
 const card = document.createElement('div');
-card.className = 'ticket-card arabic-text';
+const courtClass = `${result.courtType.toLowerCase()}-ticket`;
+card.className = `ticket-card arabic-text ${courtClass}`;
 
 const statusColor = result.isValid ? '#27ae60' : '#e74c3c';
 
+// Extract Interaction ID from the ticket data
+const interactionId = result.ticket['Interaction ID'] || result.ticket['Interaction_ID'] || 'غير معروف';
+
 card.innerHTML = `
 <div class="ticket-header">
-<div class="ticket-title">${result.ticket.Title || 'لا يوجد عنوان'}</div>
+<div class="ticket-title">
+<span class="service-badge">${result.ticket['Affected Service']}</span>
+${result.ticket.Title || 'لا يوجد عنوان'}
+<div class="interaction-id">رقم التذكرة: ${interactionId}</div>
+</div>
 <div class="validation-score" style="background: ${statusColor}">
 ${result.score}%
 </div>
 </div>
 
+${result.isDuplicate ? `
+<div class="duplicate-warning">
+⚠ تذكرة محتملة مكررة
+</div>
+` : ''}
+
 <div class="legal-highlight">
 <strong>الخدمة:</strong> ${result.ticket['Affected Service']} |
-<strong>كود الإغلاق:</strong> ${result.ticket['Closure Code']}
+<strong>كود الإغلاق:</strong> ${result.ticket['Closure Code']} |
+<strong>طريقة الحل:</strong> ${result.ticket['Resolution Method']}
+</div>
+
+<div class="priority-indicators">
+${!result.validations.description.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">وصف غير كافي</span>' : ''}
+${!result.validations.solution.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">حل غير فعال</span>' : ''}
+${result.validations.category.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">فئة غير مناسبة</span>' : ''}
+${result.validations.closureCode.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">كود إغلاق غير مناسب</span>' : ''}
 </div>
 
 <div class="validation-details">
@@ -1265,10 +1092,11 @@ ${validation.isValid ? (validation.hasWarning ? '⚠' : '✓') : '✗'}
 
 ${result.hasWarnings || !result.isValid ? `
 <div class="suggestions arabic-text">
-<strong>اقتراحات:</strong>
+<strong>اقتراحات للتحسين:</strong>
 <ul style="margin-top: 0.5rem; padding-right: 1.5rem;">
 ${!result.isValid ? '<li>راجع وأصلح الحقول غير الصالحة والمشار إليها ب ✗</li>' : ''}
 ${result.hasWarnings ? '<li>عالج التحذيرات المشار إليها ب ⚠ لتحسين الجودة</li>' : ''}
+${result.isDuplicate ? '<li>تحقق من التكرار المحتمل مع تذاكر أخرى</li>' : ''}
 </ul>
 </div>
 ` : ''}
@@ -1288,7 +1116,7 @@ classification: 'التصنيف',
 affectedService: 'الخدمة المتأثرة',
 closureCode: 'كود الإغلاق',
 resolutionMethod: 'طريقة الحل',
-caseNumbers: 'أرقام الدعاوى/الطلبات'
+interactionId: 'رقم التذكرة'
 };
 return fieldNames[field] || field;
 }
@@ -1297,15 +1125,74 @@ function updateSummaryStats(results) {
 const validCount = results.filter(r => r.isValid).length;
 const warningCount = results.filter(r => r.hasWarnings).length;
 const invalidCount = results.filter(r => !r.isValid).length;
+const totalCount = results.length;
 
 document.getElementById('validCount').textContent = validCount;
 document.getElementById('warningCount').textContent = warningCount;
 document.getElementById('invalidCount').textContent = invalidCount;
+document.getElementById('totalCount').textContent = totalCount;
+}
+
+function filterTicketsByCourt(courtType) {
+// Update active filter button
+document.querySelectorAll('.court-filter-btn').forEach(btn => {
+btn.classList.remove('active');
+});
+event.target.classList.add('active');
+
+if (courtType === 'all') {
+filteredResults = currentValidationResults;
+} else {
+filteredResults = currentValidationResults.filter(result => result.courtType === courtType);
+}
+
+displayResults(filteredResults);
+updateSummaryStats(filteredResults);
 }
 
 function validateSampleData() {
 const loadingIndicator = document.getElementById('loadingIndicator');
 loadingIndicator.style.display = 'block';
+
+// Updated sample data based on actual CSV
+const sampleTickets = [
+{
+"Affected Service": "CMS - SJC",
+"Description": "يرجى من سادتكم التكرم بإضافة النيابة على الدعوى رقم (14166/2025/جنحة/استئناف) حسب اختصاص الدائرة لذلك لإكمال اجراء طلب الاستئناف",
+"Closure Code": "Application",
+"Title": "طلب اضافة النيابة على الدعوى",
+"Category": "CMS - Cases",
+"Subcategory": "Case Details",
+"Classification": "add case subject",
+"Resolution Method": "Remote resolution",
+"Solution": "تم إضافة النيابة المختصة(قضايا الشيكات) وتم إعادة جدولة الدعوى رقم 14166/2025/جنحة/استئناف",
+"Interaction ID": "SD1664592"
+},
+{
+"Affected Service": "OSS - SJC",
+"Description": "يُرجي العلم بأنه توجد مشكلة في قبول البلاغات في النظام ( امر جنائي - شؤون الاقامه ) حيث تظهر رسالة بأنه لا يمكن إيجاد الدائرة وتاريخ الجلسة",
+"Closure Code": "Application",
+"Title": "مشكلة في قبول بلاغات امر جنائي اقامة",
+"Category": "CMS - Cases",
+"Subcategory": "Case Related Case",
+"Classification": "add related case",
+"Resolution Method": "Remote resolution",
+"Solution": "يرجى العلم انه لا يوجد مشكلة بتسجيل وانما تم ايقاف التسجيل سابقا بقرار من ادارة المحكمة",
+"Interaction ID": "SD1666246"
+},
+{
+"Affected Service": "Workplace Services - SJC",
+"Description": "يُرجي العلم بأنه توجد مشكلة في قبول البلاغات في النظام ( امر جنائي – مرور /ق ) حيث تظهر رسالة بأنه لا يمكن إيجاد الدائرة وتاريخ الجلسة",
+"Closure Code": "Application",
+"Title": "مشكله في قبول بعض البلاغات",
+"Category": "CMS - Cases",
+"Subcategory": "technical issue",
+"Classification": "error message",
+"Resolution Method": "Remote resolution",
+"Solution": "يرجى العلم وبناء على إفادة القسم التقني بعدم وجود اشكالية بنظام",
+"Interaction ID": "SD1670691"
+}
+];
 
 setTimeout(() => {
 validateTickets(sampleTickets);
@@ -1319,12 +1206,13 @@ alert('لا توجد نتائج لتصديرها');
 return;
 }
 
-let csvContent = "Title,Score,Status,Affected Service,Closure Code,Category,Subcategory,Classification\n";
+let csvContent = "Interaction ID,Title,Score,Status,Court Type,Affected Service,Closure Code,Category,Subcategory,Classification,Resolution Method\n";
 
 currentValidationResults.forEach(result => {
 const ticket = result.ticket;
+const interactionId = ticket['Interaction ID'] || ticket['Interaction_ID'] || 'N/A';
 const status = result.isValid ? "Valid" : "Invalid";
-csvContent += `"${ticket.Title}",${result.score},${status},${ticket['Affected Service']},${ticket['Closure Code']},${ticket.Category},${ticket.Subcategory},${ticket.Classification}\n`;
+csvContent += `"${interactionId}","${ticket.Title}",${result.score},${status},${result.courtType},${ticket['Affected Service']},${ticket['Closure Code']},${ticket.Category},${ticket.Subcategory},${ticket.Classification},${ticket['Resolution Method']}\n`;
 });
 
 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1338,233 +1226,11 @@ link.click();
 document.body.removeChild(link);
 }
 
-// ==================== FIREBASE DATA FUNCTIONS ====================
-async function loadValidationRules() {
-try {
-const rulesDoc = await db.collection('settings').doc('validationRules').get();
-if (rulesDoc.exists) {
-const firebaseRules = rulesDoc.data();
-
-if (firebaseRules.titleKeywords) validationRules.title.requiredKeywords = firebaseRules.titleKeywords;
-if (firebaseRules.categories) validationRules.categories.main = firebaseRules.categories;
-if (firebaseRules.classifications) validationRules.classifications = firebaseRules.classifications;
-if (firebaseRules.titleMaxWords) validationRules.title.maxWords = firebaseRules.titleMaxWords;
-if (firebaseRules.descMinLength) validationRules.description.minLength = firebaseRules.descMinLength;
-
-refreshKeywordList();
-refreshCategoriesList();
-refreshServicesList();
-updateSettingsUI();
-}
-} catch (error) {
-console.error('Error loading validation rules:', error);
-}
-}
-
-async function saveValidationRules() {
-try {
-await db.collection('settings').doc('validationRules').set({
-titleKeywords: validationRules.title.requiredKeywords,
-categories: validationRules.categories.main,
-classifications: validationRules.classifications,
-titleMaxWords: validationRules.title.maxWords,
-descMinLength: validationRules.description.minLength,
-updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-updatedBy: currentUser.uid
-}, { merge: true });
-} catch (error) {
-console.error('Error saving validation rules:', error);
-}
-}
-
-async function addKeyword() {
-const keywordInput = document.getElementById('newKeyword');
-const keyword = keywordInput.value.trim();
-
-if (keyword && currentUser) {
-if (!validationRules.title.requiredKeywords.includes(keyword)) {
-validationRules.title.requiredKeywords.push(keyword);
-await saveValidationRules();
-refreshKeywordList();
-keywordInput.value = '';
-}
-}
-}
-
-async function removeKeyword(keyword) {
-if (currentUser) {
-const index = validationRules.title.requiredKeywords.indexOf(keyword);
-if (index > -1) {
-validationRules.title.requiredKeywords.splice(index, 1);
-await saveValidationRules();
-refreshKeywordList();
-}
-}
-}
-
-function refreshKeywordList() {
-const keywordList = document.getElementById('keywordsList');
-keywordList.innerHTML = '';
-
-validationRules.title.requiredKeywords.forEach(keyword => {
-const listItem = document.createElement('li');
-listItem.className = 'keyword-item';
-listItem.innerHTML = `
-${keyword}
-<button onclick="removeKeyword('${keyword}')">حذف</button>
-`;
-keywordList.appendChild(listItem);
-});
-}
-
-function refreshCategoriesList() {
-const categoriesList = document.getElementById('categoriesList');
-categoriesList.innerHTML = '';
-
-validationRules.categories.main.forEach(category => {
-const listItem = document.createElement('li');
-listItem.className = 'keyword-item';
-listItem.innerHTML = `
-${category}
-`;
-categoriesList.appendChild(listItem);
-});
-
-const classificationsList = document.getElementById('classificationsList');
-classificationsList.innerHTML = '';
-
-validationRules.classifications.forEach(classification => {
-const listItem = document.createElement('li');
-listItem.className = 'keyword-item';
-listItem.innerHTML = `
-${classification}
-`;
-classificationsList.appendChild(listItem);
-});
-}
-
-function refreshServicesList() {
-const servicesList = document.getElementById('servicesList');
-servicesList.innerHTML = '';
-
-validationRules.affectedService.validServices.forEach(service => {
-const listItem = document.createElement('li');
-listItem.className = 'keyword-item';
-listItem.innerHTML = `
-${service}
-`;
-servicesList.appendChild(listItem);
-});
-
-const closureCodesList = document.getElementById('closureCodesList');
-closureCodesList.innerHTML = '';
-
-validationRules.closureCode.validCodes.forEach(code => {
-const listItem = document.createElement('li');
-listItem.className = 'keyword-item';
-listItem.innerHTML = `
-${code}
-`;
-closureCodesList.appendChild(listItem);
-});
-}
-
-function updateSettingsUI() {
-document.getElementById('titleMaxWords').value = validationRules.title.maxWords;
-document.getElementById('descMinLength').value = validationRules.description.minLength;
-}
-
-async function saveValidationHistory(tickets, results) {
-if (!currentUser) return;
-
-try {
-await db.collection('validationHistory').add({
-userId: currentUser.uid,
-userName: document.getElementById('userName').textContent,
-ticketsCount: tickets.length,
-validCount: results.filter(r => r.isValid).length,
-invalidCount: results.filter(r => !r.isValid).length,
-timestamp: firebase.firestore.FieldValue.serverTimestamp()
-});
-} catch (error) {
-console.error('Error saving validation history:', error);
-}
-}
-
-async function loadValidationHistory() {
-try {
-const historySnapshot = await db.collection('validationHistory')
-.orderBy('timestamp', 'desc')
-.limit(20)
-.get();
-
-const historyContainer = document.getElementById('validationHistory');
-historyContainer.innerHTML = '';
-
-if (historySnapshot.empty) {
-historyContainer.innerHTML = '<p>لا توجد سجلات سابقة</p>';
-return;
-}
-
-historySnapshot.forEach(doc => {
-const history = doc.data();
-const historyItem = document.createElement('div');
-historyItem.className = 'history-item';
-
-const date = history.timestamp ? history.timestamp.toDate().toLocaleString('ar-EG') : 'غير معروف';
-
-historyItem.innerHTML = `
-<div><strong>${history.userName}</strong></div>
-<div>${date}</div>
-<div>${history.ticketsCount} تذاكر - ${history.validCount} صالحة - ${history.invalidCount} غير صالحة</div>
-`;
-historyContainer.appendChild(historyItem);
-});
-} catch (error) {
-console.error('Error loading validation history:', error);
-}
-}
-
-function showMessage(containerId, message, type) {
-const container = document.getElementById(containerId);
-const messageClass = type === 'error' ? 'error-message' : 'success-message';
-container.innerHTML = `<div class="${messageClass}">${message}</div>`;
-
-setTimeout(() => {
-container.innerHTML = '';
-}, 5000);
-}
-
-function switchAdminTab(tabName) {
-document.querySelectorAll('.admin-content').forEach(tab => {
-tab.classList.remove('active');
-});
-
-document.querySelectorAll('.admin-tab').forEach(tab => {
-tab.classList.remove('active');
-});
-
-document.getElementById(tabName + 'Tab').classList.add('active');
-event.target.classList.add('active');
-}
-
-// ==================== INITIALIZATION ====================
+// Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
 document.getElementById('uploadArea').addEventListener('click', () => {
 document.getElementById('fileInput').click();
-});
-
-document.getElementById('loginPassword').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') login();
-});
-
-document.getElementById('registerPassword').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') register();
-});
-
-document.getElementById('newKeyword').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') addKeyword();
 });
 });
 </script>
