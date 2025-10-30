@@ -5,10 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام التحقق من التذاكر - متعدد المحاكم</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <style>
 * {
 margin: 0;
@@ -82,6 +78,11 @@ margin-bottom: 1.5rem;
 }
 
 .upload-area:hover {
+background: #d6eaf8;
+border-color: #2980b9;
+}
+
+.upload-area.drag-over {
 background: #d6eaf8;
 border-color: #2980b9;
 }
@@ -395,6 +396,35 @@ margin: 0.25rem 0;
 border-radius: 3px;
 font-family: monospace;
 }
+
+.error-message {
+background: #f8d7da;
+color: #721c24;
+padding: 1rem;
+border-radius: 5px;
+margin: 1rem 0;
+text-align: center;
+border-right: 4px solid #dc3545;
+}
+
+.file-info {
+background: #d1ecf1;
+color: #0c5460;
+padding: 1rem;
+border-radius: 5px;
+margin: 1rem 0;
+border-right: 4px solid #17a2b8;
+}
+
+.debug-info {
+background: #e2e3e5;
+color: #383d41;
+padding: 0.5rem;
+border-radius: 3px;
+margin: 0.25rem 0;
+font-family: monospace;
+font-size: 0.8rem;
+}
 </style>
 </head>
 <body>
@@ -430,6 +460,15 @@ font-family: monospace;
 <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv, .txt">
 </div>
 
+<div id="fileInfo" class="file-info" style="display: none;">
+<strong>معلومات الملف:</strong>
+<div id="fileDetails"></div>
+</div>
+
+<div id="uploadError" class="error-message" style="display: none;">
+<!-- Error messages will appear here -->
+</div>
+
 <div class="criteria-section">
 <h4>🔍 معايير التحقق المحسنة</h4>
 <ul class="criteria-list">
@@ -450,6 +489,9 @@ font-family: monospace;
 </button>
 <button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">
 تصدير النتائج
+</button>
+<button class="btn btn-danger" onclick="clearResults()" id="clearBtn" style="display: none;">
+مسح النتائج
 </button>
 </div>
 
@@ -626,17 +668,18 @@ let filteredResults = [];
 
 // Enhanced validation functions for multiple courts
 function validateSingleTicket(ticket) {
+try {
 const validations = {
-title: validateTitle(ticket.Title),
-description: validateDescription(ticket.Description),
-solution: validateSolution(ticket.Solution),
-category: validateCategory(ticket.Category, ticket['Affected Service']),
-subcategory: validateSubcategory(ticket.Category, ticket.Subcategory),
-classification: validateClassification(ticket.Classification),
-affectedService: validateAffectedService(ticket['Affected Service']),
-closureCode: validateClosureCode(ticket['Closure Code'], ticket['Affected Service']),
-resolutionMethod: validateResolutionMethod(ticket['Resolution Method']),
-interactionId: validateInteractionId(ticket['Interaction ID'] || ticket['Interaction_ID'])
+title: validateTitle(ticket.Title || ticket.title || ''),
+description: validateDescription(ticket.Description || ticket.description || ''),
+solution: validateSolution(ticket.Solution || ticket.solution || ''),
+category: validateCategory(ticket.Category || ticket.category || '', ticket['Affected Service'] || ticket.affectedService || ''),
+subcategory: validateSubcategory(ticket.Category || ticket.category || '', ticket.Subcategory || ticket.subcategory || ''),
+classification: validateClassification(ticket.Classification || ticket.classification || ''),
+affectedService: validateAffectedService(ticket['Affected Service'] || ticket.affectedService || ''),
+closureCode: validateClosureCode(ticket['Closure Code'] || ticket.closureCode || '', ticket['Affected Service'] || ticket.affectedService || ''),
+resolutionMethod: validateResolutionMethod(ticket['Resolution Method'] || ticket.resolutionMethod || ''),
+interactionId: validateInteractionId(ticket['Interaction ID'] || ticket['Interaction_ID'] || ticket.interactionId || '')
 };
 
 const totalFields = Object.keys(validations).length;
@@ -646,7 +689,7 @@ const warningFields = Object.values(validations).filter(v => v.hasWarning).lengt
 const score = Math.round((validFields / totalFields) * 100);
 
 // Determine court type for filtering
-const courtType = validationRules.affectedService.courtMapping[ticket['Affected Service']] || 'Other';
+const courtType = validationRules.affectedService.courtMapping[ticket['Affected Service'] || ticket.affectedService || ''] || 'Other';
 
 return {
 ticket,
@@ -656,6 +699,18 @@ courtType: courtType,
 isValid: score >= 70,
 hasWarnings: warningFields > 0
 };
+} catch (error) {
+console.error('Error validating ticket:', ticket, error);
+return {
+ticket,
+validations: {},
+score: 0,
+courtType: 'Error',
+isValid: false,
+hasWarnings: false,
+error: error.message
+};
+}
 }
 
 function validateAffectedService(service) {
@@ -956,24 +1011,32 @@ titleMap.set(simpleTitle, index);
 return duplicates;
 }
 
-// File processing functions
+// File processing functions with better error handling
 function handleFileUpload(event) {
 const file = event.target.files[0];
 if (!file) return;
 
+// Reset previous results
+clearError();
+hideFileInfo();
+
 const loadingIndicator = document.getElementById('loadingIndicator');
 loadingIndicator.style.display = 'block';
+
+// Show file info
+showFileInfo(file);
 
 setTimeout(() => {
 processExcelFile(file);
 loadingIndicator.style.display = 'none';
-}, 1000);
+}, 500);
 }
 
 function processExcelFile(file) {
 const reader = new FileReader();
 
 reader.onload = function(e) {
+try {
 const data = new Uint8Array(e.target.result);
 let workbook;
 
@@ -984,10 +1047,32 @@ workbook = XLSX.read(csvData, { type: 'string', raw: true });
 workbook = XLSX.read(data, { type: 'array' });
 }
 
+console.log('Workbook sheets:', workbook.SheetNames);
+
 const worksheet = workbook.Sheets[workbook.SheetNames[0]];
 const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+console.log('Parsed data:', jsonData);
+
+if (jsonData.length === 0) {
+showError('الملف لا يحتوي على بيانات أو تنسيق الملف غير صحيح');
+return;
+}
+
+// Show column names for debugging
+const firstRow = jsonData[0];
+console.log('Column names:', Object.keys(firstRow));
+showDebugInfo('أسماء الأعمدة المكتشفة: ' + Object.keys(firstRow).join(', '));
+
 validateTickets(jsonData);
+} catch (error) {
+console.error('Error processing file:', error);
+showError('خطأ في معالجة الملف: ' + error.message);
+}
+};
+
+reader.onerror = function() {
+showError('خطأ في قراءة الملف');
 };
 
 if (file.name.endsWith('.csv')) {
@@ -998,6 +1083,9 @@ reader.readAsArrayBuffer(file);
 }
 
 function validateTickets(tickets) {
+try {
+console.log('Starting validation of', tickets.length, 'tickets');
+
 const validationResults = tickets.map(ticket => validateSingleTicket(ticket));
 
 // Detect duplicates
@@ -1006,8 +1094,8 @@ if (duplicates.length > 0) {
 console.log('Potential duplicates found:', duplicates);
 // Mark duplicates in results
 duplicates.forEach(dup => {
-validationResults[dup.ticket1].isDuplicate = true;
-validationResults[dup.ticket2].isDuplicate = true;
+if (validationResults[dup.ticket1]) validationResults[dup.ticket1].isDuplicate = true;
+if (validationResults[dup.ticket2]) validationResults[dup.ticket2].isDuplicate = true;
 });
 }
 
@@ -1017,9 +1105,16 @@ displayResults(validationResults);
 updateSummaryStats(validationResults);
 
 document.getElementById('exportBtn').style.display = 'inline-block';
+document.getElementById('clearBtn').style.display = 'inline-block';
+
+console.log('Validation completed successfully');
+} catch (error) {
+console.error('Error validating tickets:', error);
+showError('خطأ في التحقق من التذاكر: ' + error.message);
+}
 }
 
-// UI functions
+// UI functions with better error handling
 function displayResults(results) {
 const container = document.getElementById('resultsContainer');
 container.innerHTML = '';
@@ -1043,13 +1138,13 @@ card.className = `ticket-card arabic-text ${courtClass}`;
 const statusColor = result.isValid ? '#27ae60' : '#e74c3c';
 
 // Extract Interaction ID from the ticket data
-const interactionId = result.ticket['Interaction ID'] || result.ticket['Interaction_ID'] || 'غير معروف';
+const interactionId = result.ticket['Interaction ID'] || result.ticket['Interaction_ID'] || result.ticket.interactionId || 'غير معروف';
 
 card.innerHTML = `
 <div class="ticket-header">
 <div class="ticket-title">
-<span class="service-badge">${result.ticket['Affected Service']}</span>
-${result.ticket.Title || 'لا يوجد عنوان'}
+<span class="service-badge">${result.ticket['Affected Service'] || result.ticket.affectedService || 'غير محدد'}</span>
+${result.ticket.Title || result.ticket.title || 'لا يوجد عنوان'}
 <div class="interaction-id">رقم التذكرة: ${interactionId}</div>
 </div>
 <div class="validation-score" style="background: ${statusColor}">
@@ -1063,19 +1158,26 @@ ${result.isDuplicate ? `
 </div>
 ` : ''}
 
+${result.error ? `
+<div class="error-message">
+خطأ في التحقق: ${result.error}
+</div>
+` : ''}
+
 <div class="legal-highlight">
-<strong>الخدمة:</strong> ${result.ticket['Affected Service']} |
-<strong>كود الإغلاق:</strong> ${result.ticket['Closure Code']} |
-<strong>طريقة الحل:</strong> ${result.ticket['Resolution Method']}
+<strong>الخدمة:</strong> ${result.ticket['Affected Service'] || result.ticket.affectedService || 'غير محدد'} |
+<strong>كود الإغلاق:</strong> ${result.ticket['Closure Code'] || result.ticket.closureCode || 'غير محدد'} |
+<strong>طريقة الحل:</strong> ${result.ticket['Resolution Method'] || result.ticket.resolutionMethod || 'غير محدد'}
 </div>
 
 <div class="priority-indicators">
-${!result.validations.description.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">وصف غير كافي</span>' : ''}
-${!result.validations.solution.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">حل غير فعال</span>' : ''}
-${result.validations.category.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">فئة غير مناسبة</span>' : ''}
-${result.validations.closureCode.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">كود إغلاق غير مناسب</span>' : ''}
+${!result.validations.description || !result.validations.description.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">وصف غير كافي</span>' : ''}
+${!result.validations.solution || !result.validations.solution.isValid ? '<span style="background: #e74c3c; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">حل غير فعال</span>' : ''}
+${result.validations.category && result.validations.category.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">فئة غير مناسبة</span>' : ''}
+${result.validations.closureCode && result.validations.closureCode.hasWarning ? '<span style="background: #f39c12; color: white; padding: 2px 8px; border-radius: 10px; font-size: 0.8rem;">كود إغلاق غير مناسب</span>' : ''}
 </div>
 
+${result.validations ? `
 <div class="validation-details">
 ${Object.entries(result.validations).map(([field, validation]) => `
 <div class="field-validation">
@@ -1089,6 +1191,7 @@ ${validation.isValid ? (validation.hasWarning ? '⚠' : '✓') : '✗'}
 </div>
 `).join('')}
 </div>
+` : ''}
 
 ${result.hasWarnings || !result.isValid ? `
 <div class="suggestions arabic-text">
@@ -1210,9 +1313,9 @@ let csvContent = "Interaction ID,Title,Score,Status,Court Type,Affected Service,
 
 currentValidationResults.forEach(result => {
 const ticket = result.ticket;
-const interactionId = ticket['Interaction ID'] || ticket['Interaction_ID'] || 'N/A';
+const interactionId = ticket['Interaction ID'] || ticket['Interaction_ID'] || ticket.interactionId || 'N/A';
 const status = result.isValid ? "Valid" : "Invalid";
-csvContent += `"${interactionId}","${ticket.Title}",${result.score},${status},${result.courtType},${ticket['Affected Service']},${ticket['Closure Code']},${ticket.Category},${ticket.Subcategory},${ticket.Classification},${ticket['Resolution Method']}\n`;
+csvContent += `"${interactionId}","${ticket.Title || ticket.title || ''}",${result.score},${status},${result.courtType},${ticket['Affected Service'] || ticket.affectedService || ''},${ticket['Closure Code'] || ticket.closureCode || ''},${ticket.Category || ticket.category || ''},${ticket.Subcategory || ticket.subcategory || ''},${ticket.Classification || ticket.classification || ''},${ticket['Resolution Method'] || ticket.resolutionMethod || ''}\n`;
 });
 
 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1226,12 +1329,86 @@ link.click();
 document.body.removeChild(link);
 }
 
-// Initialize the application
+function clearResults() {
+currentValidationResults = [];
+filteredResults = [];
+document.getElementById('resultsContainer').innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 2rem;">قم بتحميل ملف Excel أو CSV لرؤية نتائج التحقق</p>';
+updateSummaryStats([]);
+document.getElementById('exportBtn').style.display = 'none';
+document.getElementById('clearBtn').style.display = 'none';
+clearError();
+hideFileInfo();
+}
+
+function showError(message) {
+const errorDiv = document.getElementById('uploadError');
+errorDiv.innerHTML = message;
+errorDiv.style.display = 'block';
+}
+
+function clearError() {
+const errorDiv = document.getElementById('uploadError');
+errorDiv.style.display = 'none';
+errorDiv.innerHTML = '';
+}
+
+function showFileInfo(file) {
+const fileInfoDiv = document.getElementById('fileInfo');
+const fileDetailsDiv = document.getElementById('fileDetails');
+
+fileDetailsDiv.innerHTML = `
+<div>اسم الملف: ${file.name}</div>
+<div>حجم الملف: ${(file.size / 1024).toFixed(2)} كيلوبايت</div>
+<div>نوع الملف: ${file.type || 'غير معروف'}</div>
+`;
+
+fileInfoDiv.style.display = 'block';
+}
+
+function hideFileInfo() {
+document.getElementById('fileInfo').style.display = 'none';
+}
+
+function showDebugInfo(message) {
+const fileDetailsDiv = document.getElementById('fileDetails');
+const debugDiv = document.createElement('div');
+debugDiv.className = 'debug-info';
+debugDiv.textContent = message;
+fileDetailsDiv.appendChild(debugDiv);
+}
+
+// Initialize the application with better event handling
 document.addEventListener('DOMContentLoaded', function() {
-document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-document.getElementById('uploadArea').addEventListener('click', () => {
-document.getElementById('fileInput').click();
+const fileInput = document.getElementById('fileInput');
+const uploadArea = document.getElementById('uploadArea');
+
+fileInput.addEventListener('change', handleFileUpload);
+
+uploadArea.addEventListener('click', () => {
+fileInput.click();
 });
+
+// Drag and drop support
+uploadArea.addEventListener('dragover', (e) => {
+e.preventDefault();
+uploadArea.classList.add('drag-over');
+});
+
+uploadArea.addEventListener('dragleave', () => {
+uploadArea.classList.remove('drag-over');
+});
+
+uploadArea.addEventListener('drop', (e) => {
+e.preventDefault();
+uploadArea.classList.remove('drag-over');
+
+if (e.dataTransfer.files.length) {
+fileInput.files = e.dataTransfer.files;
+handleFileUpload({ target: fileInput });
+}
+});
+
+console.log('Application initialized successfully');
 });
 </script>
 </body>
