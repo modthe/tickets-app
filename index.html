@@ -622,6 +622,14 @@ serviceSpecific: {
 }
 },
 
+// FIXED: Added resolutionMethod validation rules
+resolutionMethod: {
+validMethods: [
+'Remote resolution', 'Site Visit', 'Remote Resolution - BOMGAR / Teamviewer',
+'Client Resolved', 'Remote Resolution - Phone', 'On-site support'
+]
+},
+
 // Enhanced category validation based on actual data analysis
 categories: {
 main: [
@@ -669,30 +677,46 @@ let filteredResults = [];
 // Enhanced validation functions for multiple courts
 function validateSingleTicket(ticket) {
 try {
+// Safe data extraction with fallbacks
+const ticketData = {
+title: ticket.Title || ticket.title || '',
+description: ticket.Description || ticket.description || '',
+solution: ticket.Solution || ticket.solution || '',
+category: ticket.Category || ticket.category || '',
+subcategory: ticket.Subcategory || ticket.subcategory || '',
+classification: ticket.Classification || ticket.classification || '',
+affectedService: ticket['Affected Service'] || ticket.affectedService || '',
+closureCode: ticket['Closure Code'] || ticket.closureCode || '',
+resolutionMethod: ticket['Resolution Method'] || ticket.resolutionMethod || '',
+interactionId: ticket['Interaction ID'] || ticket['Interaction_ID'] || ticket.interactionId || ''
+};
+
+console.log('Processing ticket:', ticketData);
+
 const validations = {
-title: validateTitle(ticket.Title || ticket.title || ''),
-description: validateDescription(ticket.Description || ticket.description || ''),
-solution: validateSolution(ticket.Solution || ticket.solution || ''),
-category: validateCategory(ticket.Category || ticket.category || '', ticket['Affected Service'] || ticket.affectedService || ''),
-subcategory: validateSubcategory(ticket.Category || ticket.category || '', ticket.Subcategory || ticket.subcategory || ''),
-classification: validateClassification(ticket.Classification || ticket.classification || ''),
-affectedService: validateAffectedService(ticket['Affected Service'] || ticket.affectedService || ''),
-closureCode: validateClosureCode(ticket['Closure Code'] || ticket.closureCode || '', ticket['Affected Service'] || ticket.affectedService || ''),
-resolutionMethod: validateResolutionMethod(ticket['Resolution Method'] || ticket.resolutionMethod || ''),
-interactionId: validateInteractionId(ticket['Interaction ID'] || ticket['Interaction_ID'] || ticket.interactionId || '')
+title: validateTitle(ticketData.title),
+description: validateDescription(ticketData.description),
+solution: validateSolution(ticketData.solution),
+category: validateCategory(ticketData.category, ticketData.affectedService),
+subcategory: validateSubcategory(ticketData.category, ticketData.subcategory),
+classification: validateClassification(ticketData.classification),
+affectedService: validateAffectedService(ticketData.affectedService),
+closureCode: validateClosureCode(ticketData.closureCode, ticketData.affectedService),
+resolutionMethod: validateResolutionMethod(ticketData.resolutionMethod),
+interactionId: validateInteractionId(ticketData.interactionId)
 };
 
 const totalFields = Object.keys(validations).length;
-const validFields = Object.values(validations).filter(v => v.isValid).length;
-const warningFields = Object.values(validations).filter(v => v.hasWarning).length;
+const validFields = Object.values(validations).filter(v => v && v.isValid).length;
+const warningFields = Object.values(validations).filter(v => v && v.hasWarning).length;
 
-const score = Math.round((validFields / totalFields) * 100);
+const score = totalFields > 0 ? Math.round((validFields / totalFields) * 100) : 0;
 
 // Determine court type for filtering
-const courtType = validationRules.affectedService.courtMapping[ticket['Affected Service'] || ticket.affectedService || ''] || 'Other';
+const courtType = validationRules.affectedService.courtMapping[ticketData.affectedService] || 'Other';
 
 return {
-ticket,
+ticket: ticketData,
 validations,
 score,
 courtType: courtType,
@@ -702,7 +726,7 @@ hasWarnings: warningFields > 0
 } catch (error) {
 console.error('Error validating ticket:', ticket, error);
 return {
-ticket,
+ticket: ticket,
 validations: {},
 score: 0,
 courtType: 'Error',
@@ -815,9 +839,14 @@ result.feedback.push('طريقة الحل مطلوبة');
 return result;
 }
 
-if (!validationRules.resolutionMethod.validMethods.includes(method)) {
+// FIXED: Added safe access to resolutionMethod rules
+const validMethods = validationRules.resolutionMethod?.validMethods || [];
+if (validMethods.length === 0) {
 result.hasWarning = true;
-result.feedback.push(`طريقة حل غير معتمدة. الخيارات الموصى بها: ${validationRules.resolutionMethod.validMethods.join(', ')}`);
+result.feedback.push('لا توجد طرق حل معتمدة محددة في النظام');
+} else if (!validMethods.includes(method)) {
+result.hasWarning = true;
+result.feedback.push(`طريقة حل غير معتمدة. الخيارات الموصى بها: ${validMethods.join(', ')}`);
 } else {
 result.feedback.push('طريقة الحل مناسبة');
 }
@@ -996,12 +1025,13 @@ const duplicates = [];
 const titleMap = new Map();
 
 tickets.forEach((ticket, index) => {
-const simpleTitle = ticket.Title?.replace(/[^أ-يa-z0-9]/gi, '').toLowerCase();
-if (titleMap.has(simpleTitle)) {
+const title = ticket.Title || ticket.title || '';
+const simpleTitle = title.replace(/[^أ-يa-z0-9]/gi, '').toLowerCase();
+if (titleMap.has(simpleTitle) && simpleTitle.length > 3) {
 duplicates.push({
 ticket1: titleMap.get(simpleTitle),
 ticket2: index,
-title: ticket.Title
+title: title
 });
 } else {
 titleMap.set(simpleTitle, index);
@@ -1125,8 +1155,12 @@ return;
 }
 
 results.forEach((result, index) => {
+try {
 const ticketCard = createTicketCard(result, index);
 container.appendChild(ticketCard);
+} catch (error) {
+console.error('Error creating ticket card:', error);
+}
 });
 }
 
@@ -1137,15 +1171,12 @@ card.className = `ticket-card arabic-text ${courtClass}`;
 
 const statusColor = result.isValid ? '#27ae60' : '#e74c3c';
 
-// Extract Interaction ID from the ticket data
-const interactionId = result.ticket['Interaction ID'] || result.ticket['Interaction_ID'] || result.ticket.interactionId || 'غير معروف';
-
 card.innerHTML = `
 <div class="ticket-header">
 <div class="ticket-title">
-<span class="service-badge">${result.ticket['Affected Service'] || result.ticket.affectedService || 'غير محدد'}</span>
-${result.ticket.Title || result.ticket.title || 'لا يوجد عنوان'}
-<div class="interaction-id">رقم التذكرة: ${interactionId}</div>
+<span class="service-badge">${result.ticket.affectedService || 'غير محدد'}</span>
+${result.ticket.title || 'لا يوجد عنوان'}
+<div class="interaction-id">رقم التذكرة: ${result.ticket.interactionId || 'غير معروف'}</div>
 </div>
 <div class="validation-score" style="background: ${statusColor}">
 ${result.score}%
@@ -1165,9 +1196,9 @@ ${result.error ? `
 ` : ''}
 
 <div class="legal-highlight">
-<strong>الخدمة:</strong> ${result.ticket['Affected Service'] || result.ticket.affectedService || 'غير محدد'} |
-<strong>كود الإغلاق:</strong> ${result.ticket['Closure Code'] || result.ticket.closureCode || 'غير محدد'} |
-<strong>طريقة الحل:</strong> ${result.ticket['Resolution Method'] || result.ticket.resolutionMethod || 'غير محدد'}
+<strong>الخدمة:</strong> ${result.ticket.affectedService || 'غير محدد'} |
+<strong>كود الإغلاق:</strong> ${result.ticket.closureCode || 'غير محدد'} |
+<strong>طريقة الحل:</strong> ${result.ticket.resolutionMethod || 'غير محدد'}
 </div>
 
 <div class="priority-indicators">
@@ -1179,7 +1210,7 @@ ${result.validations.closureCode && result.validations.closureCode.hasWarning ? 
 
 ${result.validations ? `
 <div class="validation-details">
-${Object.entries(result.validations).map(([field, validation]) => `
+${Object.entries(result.validations).map(([field, validation]) => validation ? `
 <div class="field-validation">
 <div class="validation-icon ${validation.isValid ? (validation.hasWarning ? 'warning' : 'valid') : 'invalid'}">
 ${validation.isValid ? (validation.hasWarning ? '⚠' : '✓') : '✗'}
@@ -1189,7 +1220,7 @@ ${validation.isValid ? (validation.hasWarning ? '⚠' : '✓') : '✗'}
 <div class="field-feedback">${validation.feedback.join(' • ')}</div>
 </div>
 </div>
-`).join('')}
+` : '').join('')}
 </div>
 ` : ''}
 
@@ -1282,18 +1313,6 @@ const sampleTickets = [
 "Resolution Method": "Remote resolution",
 "Solution": "يرجى العلم انه لا يوجد مشكلة بتسجيل وانما تم ايقاف التسجيل سابقا بقرار من ادارة المحكمة",
 "Interaction ID": "SD1666246"
-},
-{
-"Affected Service": "Workplace Services - SJC",
-"Description": "يُرجي العلم بأنه توجد مشكلة في قبول البلاغات في النظام ( امر جنائي – مرور /ق ) حيث تظهر رسالة بأنه لا يمكن إيجاد الدائرة وتاريخ الجلسة",
-"Closure Code": "Application",
-"Title": "مشكله في قبول بعض البلاغات",
-"Category": "CMS - Cases",
-"Subcategory": "technical issue",
-"Classification": "error message",
-"Resolution Method": "Remote resolution",
-"Solution": "يرجى العلم وبناء على إفادة القسم التقني بعدم وجود اشكالية بنظام",
-"Interaction ID": "SD1670691"
 }
 ];
 
@@ -1313,9 +1332,8 @@ let csvContent = "Interaction ID,Title,Score,Status,Court Type,Affected Service,
 
 currentValidationResults.forEach(result => {
 const ticket = result.ticket;
-const interactionId = ticket['Interaction ID'] || ticket['Interaction_ID'] || ticket.interactionId || 'N/A';
 const status = result.isValid ? "Valid" : "Invalid";
-csvContent += `"${interactionId}","${ticket.Title || ticket.title || ''}",${result.score},${status},${result.courtType},${ticket['Affected Service'] || ticket.affectedService || ''},${ticket['Closure Code'] || ticket.closureCode || ''},${ticket.Category || ticket.category || ''},${ticket.Subcategory || ticket.subcategory || ''},${ticket.Classification || ticket.classification || ''},${ticket['Resolution Method'] || ticket.resolutionMethod || ''}\n`;
+csvContent += `"${ticket.interactionId || ''}","${ticket.title || ''}",${result.score},${status},${result.courtType},"${ticket.affectedService || ''}","${ticket.closureCode || ''}","${ticket.category || ''}","${ticket.subcategory || ''}","${ticket.classification || ''}","${ticket.resolutionMethod || ''}"\n`;
 });
 
 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -1409,6 +1427,7 @@ handleFileUpload({ target: fileInput });
 });
 
 console.log('Application initialized successfully');
+console.log('Validation rules:', validationRules);
 });
 </script>
 </body>
