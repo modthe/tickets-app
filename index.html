@@ -5,12 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام التحقق من التذاكر - محاكم الأسرة (نسخة محدثة)</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <style>
-/* (keep all existing styles, plus add new ones below) */
 * {
 margin: 0;
 padding: 0;
@@ -312,12 +307,6 @@ border-bottom: 1px solid #ffeaa7;
 border-bottom: none;
 }
 
-/* Arabic text specific styles */
-.arabic-text {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-line-height: 1.8;
-}
-
 .field-validation {
 text-align: right;
 }
@@ -366,29 +355,15 @@ margin-top: 15px;
 <body>
 <div class="container">
 <header>
-<h1>🎫 نظام التحقق من التذاكر - محاكم الأسرة (نسخة محدثة)</h1>
+<h1>🎫 نظام التحقق من التذاكر - محاكم الأسرة</h1>
 <p class="subtitle">نظام متكامل للتحقق الآلي من جودة تذاكر الدعم الفني</p>
 </header>
 
-<!-- Main App Content -->
 <div id="mainApp">
 <div class="main-content">
 <div class="upload-section">
 <h2>📤 تحميل ملف Excel أو CSV</h2>
-<p>قم بتحميل ملف Excel أو CSV الذي يحتوي على التذاكر بالأعمدة التالية (كما في النموذج الجديد):</p>
-<ul style="margin: 1rem 0; padding-right: 2rem;">
-<li><strong>Interaction ID</strong> (رقم التذكرة)</li>
-<li><strong>Title</strong> (العنوان)</li>
-<li><strong>Description</strong> (الوصف)</li>
-<li><strong>Solution</strong> (الحل)</li>
-<li><strong>Category</strong> (الفئة)</li>
-<li><strong>Subcategory</strong> (الفئة الفرعية)</li>
-<li><strong>Classification</strong> (التصنيف)</li>
-<li><strong>Type</strong> (Service Request / Incident)</li>
-<li><strong>Priority</strong> (الأولوية)</li>
-<li><strong>Status</strong> (حالة التذكرة)</li>
-</ul>
-
+<p>قم بتحميل ملف Excel أو CSV بالتنسيق الجديد (يحتوي على الأعمدة الأساسية).</p>
 <div class="upload-area" id="uploadArea">
 <div class="upload-icon">📊</div>
 <h3>اسحب ملف Excel أو CSV هنا</h3>
@@ -397,69 +372,46 @@ margin-top: 15px;
 </div>
 
 <div class="criteria-section">
-<h4>🔍 معايير التحقق المستندة إلى التذاكر الصحيحة</h4>
+<h4>🔍 معايير التحقق (مرنة)</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>العنوان:</strong> يجب أن يكون واضحاً ومختصراً (4-5 كلمات) ويحتوي على كلمات مفتاحية مثل: طلب، تعديل، إضافة، حذف، مشكلة، خطأ.</li>
-<li class="criteria-item"><strong>الوصف:</strong> يجب أن يشرح المشكلة بالتفصيل مع ذكر أرقام الدعاوى/الطلبات.</li>
-<li class="criteria-item"><strong>الحل:</strong> يجب أن يصف الإجراء المتخذ ويحتوي على كلمات الإنجاز (تم، تمت، انتهى).</li>
-<li class="criteria-item"><strong>الفئة والتصنيف:</strong> يجب أن تكون متوافقة مع التصنيفات المعروفة (CMS - Cases, CMS - Requests, ...).</li>
-<li class="criteria-item"><strong>النوع:</strong> Service Request عادةً له Priority 4، Incident له Priority 1-3.</li>
+<li class="criteria-item"><strong>العنوان:</strong> يفضل أن يكون واضحاً ومختصراً (4-6 كلمات).</li>
+<li class="criteria-item"><strong>الوصف:</strong> يفضل أن يحتوي على رقم الدعوى أو الطلب.</li>
+<li class="criteria-item"><strong>الحل:</strong> يفضل أن يصف الإجراء المتخذ ويحتوي على كلمة "تم".</li>
+<li class="criteria-item"><strong>الفئة والتصنيف:</strong> يفضل أن تكون متوافقة مع التصنيفات المعروفة.</li>
 </ul>
 </div>
 
 <div class="button-group">
-<button class="btn" onclick="document.getElementById('fileInput').click()">
-اختر ملف
-</button>
-<button class="btn btn-secondary" onclick="validateSampleData()">
-تجربة بيانات نموذجية
-</button>
-<button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">
-تصدير النتائج
-</button>
-<button class="btn btn-warning" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">
-تحميل التذاكر الخاطئة
-</button>
+<button class="btn" onclick="document.getElementById('fileInput').click()">اختر ملف</button>
+<button class="btn btn-secondary" onclick="validateSampleData()">تجربة بيانات نموذجية</button>
+<button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">تصدير النتائج</button>
+<button class="btn btn-warning" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">تحميل التذاكر الخاطئة</button>
 </div>
 </div>
 
 <div class="validation-section">
 <h2>📋 نتائج التحقق</h2>
 
-<div class="court-filter" id="courtFilter">
-<button class="court-filter-btn active" onclick="filterTicketsByCourt('all')">جميع التذاكر</button>
-<button class="court-filter-btn" onclick="filterTicketsByCourt('valid')">الصالحة فقط</button>
-<button class="court-filter-btn" onclick="filterTicketsByCourt('invalid')">الخاطئة فقط</button>
+<div class="court-filter">
+<button class="court-filter-btn active" onclick="filterTickets('all')">الكل</button>
+<button class="court-filter-btn" onclick="filterTickets('valid')">الصالحة فقط</button>
+<button class="court-filter-btn" onclick="filterTickets('invalid')">الخاطئة فقط</button>
 </div>
 
 <div id="summaryStats" class="summary-stats">
-<div class="stat-card">
-<span class="stat-number stat-valid" id="validCount">0</span>
-<span>تذاكر صالحة</span>
-</div>
-<div class="stat-card">
-<span class="stat-number stat-warning" id="warningCount">0</span>
-<span>تحذيرات</span>
-</div>
-<div class="stat-card">
-<span class="stat-number stat-invalid" id="invalidCount">0</span>
-<span>تذاكر غير صالحة</span>
-</div>
-<div class="stat-card">
-<span class="stat-number" id="totalCount" style="color: #3498db;">0</span>
-<span>إجمالي التذاكر</span>
-</div>
+<div class="stat-card"><span class="stat-number stat-valid" id="validCount">0</span><span>صحيحة</span></div>
+<div class="stat-card"><span class="stat-number stat-warning" id="warningCount">0</span><span>تحذيرات</span></div>
+<div class="stat-card"><span class="stat-number stat-invalid" id="invalidCount">0</span><span>خاطئة</span></div>
+<div class="stat-card"><span class="stat-number" id="totalCount" style="color:#3498db;">0</span><span>الإجمالي</span></div>
 </div>
 
 <div id="validationResults" class="validation-results">
 <div class="loading" id="loadingIndicator" style="display: none;">
 <div class="spinner"></div>
-<p>جاري تحليل التذاكر...</p>
+<p>جاري التحليل...</p>
 </div>
 <div id="resultsContainer">
-<p style="text-align: center; color: #7f8c8d; padding: 2rem;">
-قم بتحميل ملف Excel أو CSV لرؤية نتائج التحقق
-</p>
+<p style="text-align: center; color: #7f8c8d; padding: 2rem;">قم بتحميل ملف لبدء التحقق</p>
 </div>
 </div>
 </div>
@@ -468,31 +420,12 @@ margin-top: 15px;
 </div>
 
 <script>
-// Enhanced validation rules based on the new dataset
-let validationRules = {
-title: {
-maxWords: 5,
-minLength: 5,
-maxLength: 60,
-requiredKeywords: ['طلب', 'تعديل', 'إضافة', 'حذف', 'مشكلة', 'خطأ', 'استعلام', 'إعلان', 'تغيير', 'فتح', 'صلاحية', 'انشاء', 'تحديث', 'تدقيق', 'مساعدة'],
-shouldNotContain: ['اختبار', 'مؤقت', 'مسودة']
-},
-description: {
-minLength: 15,
-requiredElements: ['رقم', 'دعوى', 'طلب'], // should contain at least one reference number
-technicalTerms: ['دعوى', 'طلب', 'رقم', 'تنفيذ', 'حكم', 'شيكات', 'استثمار', 'مدني', 'أسرة', 'تركات', 'جزئي', 'كلي', 'إبتدائي', 'إستئناف', 'تمييز']
-},
-solution: {
-minLength: 10,
-actionWords: ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'نفذ', 'أنجز', 'تم التعديل', 'تم الحذف', 'تم الإضافة', 'تم التحديث', 'تم انشاء', 'تم تغيير']
-},
-priority: {
-incidentRange: [1, 2, 3],
-serviceRequestPriority: 4
-},
-type: {
-validTypes: ['Service Request', 'Incident']
-},
+// قواعد التحقق المستندة إلى البيانات الصحيحة
+const validationRules = {
+title: { maxWords: 6, minLength: 3, requiredKeywords: ['طلب','تعديل','إضافة','حذف','مشكلة','خطأ','استعلام','إعلان','تغيير','فتح','صلاحية','انشاء','تحديث','تدقيق','مساعدة'] },
+description: { minLength: 8, patterns: [/\d+\/\d+/, /رقم\s*\d+/] },
+solution: { minLength: 5, actionWords: ['تم','تمت','انتهى','أكمل','أنهى','نفذ','أنجز'] },
+type: { validTypes: ['Service Request', 'Incident'], incidentPriority: [1,2,3], srPriority: 4 },
 categories: {
 main: ['CMS - Cases', 'CMS - Requests', 'CMS - Access', 'CMS - Court Rooms', 'CMS - Case Management', 'CMS - Reports'],
 subcategories: {
@@ -505,528 +438,303 @@ subcategories: {
 }
 },
 classifications: [
-'Delete Party', 'Add Commercial record', 'Add Party', 'Update party from MOI',
-'change party type', 'create Announcements', 'amend request status', 'change case status',
-'Amend related party', 'Grant/Revoke Access', 'Help user', 'slowness', 'error message',
-'change panel member', 'Change Panel', 'add panel member', 'change member in session team',
-'Amend Commercial record'
+'Delete Party', 'Add Commercial record', 'Add Party', 'Update party from MOI', 'change party type',
+'create Announcements', 'amend request status', 'change case status', 'Amend related party',
+'Grant/Revoke Access', 'Help user', 'slowness', 'error message', 'change panel member',
+'Change Panel', 'add panel member', 'change member in session team', 'Amend Commercial record'
 ]
 };
 
-// Global variables
-let currentValidationResults = [];
+let allResults = [];
 let filteredResults = [];
 
-// ==================== VALIDATION FUNCTIONS ====================
-function validateSingleTicket(ticket) {
-const validations = {
-title: validateTitle(ticket.Title),
-description: validateDescription(ticket.Description),
-solution: validateSolution(ticket.Solution),
-category: validateCategory(ticket.Category),
-subcategory: validateSubcategory(ticket.Category, ticket.Subcategory),
-classification: validateClassification(ticket.Classification),
-type: validateType(ticket.Type, ticket.Priority),
-interactionId: validateInteractionId(ticket['Interaction ID'] || ticket['Interaction_ID'])
-};
+// دالة التحقق الرئيسية
+function validateTicket(ticket) {
+const v = {};
 
-const totalFields = Object.keys(validations).length;
-const validFields = Object.values(validations).filter(v => v.isValid).length;
-const warningFields = Object.values(validations).filter(v => v.hasWarning).length;
+v.title = validateTitle(ticket.Title);
+v.description = validateDescription(ticket.Description);
+v.solution = validateSolution(ticket.Solution);
+v.category = validateCategory(ticket.Category);
+v.subcategory = validateSubcategory(ticket.Category, ticket.Subcategory);
+v.classification = validateClassification(ticket.Classification);
+v.type = validateType(ticket.Type, ticket.Priority);
+v.interactionId = validateInteractionId(ticket['Interaction ID']);
 
-const score = Math.round((validFields / totalFields) * 100);
+const invalidCount = Object.values(v).filter(x => !x.isValid).length;
+const score = Math.round(((Object.keys(v).length - invalidCount) / Object.keys(v).length) * 100);
+const isValid = score >= 70; // 70% من الحقول صالحة
+const hasWarnings = Object.values(v).some(x => x.hasWarning);
 
-return {
-ticket,
-validations,
-score,
-isValid: score >= 70,
-hasWarnings: warningFields > 0
-};
+return { ticket, validations: v, score, isValid, hasWarnings };
 }
 
-function countWords(text) {
-if (!text) return 0;
-return text.trim().split(/[\s\u0600-\u06FF,.;:!?]+/).filter(word => word.length > 0).length;
+function validateTitle(t) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!t) { res.feedback.push('العنوان مطلوب'); res.isValid = false; return res; }
+const words = t.trim().split(/\s+/).length;
+if (words > validationRules.title.maxWords) {
+res.hasWarning = true;
+res.feedback.push(`العنوان طويل (${words} كلمة، يفضل ≤${validationRules.title.maxWords})`);
 }
-
-function validateTitle(title) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!title) {
-result.isValid = false;
-result.feedback.push('العنوان مطلوب');
-return result;
+if (t.length < validationRules.title.minLength) {
+res.hasWarning = true;
+res.feedback.push(`العنوان قصير جداً (أقل من ${validationRules.title.minLength} حروف)`);
 }
-
-const wordCount = countWords(title);
-
-if (wordCount > validationRules.title.maxWords) {
-result.isValid = false;
-result.feedback.push(`العنوان طويل جداً (الحد الأقصى ${validationRules.title.maxWords} كلمات)`);
-}
-
-if (title.length < validationRules.title.minLength) {
-result.isValid = false;
-result.feedback.push(`العنوان قصير جداً (الحد الأدنى ${validationRules.title.minLength} حرف)`);
-}
-
-const hasKeyword = validationRules.title.requiredKeywords.some(keyword =>
-title.includes(keyword)
-);
-
+const hasKeyword = validationRules.title.requiredKeywords.some(k => t.includes(k));
 if (!hasKeyword) {
-result.hasWarning = true;
-result.feedback.push('يفضل استخدام كلمات مفتاحية مناسبة (طلب، تعديل، مشكلة، ...)');
+res.hasWarning = true;
+res.feedback.push('يفضل استخدام كلمات مفتاحية مناسبة');
+}
+if (res.feedback.length === 0) res.feedback.push('العنوان مناسب');
+return res;
 }
 
-if (result.feedback.length === 0) {
-result.feedback.push('العنوان مناسب');
+function validateDescription(d) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!d) { res.feedback.push('الوصف مطلوب'); res.isValid = false; return res; }
+if (d.length < validationRules.description.minLength) {
+res.hasWarning = true;
+res.feedback.push(`الوصف قصير جداً (أقل من ${validationRules.description.minLength} حروف)`);
 }
-
-return result;
-}
-
-function validateDescription(description) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!description || description.length < validationRules.description.minLength) {
-result.isValid = false;
-result.feedback.push(`الوصف قصير جداً (الحد الأدنى ${validationRules.description.minLength} حرف)`);
+const hasRef = validationRules.description.patterns.some(p => p.test(d));
+if (!hasRef) {
+res.hasWarning = true;
+res.feedback.push('يفضل ذكر رقم الدعوى أو الطلب');
 } else {
-// Check for reference numbers (case/request numbers)
-const hasReference = /رقم\s*\d+/.test(description) || /\d+\/\d+/.test(description);
-if (!hasReference) {
-result.hasWarning = true;
-result.feedback.push('يفضل ذكر رقم الدعوى أو الطلب في الوصف');
+res.feedback.push('يحتوي على أرقام مرجعية');
+}
+return res;
+}
+
+function validateSolution(s) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!s) { res.feedback.push('الحل مطلوب'); res.isValid = false; return res; }
+if (s.length < validationRules.solution.minLength) {
+res.hasWarning = true;
+res.feedback.push(`الحل مختصر جداً (أقل من ${validationRules.solution.minLength} حروف)`);
+}
+const hasAction = validationRules.solution.actionWords.some(w => s.includes(w));
+if (!hasAction) {
+res.hasWarning = true;
+res.feedback.push('يفضل أن يحتوي الحل على كلمات الإنجاز (تم، تمت، ...)');
 } else {
-result.feedback.push('يحتوي على أرقام مرجعية');
+res.feedback.push('يحتوي على كلمات إنجاز');
 }
-}
-
-if (result.feedback.length === 0) {
-result.feedback.push('الوصف مناسب');
+return res;
 }
 
-return result;
-}
-
-function validateSolution(solution) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!solution || solution.length < validationRules.solution.minLength) {
-result.isValid = false;
-result.feedback.push(`الحل مختصر جداً (الحد الأدنى ${validationRules.solution.minLength} حرف)`);
-return result;
-}
-
-const hasActionWord = validationRules.solution.actionWords.some(word =>
-solution.includes(word)
-);
-
-if (!hasActionWord) {
-result.isValid = false;
-result.feedback.push('يجب أن يحتوي الحل على كلمات الإنجاز (تم، تمت، انتهى)');
+function validateCategory(c) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!c) { res.feedback.push('الفئة مطلوبة'); res.isValid = false; return res; }
+if (!validationRules.categories.main.includes(c)) {
+res.hasWarning = true;
+res.feedback.push(`الفئة "${c}" غير معروفة`);
 } else {
-result.feedback.push('يحتوي على كلمات إنجاز');
+res.feedback.push('الفئة صالحة');
+}
+return res;
 }
 
-if (result.feedback.length === 0) {
-result.feedback.push('الحل مناسب');
-}
-
-return result;
-}
-
-function validateCategory(category) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!category) {
-result.isValid = false;
-result.feedback.push('الفئة مطلوبة');
-return result;
-}
-
-if (!validationRules.categories.main.includes(category)) {
-result.isValid = false;
-result.feedback.push(`فئة غير صالحة. الفئات المعروفة: ${validationRules.categories.main.join(', ')}`);
+function validateSubcategory(cat, sub) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!sub) { res.feedback.push('الفئة الفرعية مطلوبة'); res.isValid = false; return res; }
+const valid = validationRules.categories.subcategories[cat];
+if (!valid || !valid.includes(sub)) {
+res.hasWarning = true;
+res.feedback.push(`الفئة الفرعية "${sub}" غير معروفة للفئة ${cat}`);
 } else {
-result.feedback.push('الفئة صالحة');
+res.feedback.push('الفئة الفرعية مناسبة');
+}
+return res;
 }
 
-return result;
-}
-
-function validateSubcategory(category, subcategory) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!subcategory) {
-result.isValid = false;
-result.feedback.push('الفئة الفرعية مطلوبة');
-return result;
-}
-
-const validSubcategories = validationRules.categories.subcategories[category];
-if (!validSubcategories || !validSubcategories.includes(subcategory)) {
-result.isValid = false;
-result.feedback.push(`فئة فرعية غير صالحة للفئة ${category}`);
+function validateClassification(cls) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!cls) { res.feedback.push('التصنيف مطلوب'); res.isValid = false; return res; }
+if (!validationRules.classifications.includes(cls)) {
+res.hasWarning = true;
+res.feedback.push(`التصنيف "${cls}" غير معروف`);
 } else {
-result.feedback.push('الفئة الفرعية مناسبة');
+res.feedback.push('التصنيف مناسب');
+}
+return res;
 }
 
-return result;
+function validateType(typ, prio) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!typ) { res.feedback.push('نوع التذكرة مطلوب'); res.isValid = false; return res; }
+if (!validationRules.type.validTypes.includes(typ)) {
+res.feedback.push(`نوع التذكرة "${typ}" غير صالح`);
+res.isValid = false;
+return res;
 }
-
-function validateClassification(classification) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!classification) {
-result.isValid = false;
-result.feedback.push('التصنيف مطلوب');
-return result;
-}
-
-if (!validationRules.classifications.includes(classification)) {
-result.isValid = false;
-result.feedback.push(`تصنيف غير صالح. التصنيفات المعروفة: ${validationRules.classifications.join(', ')}`);
+const p = parseInt(prio);
+if (typ === 'Incident' && !validationRules.type.incidentPriority.includes(p)) {
+res.hasWarning = true;
+res.feedback.push(`الأولوية المناسبة للحادث هي 1-3`);
+} else if (typ === 'Service Request' && p !== validationRules.type.srPriority) {
+res.hasWarning = true;
+res.feedback.push(`الأولوية المناسبة لطلب الخدمة هي 4`);
 } else {
-result.feedback.push('التصنيف مناسب');
+res.feedback.push('النوع والأولوية متناسقان');
+}
+return res;
 }
 
-return result;
-}
-
-function validateType(type, priority) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!type) {
-result.isValid = false;
-result.feedback.push('نوع التذكرة مطلوب');
-return result;
-}
-
-if (!validationRules.type.validTypes.includes(type)) {
-result.isValid = false;
-result.feedback.push(`نوع غير صالح. الأنواع: ${validationRules.type.validTypes.join(', ')}`);
+function validateInteractionId(id) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!id) { res.feedback.push('رقم التذكرة مطلوب'); res.isValid = false; return res; }
+if (!/^SD\d+$/.test(id)) {
+res.hasWarning = true;
+res.feedback.push('صيغة رقم التذكرة غير قياسية (يفضل SD متبوعاً بأرقام)');
 } else {
-// Check priority consistency
-const priorityNum = parseInt(priority);
-if (type === 'Incident') {
-if (!validationRules.priority.incidentRange.includes(priorityNum)) {
-result.hasWarning = true;
-result.feedback.push('الأولوية المناسبة للحادث هي 1-3');
-} else {
-result.feedback.push('نوع الحادث وأولويته مناسبان');
+res.feedback.push('رقم التذكرة صحيح');
 }
-} else if (type === 'Service Request') {
-if (priorityNum !== validationRules.priority.serviceRequestPriority) {
-result.hasWarning = true;
-result.feedback.push('الأولوية المناسبة لطلب الخدمة هي 4');
-} else {
-result.feedback.push('نوع طلب الخدمة وأولويته مناسبان');
-}
-}
+return res;
 }
 
-return result;
-}
-
-function validateInteractionId(interactionId) {
-const result = { isValid: true, hasWarning: false, feedback: [] };
-
-if (!interactionId) {
-result.isValid = false;
-result.feedback.push('رقم التذكرة (Interaction ID) مطلوب');
-return result;
-}
-
-const interactionIdPattern = /^SD\d+$/;
-if (!interactionIdPattern.test(interactionId)) {
-result.hasWarning = true;
-result.feedback.push('رقم التذكرة يجب أن يتبع التنسيق SD متبوعاً بأرقام');
-} else {
-result.feedback.push('رقم التذكرة صحيح');
-}
-
-return result;
-}
-
-// ==================== FILE PROCESSING ====================
-function handleFileUpload(event) {
-const file = event.target.files[0];
+// معالجة الملف
+function handleFileUpload(e) {
+const file = e.target.files[0];
 if (!file) return;
-
-const loadingIndicator = document.getElementById('loadingIndicator');
-loadingIndicator.style.display = 'block';
-
-setTimeout(() => {
-processExcelFile(file);
-loadingIndicator.style.display = 'none';
-}, 1000);
+document.getElementById('loadingIndicator').style.display = 'block';
+setTimeout(() => { processFile(file); }, 100);
 }
 
-function processExcelFile(file) {
+function processFile(file) {
 const reader = new FileReader();
-
 reader.onload = function(e) {
 const data = new Uint8Array(e.target.result);
 let workbook;
-
 if (file.name.endsWith('.csv')) {
-const csvData = new TextDecoder().decode(data);
-workbook = XLSX.read(csvData, { type: 'string', raw: true });
+const csv = new TextDecoder().decode(data);
+workbook = XLSX.read(csv, { type: 'string' });
 } else {
 workbook = XLSX.read(data, { type: 'array' });
 }
-
-const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-// Map columns to our expected fields
-const tickets = jsonData.map(row => ({
-'Interaction ID': row['Interaction ID'] || row['Interaction_ID'] || '',
-'Title': row['Title'] || '',
-'Description': row['Description'] || '',
-'Solution': row['Solution'] || '',
-'Category': row['Category'] || '',
-'Subcategory': row['Subcategory'] || '',
-'Classification': row['Classification'] || '',
-'Type': row['Type'] || '',
-'Priority': row['Priority'] || '',
-'Status': row['Status'] || ''
+const sheet = workbook.Sheets[workbook.SheetNames[0]];
+const rows = XLSX.utils.sheet_to_json(sheet);
+const tickets = rows.map(r => ({
+'Interaction ID': r['Interaction ID'] || r['Interaction_ID'] || '',
+'Title': r['Title'] || '',
+'Description': r['Description'] || '',
+'Solution': r['Solution'] || '',
+'Category': r['Category'] || '',
+'Subcategory': r['Subcategory'] || '',
+'Classification': r['Classification'] || '',
+'Type': r['Type'] || '',
+'Priority': r['Priority'] || ''
 }));
-
-validateTickets(tickets);
+allResults = tickets.map(t => validateTicket(t));
+filteredResults = allResults;
+displayResults(filteredResults);
+updateStats(filteredResults);
+document.getElementById('exportBtn').style.display = 'inline-block';
+document.getElementById('exportInvalidBtn').style.display = 'inline-block';
+document.getElementById('loadingIndicator').style.display = 'none';
 };
-
-if (file.name.endsWith('.csv')) {
-reader.readAsArrayBuffer(file);
-} else {
-reader.readAsArrayBuffer(file);
-}
+if (file.name.endsWith('.csv')) reader.readAsArrayBuffer(file);
+else reader.readAsArrayBuffer(file);
 }
 
-function validateTickets(tickets) {
-const validationResults = tickets.map(ticket => validateSingleTicket(ticket));
-currentValidationResults = validationResults;
-filteredResults = validationResults;
-displayResults(validationResults);
-updateSummaryStats(validationResults);
+function displayResults(results) {
+const container = document.getElementById('resultsContainer');
+container.innerHTML = '';
+if (results.length === 0) {
+container.innerHTML = '<p style="text-align:center;color:#7f8c8d;padding:2rem;">لا توجد نتائج</p>';
+return;
+}
+results.forEach(r => {
+const card = document.createElement('div');
+card.className = `ticket-card arabic-text ${!r.isValid ? 'invalid' : ''}`;
+const color = r.isValid ? '#27ae60' : '#e74c3c';
+const id = r.ticket['Interaction ID'] || 'غير معروف';
+card.innerHTML = `
+<div class="ticket-header">
+<div class="ticket-title">${r.ticket.Title || 'بدون عنوان'}<div class="interaction-id">${id}</div></div>
+<div class="validation-score" style="background:${color}">${r.score}%</div>
+</div>
+<div class="legal-highlight">الفئة: ${r.ticket.Category} | الفئة الفرعية: ${r.ticket.Subcategory}</div>
+<div class="validation-details">
+${Object.entries(r.validations).map(([f, v]) => `
+<div class="field-validation">
+<div class="validation-icon ${v.isValid ? (v.hasWarning ? 'warning' : 'valid') : 'invalid'}">${v.isValid ? (v.hasWarning ? '⚠' : '✓') : '✗'}</div>
+<div class="field-info"><div class="field-name">${getFieldName(f)}</div><div class="field-feedback">${v.feedback.join(' • ')}</div></div>
+</div>
+`).join('')}
+</div>
+${!r.isValid ? '<div class="suggestions"><strong>تحتاج هذه التذكرة إلى مراجعة.</strong></div>' : ''}
+`;
+container.appendChild(card);
+});
+}
 
+function getFieldName(f) {
+const map = { title: 'العنوان', description: 'الوصف', solution: 'الحل', category: 'الفئة', subcategory: 'الفئة الفرعية', classification: 'التصنيف', type: 'النوع', interactionId: 'رقم التذكرة' };
+return map[f] || f;
+}
+
+function updateStats(results) {
+document.getElementById('validCount').textContent = results.filter(r => r.isValid).length;
+document.getElementById('warningCount').textContent = results.filter(r => r.hasWarnings).length;
+document.getElementById('invalidCount').textContent = results.filter(r => !r.isValid).length;
+document.getElementById('totalCount').textContent = results.length;
+}
+
+function filterTickets(type) {
+document.querySelectorAll('.court-filter-btn').forEach(b => b.classList.remove('active'));
+event.target.classList.add('active');
+if (type === 'all') filteredResults = allResults;
+else if (type === 'valid') filteredResults = allResults.filter(r => r.isValid);
+else filteredResults = allResults.filter(r => !r.isValid);
+displayResults(filteredResults);
+updateStats(filteredResults);
+}
+
+function validateSampleData() {
+const sample = [
+{ "Interaction ID": "SD1730119", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Type": "Service Request", "Priority": "4" },
+{ "Interaction ID": "SD1738602", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت", "Category": "CMS - Cases", "Subcategory": "technical issue", "Classification": "slowness", "Type": "Incident", "Priority": "3" }
+];
+allResults = sample.map(t => validateTicket(t));
+filteredResults = allResults;
+displayResults(filteredResults);
+updateStats(filteredResults);
 document.getElementById('exportBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 }
 
-// ==================== UI FUNCTIONS ====================
-function displayResults(results) {
-const container = document.getElementById('resultsContainer');
-container.innerHTML = '';
-
-if (results.length === 0) {
-container.innerHTML = '<p style="text-align: center; color: #7f8c8d; padding: 2rem;">لا توجد تذاكر تطابق معايير التصفية</p>';
-return;
-}
-
-results.forEach((result, index) => {
-const ticketCard = createTicketCard(result, index);
-container.appendChild(ticketCard);
-});
-}
-
-function createTicketCard(result, index) {
-const card = document.createElement('div');
-card.className = `ticket-card arabic-text ${!result.isValid ? 'invalid' : ''}`;
-
-const statusColor = result.isValid ? '#27ae60' : '#e74c3c';
-
-const interactionId = result.ticket['Interaction ID'] || 'غير معروف';
-
-card.innerHTML = `
-<div class="ticket-header">
-<div class="ticket-title">
-${result.ticket.Title || 'لا يوجد عنوان'}
-<div class="interaction-id">رقم التذكرة: ${interactionId}</div>
-</div>
-<div class="validation-score" style="background: ${statusColor}">
-${result.score}%
-</div>
-</div>
-
-<div class="legal-highlight">
-<strong>الفئة:</strong> ${result.ticket.Category} |
-<strong>الفئة الفرعية:</strong> ${result.ticket.Subcategory} |
-<strong>التصنيف:</strong> ${result.ticket.Classification}
-</div>
-
-<div class="validation-details">
-${Object.entries(result.validations).map(([field, validation]) => `
-<div class="field-validation">
-<div class="validation-icon ${validation.isValid ? (validation.hasWarning ? 'warning' : 'valid') : 'invalid'}">
-${validation.isValid ? (validation.hasWarning ? '⚠' : '✓') : '✗'}
-</div>
-<div class="field-info">
-<div class="field-name">${getFieldNameArabic(field)}</div>
-<div class="field-feedback">${validation.feedback.join(' • ')}</div>
-</div>
-</div>
-`).join('')}
-</div>
-
-${result.hasWarnings || !result.isValid ? `
-<div class="suggestions arabic-text">
-<strong>اقتراحات للتحسين:</strong>
-<ul style="margin-top: 0.5rem; padding-right: 1.5rem;">
-${!result.isValid ? '<li>راجع وأصلح الحقول غير الصالحة والمشار إليها ب ✗</li>' : ''}
-${result.hasWarnings ? '<li>عالج التحذيرات المشار إليها ب ⚠ لتحسين الجودة</li>' : ''}
-</ul>
-</div>
-` : ''}
-`;
-
-return card;
-}
-
-function getFieldNameArabic(field) {
-const fieldNames = {
-title: 'العنوان',
-description: 'الوصف',
-solution: 'الحل',
-category: 'الفئة',
-subcategory: 'الفئة الفرعية',
-classification: 'التصنيف',
-type: 'النوع',
-interactionId: 'رقم التذكرة'
-};
-return fieldNames[field] || field;
-}
-
-function updateSummaryStats(results) {
-const validCount = results.filter(r => r.isValid).length;
-const warningCount = results.filter(r => r.hasWarnings).length;
-const invalidCount = results.filter(r => !r.isValid).length;
-const totalCount = results.length;
-
-document.getElementById('validCount').textContent = validCount;
-document.getElementById('warningCount').textContent = warningCount;
-document.getElementById('invalidCount').textContent = invalidCount;
-document.getElementById('totalCount').textContent = totalCount;
-}
-
-function filterTicketsByCourt(filterType) {
-// Update active filter button
-document.querySelectorAll('.court-filter-btn').forEach(btn => {
-btn.classList.remove('active');
-});
-event.target.classList.add('active');
-
-if (filterType === 'all') {
-filteredResults = currentValidationResults;
-} else if (filterType === 'valid') {
-filteredResults = currentValidationResults.filter(r => r.isValid);
-} else if (filterType === 'invalid') {
-filteredResults = currentValidationResults.filter(r => !r.isValid);
-}
-
-displayResults(filteredResults);
-updateSummaryStats(filteredResults);
-}
-
-function validateSampleData() {
-// Use a few tickets from the new dataset as sample
-const sampleTickets = [
-{
-"Interaction ID": "SD1730119",
-"Title": "حذف اسم المنفذ له",
-"Description": "الرجاء حذف اسم المنفذ له في النظام والصحيفة وذلك لان الحكم لم ينص عليه رقم الدعوى : 1814/2026/تنفيذ/حكم/مدني اسم المنفذ له : سعيد هاشم محمد عبدالرحمن المير",
-"Solution": "حذف اسم المنفذ له في الدعوي رقم : 1814/2026/تنفيذ/حكم/مدني تم حذف المنفذ له / سعيد هاشم محمد عبدالرحمن المير وتم تحديث الصحيفة تم الحذف والتحديث حسب ماهو مطلوب وموافق عليه",
-"Category": "CMS - Cases",
-"Subcategory": "Parties",
-"Classification": "Delete Party",
-"Type": "Service Request",
-"Priority": "4",
-"Status": "Closed"
-},
-{
-"Interaction ID": "SD1738602",
-"Title": "مشكلة في نظام محاكم",
-"Description": "لطفا فتح تذكرة أواجه بطئ شديد في النظام .",
-"Solution": "كانت هنالك بطؤ موقت في النظام وتم معالجة المشكلة في حال التكرار او مازالت المشكلة الرجاء ابلاغ الدعم الفني",
-"Category": "CMS - Cases",
-"Subcategory": "technical issue",
-"Classification": "slowness",
-"Type": "Incident",
-"Priority": "3",
-"Status": "Closed"
-}
-];
-
-const loadingIndicator = document.getElementById('loadingIndicator');
-loadingIndicator.style.display = 'block';
-
-setTimeout(() => {
-validateTickets(sampleTickets);
-loadingIndicator.style.display = 'none';
-}, 1000);
-}
-
 function exportResults() {
-if (currentValidationResults.length === 0) {
-alert('لا توجد نتائج لتصديرها');
-return;
-}
-
-let csvContent = "Interaction ID,Title,Score,Status,Category,Subcategory,Classification,Type,Priority\n";
-
-currentValidationResults.forEach(result => {
-const ticket = result.ticket;
-const interactionId = ticket['Interaction ID'] || 'N/A';
-const status = result.isValid ? "Valid" : "Invalid";
-csvContent += `"${interactionId}","${ticket.Title}",${result.score},${status},${ticket.Category},${ticket.Subcategory},${ticket.Classification},${ticket.Type},${ticket.Priority}\n`;
+if (!allResults.length) return alert('لا توجد نتائج');
+let csv = 'Interaction ID,Title,Score,Status,Category,Subcategory,Classification,Type,Priority\n';
+allResults.forEach(r => {
+csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Type},${r.ticket.Priority}\n`;
 });
-
-const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-const link = document.createElement("a");
-const url = URL.createObjectURL(blob);
-link.setAttribute("href", url);
-link.setAttribute("download", "ticket_validation_results.csv");
-link.style.visibility = 'hidden';
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+download(csv, 'all_results.csv');
 }
 
 function exportInvalidTickets() {
-const invalidResults = currentValidationResults.filter(r => !r.isValid);
-if (invalidResults.length === 0) {
-alert('لا توجد تذاكر خاطئة لتصديرها');
-return;
+const inv = allResults.filter(r => !r.isValid);
+if (!inv.length) return alert('لا توجد تذاكر خاطئة');
+let csv = 'Interaction ID,Title,Score,Category,Subcategory,Classification,Type,Priority\n';
+inv.forEach(r => {
+csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Type},${r.ticket.Priority}\n`;
+});
+download(csv, 'invalid_tickets.csv');
 }
 
-let csvContent = "Interaction ID,Title,Score,Category,Subcategory,Classification,Type,Priority\n";
-
-invalidResults.forEach(result => {
-const ticket = result.ticket;
-const interactionId = ticket['Interaction ID'] || 'N/A';
-csvContent += `"${interactionId}","${ticket.Title}",${result.score},${ticket.Category},${ticket.Subcategory},${ticket.Classification},${ticket.Type},${ticket.Priority}\n`;
-});
-
-const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-const link = document.createElement("a");
-const url = URL.createObjectURL(blob);
-link.setAttribute("href", url);
-link.setAttribute("download", "invalid_tickets.csv");
-link.style.visibility = 'hidden';
-document.body.appendChild(link);
+function download(content, filename) {
+const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+const link = document.createElement('a');
+link.href = URL.createObjectURL(blob);
+link.download = filename;
 link.click();
-document.body.removeChild(link);
 }
 
-// ==================== INITIALIZATION ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('fileInput').addEventListener('change', handleFileUpload);
-document.getElementById('uploadArea').addEventListener('click', () => {
-document.getElementById('fileInput').click();
-});
+document.getElementById('uploadArea').addEventListener('click', () => document.getElementById('fileInput').click());
 });
 </script>
 </body>
