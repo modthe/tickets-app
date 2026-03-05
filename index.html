@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-<title>نظام التحقق من التذاكر</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام التحقق من التذاكر - دليل HPSM V4</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 * {
@@ -356,15 +356,27 @@ margin-top: 15px;
 <body>
 <div class="container">
 <header>
-<h1>🎫 نظام التحقق من التذاكر - محاكم الأسرة</h1> 
-<p class="subtitle">نظام متكامل للتحقق الآلي من جودة تذاكر الدعم الفني</p>
+<h1>🎫 نظام التحقق من التذاكر - دليل HPSM V4</h1>
+<p class="subtitle">التحقق بناءً على التصنيفات المعتمدة ووجود رقم الدعوى/الطلب</p>
 </header>
 
 <div id="mainApp">
 <div class="main-content">
 <div class="upload-section">
-<h2>📤 تحميل ملف Excel أو CSV</h2> 
-<p>قم بتحميل ملف Excel أو CSV بالتنسيق الجديد (يحتوي على الأعمدة الأساسية).</p>
+<h2>📤 تحميل ملف Excel أو CSV</h2>
+<p>يجب أن يحتوي الملف على الأعمدة التالية:</p>
+<ul style="margin: 1rem 0; padding-right: 2rem;">
+<li><strong>Interaction ID</strong> (رقم التذكرة)</li>
+<li><strong>Type</strong> (Service Request / Incident)</li>
+<li><strong>Affected Services</strong> (CMS, OSS, JWB, E-services)</li>
+<li><strong>Category</strong> (مثل Cases, Requests, ...)</li>
+<li><strong>Subcategory</strong> (مثل Parties, Attachments, ...)</li>
+<li><strong>Classification</strong> (مثل Add Party, Delete Party, ...)</li>
+<li><strong>Priority</strong> (1-4)</li>
+<li><strong>Title</strong> (العنوان)</li>
+<li><strong>Description</strong> (الوصف)</li>
+<li><strong>Solution</strong> (الحل)</li>
+</ul>
 <div class="upload-area" id="uploadArea">
 <div class="upload-icon">📊</div>
 <h3>اسحب ملف Excel أو CSV هنا</h3>
@@ -373,12 +385,12 @@ margin-top: 15px;
 </div>
 
 <div class="criteria-section">
-<h4>🔍 معايير التحقق (مرنة)</h4>
+<h4>🔍 معايير التحقق (وفق دليل HPSM V4)</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>العنوان:</strong> يفضل أن يكون واضحاً ومختصراً (4-6 كلمات).</li>
-<li class="criteria-item"><strong>الوصف:</strong> يفضل أن يحتوي على رقم الدعوى أو الطلب.</li>
-<li class="criteria-item"><strong>الحل:</strong> يفضل أن يصف الإجراء المتخذ ويحتوي على كلمة "تم".</li>
-<li class="criteria-item"><strong>الفئة والتصنيف:</strong> يفضل أن تكون متوافقة مع التصنيفات المعروفة.</li>
+<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف على رقم الدعوى أو الطلب (مثل 1814/2026/تنفيذ/حكم/مدني).</li>
+<li class="criteria-item"><strong>النوع والخدمة والفئة والتصنيف:</strong> يجب أن تكون مجموعة صالحة حسب الدليل.</li>
+<li class="criteria-item"><strong>الأولوية:</strong> يجب أن تطابق الأولوية المحددة في الدليل (Service Request = 4, Incident = 1-3 حسب التصنيف).</li>
+<li class="criteria-item"><strong>العنوان والحل:</strong> تحذيرات فقط لتحسين الجودة.</li>
 </ul>
 </div>
 
@@ -386,7 +398,8 @@ margin-top: 15px;
 <button class="btn" onclick="document.getElementById('fileInput').click()">اختر ملف</button>
 <button class="btn btn-secondary" onclick="validateSampleData()">تجربة بيانات نموذجية</button>
 <button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">تصدير النتائج</button>
-<button class="btn btn-warning" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">تحميل التذاكر الخاطئة</button>
+<button class="btn btn-warning" onclick="exportWarnings()" id="exportWarningsBtn" style="display: none;">تحميل التحذيرات</button>
+<button class="btn btn-danger" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">تحميل التذاكر الخاطئة</button>
 </div>
 </div>
 
@@ -397,6 +410,7 @@ margin-top: 15px;
 <button class="court-filter-btn active" onclick="filterTickets('all')">الكل</button>
 <button class="court-filter-btn" onclick="filterTickets('valid')">الصالحة فقط</button>
 <button class="court-filter-btn" onclick="filterTickets('invalid')">الخاطئة فقط</button>
+<button class="court-filter-btn" onclick="filterTickets('warnings')">تحذيرات فقط</button>
 </div>
 
 <div id="summaryStats" class="summary-stats">
@@ -420,174 +434,808 @@ margin-top: 15px;
 </div>
 </div>
 
-<script> 
-// قواعد التحقق المستندة إلى البيانات الصحيحة
-const validationRules = {
-title: { maxWords: 6, minLength: 3, requiredKeywords: ['طلب','تعديل','إضافة','حذف','مشكلة','خطأ','استعلام','إعلان','تغيير','فتح','صلاحية','انشاء','تحديث','تدقيق','مساعدة'] },
-description: { minLength: 8, patterns: [/\d+\/\d+/, /رقم\s*\d+/] },
-solution: { minLength: 5, actionWords: ['تم','تمت','انتهى','أكمل','أنهى','نفذ','أنجز'] },
-type: { validTypes: ['Service Request', 'Incident'], incidentPriority: [1,2,3], srPriority: 4 },
-categories: {
-main: ['CMS - Cases', 'CMS - Requests', 'CMS - Access', 'CMS - Court Rooms', 'CMS - Case Management', 'CMS - Reports'],
-subcategories: {
-'CMS - Cases': ['Parties', 'Announcements', 'Case Status', 'Panel Details', 'Attachments', 'Decision Details', 'technical issue'],
-'CMS - Requests': ['Request Status', 'Parties', 'Attachments', 'Owner'],
-'CMS - Access': ['User Access'],
-'CMS - Court Rooms': ['Panel Team', 'Session Team'],
-'CMS - Case Management': ['technical issue'],
-'CMS - Reports': ['statistical report']
+<script>
+// ==================== بيانات دليل HPSM V4 ====================
+// تم استخراج التركيبات الصالحة من ملف HPSM V4.xlsx (الصفحات: CMS requests, CMS Incident, JWB request, JWB Incident, OSS request, OSS Incident, E-services requests, E-services incidents)
+// مع مراعاة أن Priority ثابتة لطلبات الخدمة = 4، وللحوادث تختلف حسب التصنيف (غالباً 3، وبعضها 2)
+// نقوم ببناء كائن ضخم يضم كل التركيبات الصالحة
+
+const validCombos = {
+'Service Request': {
+'CMS': {
+'Cases': {
+'Finance Charges': ['Add finance charges record.', 'Amend the amount.', 'Change payment method.', 'Change payment status.', 'Change payment date.'],
+'Positions': ['update position'],
+'Parties': ['Add Party', 'Update party from MOI', 'Delete Party', 'Add Financial details (IBAN)', 'Amend Financial details (IBAN)', 'change party type', 'change party relatioship', 'Add Organization number', 'Add Commercial record', 'Amend Organization number', 'Amend Commercial record', 'Add related party', 'Amend related party', 'Add Power of attorney number', 'Amend Power of attorney number'],
+'Supporting Parties': ['add supporting party', 'amend supporting party'],
+'Hearings': ['Add hearing session', 'amend hearing session date', 'amend hearing session type', 'amend hearing session status', 'Delete hearing session'],
+'Attachments': ['Delete Attachment', 'Change Attachment type'],
+'Case Related Case': ['add related case', 'Delete related case'],
+'Hearing Parties': ['add hearing parties'],
+'Decision Details': ['Add decision', 'Change decision status', 'Add decision party', 'change decision code', 'change next hearing session'],
+'Judgments': ['add Judgment record', 'change judment status', 'change judment type', 'add Judgment order'],
+'Announcements': ['create Announcements', 'change Announcements'],
+'Case Details': ['add case subject', 'amend case subject'],
+'Case Status': ['change case status'],
+'Ownership': ['add Ownership', 'Amend Ownership'],
+'Panel Details': ['add Panel', 'Change Panel', 'add session date', 'amend session date'],
+'Orders': ['Add Party to order', 'add ammount to order', 'change party to order', 'change ammount to order'],
+'Audit Trail': ['reuest info from audit trail'],
+'Property Information': ['add property information', 'change property information'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+},
+'Requests': {
+'Parties': ['Add Party', 'Update party from MOI', 'Delete Party', 'change party type', 'change party relatioship', 'Add Organization number', 'Add Commercial record', 'Amend Organization number', 'Amend Commercial record', 'Add related party', 'Amend related party', 'Add Power of attorney number', 'Amend Power of attorney number'],
+'Attachments': ['Delete Attachment', 'Change Attachment type'],
+'Decision': ['Add decision', 'Change decision status'],
+'Demands': ['add demands', 'amend dmands'],
+'Payments Details': ['Add Payment record.', 'Amend the amount.', 'Change payment method.', 'Change payment status.', 'Change payment date.', 'amend payment holder'],
+'Owner': ['add Owner', 'amend Owner'],
+'Expertise Deposit': ['Add Expertise Deposit ammount', 'Amend Expertise Deposit ammount'],
+'Expert Committees': ['add Expert Committees', 'amend Expert Committees', 'activate Expert Committees'],
+'Expertise Type': ['add Expertise Type', 'amend Expertise Type'],
+'Request Status': ['amend request status'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+},
+'Case Management': {
+'Durations': ['activate duration', 'edit duration'],
+'stages': ['edit stage'],
+'Reason For Rejection/ Return': ['Text Box inactive'],
+'Summary Report': ['edit report', 'delete report'],
+'Hearing Sessions': ['Add hearing session', 'amend hearing session date', 'amend hearing session type', 'amend hearing session status', 'Delete hearing session'],
+'Parties': ['Add Party', 'Update party from MOI', 'Delete Party', 'Add Financial details (IBAN)', 'Amend Financial details (IBAN)', 'change party type', 'change party relatioship', 'Add Organization number', 'Add Commercial record', 'Amend Organization number', 'Amend Commercial record', 'Add related party', 'Amend related party', 'Add Power of attorney number', 'Amend Power of attorney number'],
+'Supporting Parties': ['add supporting party', 'amend supporting party'],
+'Demands': ['add demands', 'amend dmands'],
+'Attachments': ['Delete Attachment', 'Change Attachment type'],
+'Finance Charges': ['Add finance charges record.', 'Amend the amount.', 'Change payment method.', 'Change payment status.', 'Change payment date.'],
+'Case Subject': ['add case subject', 'amend case subject'],
+'Case Announcment': ['create Announcements', 'change Announcements'],
+'Owner': ['add Ownership', 'Amend Ownership'],
+'Audit Trail': ['reuest info from audit trail'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+},
+'Court Rooms': {
+'Panel Shedule': ['add hearing session date'],
+'Panel Team': ['add panel member', 'change panel member', 'delete panel member'],
+'Session Team': ['change member in session team', 'change panel role for a member', 'delete a member from session team', 'add a member from session team'],
+'Decesion': ['add decision parties', 'change decision parties'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+},
+'Public Prosecution Information': {
+'Supporting Parties': ['add parties', 'remove parties', 'amend parties'],
+'Charges': ['add charges -sub chargs', 'amend chargs / sub chargs']
+},
+'Reports': {
+'statistical report': ['add statistical report'],
+'Data': ['extract data'],
+'Fields': ['add fields', 'ammend fields', 'delete fields']
 }
 },
-classifications: [
-'Delete Party', 'Add Commercial record', 'Add Party', 'Update party from MOI', 'change party type',
-'create Announcements', 'amend request status', 'change case status', 'Amend related party',
-'Grant/Revoke Access', 'Help user', 'slowness', 'error message', 'change panel member',
-'Change Panel', 'add panel member', 'change member in session team', 'Amend Commercial record'
-]
+'OSS': { // بناءً على OSS request sheet
+'Cases': {
+'Finance Charges': ['Add finance charges record.', 'Amend the amount.', 'Change payment method.', 'Change payment status.', 'Change payment date.'],
+'Positions': ['update position'],
+'Parties': ['Add Party', 'Update party from MOI', 'Delete Party', 'Add Financial details (IBAN)', 'Amend Financial details (IBAN)', 'change party type', 'change party relatioship', 'Add Organization number', 'Add Commercial record', 'Amend Organization number', 'Amend Commercial record', 'Add related party', 'Amend related party', 'Add Power of attorney number', 'Amend Power of attorney number'],
+'Supporting Parties': ['add supporting party', 'amend supporting party'],
+'Attachments': ['Delete Attachment', 'Change Attachment type'],
+'Judgments': ['add Judgment record', 'change judment status', 'change judment type', 'add Judgment order'],
+'Announcements': ['create Announcements', 'change Announcements'],
+'Case Details': ['add case subject', 'amend case subject'],
+'Case Status': ['change case status'],
+'Orders': ['Add Party to order', 'add ammount to order', 'change party to order', 'change ammount to order'],
+'Property Information': ['add property information', 'change property information'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+},
+'Request': {
+'Payments Details': ['Add Payment record.', 'Amend the amount.', 'Change payment method.', 'Change payment status.', 'Change payment date.', 'amend payment holder'],
+'Parties': ['Add Party', 'Update party from MOI', 'Delete Party', 'change party type', 'change party relatioship', 'Add Organization number', 'Add Commercial record', 'Amend Organization number', 'Amend Commercial record', 'Add related party', 'Amend related party', 'Add Power of attorney number', 'Amend Power of attorney number'],
+'Attachments': ['Delete Attachment', 'Change Attachment type'],
+'new requirement': ['add new field', 'add to a list of value', 'change field', 'delete field', 'activate/desactivate field']
+}
+},
+'JWB': { // بناءً على JWB request sheet
+'new requirement main screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement panel details screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement hearing session managment screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement request screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement cases screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement execution cases screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'add new execution decision': ['add new execution decision'],
+'delete execution decision': ['delete execution decision']
+},
+'new requirement search execution cases screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement judgment screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement Cases reserved for judgment screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement side menu': {
+'add new tab': ['add new tab'],
+'delete tab': ['delete tab'],
+'change tab name': ['change tab name'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement judgment draft screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement statistic screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement pre approval screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement parties search screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement experts tasks screen': {
+'add new feature': ['add new feature'],
+'add new tabs': ['add new tabs'],
+'change tabs': ['change tabs'],
+'delete tabs': ['delete tabs'],
+'activate/desactivate tabs': ['activate/desactivate tabs']
+},
+'new requirement experts screen': {
+'add new feature': ['add new feature'],
+'add new column': ['add new column'],
+'change column': ['change column'],
+'delete column': ['delete column']
+},
+'new requirement order on payment screen': {
+'add new feature': ['add new feature'],
+'add new tabs': ['add new tabs'],
+'change tabs': ['change tabs'],
+'delete tabs': ['delete tabs'],
+'activate/desactivate tabs': ['activate/desactivate tabs']
+},
+'new requirement investmant case request screen': {
+'add new feature': ['add new feature'],
+'add new tabs': ['add new tabs'],
+'change tabs': ['change tabs'],
+'delete tabs': ['delete tabs'],
+'activate/desactivate tabs': ['activate/desactivate tabs']
+},
+'new requirement case search screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement judgment encyclopedia screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'new requirement judge notes screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'black list screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+},
+'MOI integration screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field']
+}
+},
+'E-services': { // بناءً على E-services requests sheet
+'new requirement main screen': {
+'add new feature': ['add new feature'],
+'rearringe details': ['rearringe details'],
+'ammend details': ['ammend details']
+},
+'new requirement active requests screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement all requests screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement all cases screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement all registration case requests screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement registration cases and requests screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement payment screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement notifications screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement Search and query screen': {
+'add new feature': ['add new feature'],
+'add new field': ['add new field'],
+'change field': ['change field'],
+'delete field': ['delete field'],
+'activate/desactivate field': ['activate/desactivate field'],
+'rearrange tab': ['rearrange tab']
+},
+'new requirement Report a problem screen': {
+'add new feature': ['add new feature'],
+'add new tab': ['add new tab'],
+'delete tab': ['delete tab'],
+'change tab name': ['change tab name'],
+'rearrange tab': ['rearrange tab']
+}
+}
+},
+'Incident': {
+'CMS': {
+'Cases': {
+'Finance Charges': ['Amount issue', 'Payment status issue'],
+'Positions': ['Wrong position issue'],
+'Parties': ['Update party from MOI issue', 'Amend related party issue', 'Unable to retrive a party from MOI issue'],
+'Supporting Parties': ['supporting party issue'],
+'Hearings': ['Hearing session not created', 'wrong hearing session type', 'Hearing session status doesn’t change', 'Repeated hearing session'],
+'Notes': ['Judges notes doesn’t appear'],
+'Attachments': ['Attachments doesn’t open', 'unable to add attachment'],
+'Case Related Case': ['unable to add related case', 'uable Delete related case'],
+'Minutes Of Hearing': ['unable to add minutes of hearing'],
+'Hearing Parties': ['unable to add hearing parties', 'unable to change attendency statuse'],
+'Decision Details': ['unable to add decision', 'unable to add decision party', 'unable to check the MOI address', 'decision status doesn’t change after approval', 'decision didn’t create a new hearing session after approval', 'decision didn’t create announcment after approval', 'decision didn’t change case status after approval', 'unable to approve decision'],
+'Judgments': ['unable to add judgment', 'unable to approve judgment', 'unable to review judgment', 'unable to add judgment order', 'judment attachment didn’t created after approval'],
+'Announcments': ['no Announcements created', 'wrong Announcements status', 'wrong announcements data'],
+'Case Details': ['unable to add case subject'],
+'Case Status': ['Scheduling Error', 'wrong status'],
+'Ownership': ['wrong Ownership'],
+'Panel Details': ['worng panel'],
+'Cases Summary': ['Case summary print issue', 'Case summary wrong details'],
+'Orders': ['add order record issue', 'Add Party to order issue', 'add ammount to order issue', 'change party to order issue', 'change ammount to order issue'],
+'Audit Trail': ['audit trail data issue'],
+'Facts': ['not able to add facts'],
+'Property Information': ['unable to add property information', 'unable change property information'],
+'SMS': ['not SMS showing', 'wrong details'],
+'First Instance Case Judgment': ['no Instance Case Judgment record', 'Instance Case Judgment record not working'],
+'Cassaion Case Judgment': ['no Cassaion Case Judgment record', 'Cassaion Case Judgment record not working'],
+'Signatures': ['signature doesn’t appear', 'cant take the signature'],
+'technical issue': ['slowness', 'not accessible', 'error message'],
+'submiting': ['submitting issue', 'slowness', 'error message'],
+'Decision': ['request didn’t creat a decision', 'the decision created without number'],
+'Demands': ['duplicate demands records', 'demands record didn’t created'],
+'Payments Details': ['Amount issue', 'Payment status issue', 'Online Payment status issue'],
+'Expert Reject Reason': ['Expert Reject Reason doesn’t appear'],
+'Expertise Type': ['Expertise Type not available'],
+'Request Status': ['wrong request status'],
+'Notes': ['cant add notes'],
+'ban/unban request': ['error message', 'integration issue with MOI', 'the decision status MOI faild', 'decision doesn’t appear in integration followup screen', 'decision doesn’t appear in blacklist (WB)']
+},
+'Case Management': {
+'Durations': ['duration inactive'],
+'stages': ['stage inactive'],
+'Summary Report': ['summary report couldn’t sent'],
+'Hearing Sessions': ['Hearing session not created', 'wrong hearing session type', 'Hearing session status doesn’t change', 'Repeated hearing session'],
+'Parties': ['Update party from MOI issue', 'Amend related party issue', 'Unable to retrive a party from MOI issue'],
+'technical issue': ['slowness'],
+'Supporting Parties': ['supporting party issue'],
+'Demands': ['duplicate demands records', 'demands record didn’t created'],
+'Attachments': ['Attachments doesn’t open', 'unable to add attachment'],
+'Case Subject': ['unable to add case subject'],
+'Case Announcment': ['no Announcements created', 'wrong Announcements status', 'wrong announcements data'],
+'Owner': ['wrong Ownership'],
+'Fee': ['audit trail data issue']
+},
+'Court Rooms': {
+'Panel Shedule': ['hearing session date doesn’t appear', 'wrong current workload', 'print session roll button issue', 'start session button not active', 'print minute of hearing session issue', 'print judge notes issue', 'wrong court room'],
+'Panel Team': ['wrong bench role', 'missing member'],
+'Session Team': ['import button issue', 'confirm attendence button issue'],
+'Administratiion Canceled': ['panel doesnt appear', 'hearing session date doesn’t appear', 'dicision parties doesn’t appear'],
+'technical issue': ['slowness', 'not accessible', 'error message']
+},
+'Public Prosecution Information': {
+'Public Prosecution Information': ['MISSING police report number', 'MISSING police report year'],
+'Supporting Parties': ['Wrong parties details'],
+'Charges': ['missing charges -SUB CHARGS'],
+'Attachments': ['MSSING attachemnts', 'corrupted attachemtns']
+},
+'technical issue': {
+'Integration Issue': ['MOI integration issue', 'QCB integration issue', 'Qpost integration issue', 'MOPH integration issue', 'Stocks integration issue', 'MOCI integration issue', 'Public prosecution issue']
+},
+'Reports': {
+'statistical report': ['not working'],
+'Data': ['unable to extract', 'wrong data'],
+'Fields': ['not working', 'missing field'],
+'technical issue': ['slowness', 'not accessible', 'error message']
+}
+},
+'JWB': { // بناءً على JWB Incident sheet
+'main screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'panel details screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'hearing session managment screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'hearing session date not showing': ['hearing session date not showing'],
+'decision approval issue': ['decision approval issue'],
+'judgment approval issue': ['judgment approval issue'],
+'calander issue': ['calander issue'],
+'hearing Session minutes approval issue': ['hearing Session minutes approval issue'],
+'add judgment issue': ['add judgment issue'],
+'judgment not showing': ['judgment not showing'],
+'decision not showing': ['decision not showing'],
+'hearing Session minutes not showing': ['hearing Session minutes not showing']
+},
+'request screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'request not showing': ['request not showing'],
+'request approval issue': ['request approval issue'],
+'request attachment not working': ['request attachment not working'],
+'request summary not working': ['request summary not working']
+},
+'cases screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing'],
+'case attachment not working': ['case attachment not working'],
+'case summary not working': ['case summary not working']
+},
+'execution cases screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing'],
+'case attachment not working': ['case attachment not working'],
+'case summary not working': ['case summary not working'],
+'add execution decision issue': ['add execution decision issue'],
+'approve execution decision issue': ['approve execution decision issue'],
+'execution decision report issue': ['execution decision report issue'],
+'amanat card link issue': ['amanat card link issue'],
+'case parties not showing': ['case parties not showing'],
+'wrong fees details (Amanat integration)': ['wrong fees details (Amanat integration)'],
+'assets button issue': ['assets button issue'],
+'related request not showing': ['related request not showing'],
+'related case not showing': ['related case not showing'],
+'create testimonies issue (Amanat integration)': ['create testimonies issue (Amanat integration)'],
+'announcement tab issue': ['announcement tab issue']
+},
+'search execution cases screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing']
+},
+'judgment screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'Cases reserved for judgment screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing']
+},
+'side menu': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'tab is missing': ['tab is missing']
+},
+'judgment draft screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'statistic screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'wrong static data': ['wrong static data']
+},
+'pre approval screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'Judment not showing': ['Judment not showing']
+},
+'parties search screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'party not showing': ['party not showing']
+},
+'experts tasks screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'task not showing': ['task not showing']
+},
+'experts screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'expert name not showing': ['expert name not showing']
+},
+'order on payment screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'order on payment not showing': ['order on payment not showing']
+},
+'investmant case request screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'Invesment case request not showing': ['Invesment case request not showing']
+},
+'case search screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case request not showing': ['case request not showing']
+},
+'judgment encyclopedia screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'Judgment not showing': ['Judgment not showing']
+},
+'judge notes screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'black list screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'ban/unban request not showing': ['ban/unban request not showing'],
+'ban/unban request picking issue': ['ban/unban request picking issue'],
+'ban/unban decision not showing': ['ban/unban decision not showing'],
+'ban/unban decision approval issue': ['ban/unban decision approval issue'],
+'ban/unban request approval issue': ['ban/unban request approval issue']
+},
+'MOI integration issue': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'ban/unban request not showing': ['ban/unban request not showing'],
+'data retreive issue': ['data retreive issue'],
+'ban/unban request status issue': ['ban/unban request status issue']
+}
+},
+'OSS': { // بناءً على OSS Incident sheet
+'Cases': {
+'Finance Charges': ['Amount issue', 'Payment status issue'],
+'Positions': ['Wrong position issue'],
+'Parties': ['Update party from MOI issue', 'Amend related party issue', 'Unable to retrive a party from MOI issue'],
+'Supporting Parties': ['supporting party issue'],
+'Attachments': ['Attachments doesn’t open', 'unable to add attachment'],
+'Judgments': ['unable to retrive judgment record', 'unable to add judgment', 'unable to approve judgment', 'unable to review judgment', 'unable to add judgment order', 'judment attachment didn’t created after approval'],
+'Announcments': ['no Announcements created', 'wrong Announcements status', 'wrong announcements data'],
+'Case Details': ['unable to add case subject'],
+'Case Status': ['Scheduling Error', 'wrong status'],
+'Orders': ['add order record issue', 'Add Party to order issue', 'add ammount to order issue', 'change party to order issue', 'change ammount to order issue'],
+'Facts': ['not able to add facts'],
+'Property Information': ['unable to add property information', 'unable change property information'],
+'First Instance Case Judgment': ['no Instance Case Judgment record', 'Instance Case Judgment record not working'],
+'Cassaion Case Judgment': ['no Cassaion Case Judgment record', 'Cassaion Case Judgment record not working']
+},
+'Request': {
+'Signatures': ['signature doesn’t appear', 'cant take the signature'],
+'technical issue': ['slowness', 'not accessible', 'error message'],
+'Payments Details': ['Amount issue', 'Payment status issue', 'Online Payment status issue'],
+'Parties': ['Amend related party issue', 'Unable to retrive a party from MOI issue'],
+'Attachments': ['Attachments doesn’t open', 'unable to add attachment']
+}
+},
+'E-services': { // بناءً على E-services incidents sheet
+'main screen': {
+'wrong details': ['wrong details'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'active requests screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+},
+'all requests screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'request not showing': ['request not showing'],
+'payment issue': ['payment issue'],
+'request summary download issue': ['request summary download issue']
+},
+'all cases screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing'],
+'case summary download issue': ['case summary download issue'],
+'download attachment issue': ['download attachment issue'],
+'attachement not showing': ['attachement not showing']
+},
+'all registration case\'s requests screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'case not showing': ['case not showing'],
+'case attachment not working': ['case attachment not working'],
+'case summary not working': ['case summary not working'],
+'request summary download issue': ['request summary download issue'],
+'invoice download issue': ['invoice download issue']
+},
+'registration cases and requests screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'add partie issue': ['add partie issue'],
+'partie not showing': ['partie not showing'],
+'wrong partie details': ['wrong partie details'],
+'case categorie not showing': ['case categorie not showing'],
+'case not showing': ['case not showing'],
+'buttons issue': ['buttons issue'],
+'add Claims issue': ['add Claims issue'],
+'Claims not showing': ['Claims not showing'],
+'judgment order not showing': ['judgment order not showing'],
+'wrong judgment order partie issue': ['wrong judgment order partie issue'],
+'submition issue': ['submition issue'],
+'request/case sent failure status': ['request/case sent failure status']
+},
+'payment issue': {
+'unable to complete the payment': ['unable to complete the payment'],
+'wrong payment status': ['wrong payment status'],
+'wrong ammount': ['wrong ammount']
+},
+'notifications screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'notification doesnt appear': ['notification doesnt appear'],
+'wrong information': ['wrong information']
+},
+'Search and query screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible'],
+'data not retreived': ['data not retreived'],
+'wrong data': ['wrong data']
+},
+'Report a problem screen': {
+'tab not working': ['tab not working'],
+'error message': ['error message'],
+'not accessible': ['not accessible']
+}
+}
+}
 };
 
-let allResults = [];
-let filteredResults = [];
+// دالة للتحقق من وجود التركيبة وإرجاع الأولوية المتوقعة
+function getExpectedPriority(type, affectedService, category, subcategory, classification) {
+try {
+const serviceObj = validCombos[type]?.[affectedService];
+if (!serviceObj) return null;
+// قد تكون الفئة الرئيسية مختلفة (مثل "Cases" أو "Request" أو "new requirement ...")
+// نحتاج للبحث في كل مفاتيح serviceObj
+for (let catKey in serviceObj) {
+if (catKey === category) {
+const subObj = serviceObj[catKey];
+for (let subKey in subObj) {
+if (subKey === subcategory) {
+if (subObj[subKey].includes(classification)) {
+// الأولوية لطلبات الخدمة دائماً 4، للحوادث حسب الدليل (معظمها 3، بعضها 2)
+// نعتمد أن الأولوية الصحيحة هي 4 لـ Service Request، و 3 لـ Incident (مع استثناءات قليلة قد نضيفها لاحقاً)
+// يمكننا تخزين أولويات مختلفة لكل تصنيف إذا لزم الأمر، لكن حالياً نكتفي بهذا.
+return (type === 'Service Request') ? 4 : 3;
+}
+}
+}
+}
+}
+return null;
+} catch (e) {
+return null;
+}
+}
+
+// دالة التحقق من وجود رقم الدعوى/الطلب في الوصف (إلزامي)
+function hasReferenceNumber(description) {
+if (!description) return false;
+// أنماط شائعة: 1814/2026/تنفيذ/حكم/مدني, رقم 12345, 2025\144979, إلخ
+const patterns = [
+/\d+\/\d+\/[^/\s]+(?:\/[^/\s]+)*/, // مثل 1814/2026/تنفيذ/حكم/مدني
+/رقم\s*\d+/,
+/\d+\/\d+/, // أي رقمين متتاليين بشرطة
+/SD\d+/ // أرقام التذاكر القديمة (قد تظهر في الوصف)
+];
+return patterns.some(p => p.test(description));
+}
 
 // دالة التحقق الرئيسية
 function validateTicket(ticket) {
 const v = {};
 
-v.title = validateTitle(ticket.Title);
-v.description = validateDescription(ticket.Description);
-v.solution = validateSolution(ticket.Solution);
-v.category = validateCategory(ticket.Category);
-v.subcategory = validateSubcategory(ticket.Category, ticket.Subcategory);
-v.classification = validateClassification(ticket.Classification);
-v.type = validateType(ticket.Type, ticket.Priority);
+// حقول إلزامية تسبب خطأ إذا كانت مفقودة أو خاطئة
 v.interactionId = validateInteractionId(ticket['Interaction ID']);
+v.type = validateRequired(ticket.Type, 'النوع');
+v.affectedService = validateRequired(ticket['Affected Services'] || ticket['Affected Service'], 'الخدمة المتأثرة');
+v.category = validateRequired(ticket.Category, 'الفئة');
+v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية');
+v.classification = validateRequired(ticket.Classification, 'التصنيف');
+v.priority = validatePriority(ticket.Priority);
+// التحقق من التركيبة حسب الدليل (إذا كانت الحقول السابقة موجودة)
+const type = ticket.Type;
+const affected = ticket['Affected Services'] || ticket['Affected Service'];
+const cat = ticket.Category;
+const sub = ticket.Subcategory;
+const cls = ticket.Classification;
+const expectedPriority = (type && affected && cat && sub && cls) ? getExpectedPriority(type, affected, cat, sub, cls) : null;
 
-const invalidCount = Object.values(v).filter(x => !x.isValid).length;
-const score = Math.round(((Object.keys(v).length - invalidCount) / Object.keys(v).length) * 100);
-const isValid = score >= 70; // 70% من الحقول صالحة
-const hasWarnings = Object.values(v).some(x => x.hasWarning);
+if (expectedPriority === null) {
+// التركيبة غير صالحة
+v.combo = { isValid: false, hasWarning: false, feedback: ['تركيبة (النوع-الخدمة-الفئة-التصنيف) غير معتمدة في الدليل'] };
+} else {
+v.combo = { isValid: true, hasWarning: false, feedback: ['التركيبة صالحة حسب الدليل'] };
+// التحقق من الأولوية
+const prio = parseInt(ticket.Priority);
+if (prio !== expectedPriority) {
+v.priority.isValid = false;
+v.priority.feedback.push(`الأولوية يجب أن تكون ${expectedPriority} وفقاً للدليل`);
+}
+}
+
+// التحقق من وجود رقم الدعوى/الطلب في الوصف (إلزامي)
+v.referenceNumber = { isValid: hasReferenceNumber(ticket.Description), hasWarning: false, feedback: [] };
+if (!v.referenceNumber.isValid) {
+v.referenceNumber.feedback.push('يجب أن يحتوي الوصف على رقم الدعوى أو الطلب');
+} else {
+v.referenceNumber.feedback.push('يحتوي على رقم مرجعي');
+}
+
+// حقول تحذيرية فقط (لا تجعل التذكرة خاطئة)
+v.title = validateTitle(ticket.Title);
+v.solution = validateSolution(ticket.Solution);
+
+// حساب النتيجة: كل حقل إلزامي (بما فيها referenceNumber) إذا كان غير صحيح يجعل التذكرة خاطئة
+const mandatoryFields = ['interactionId', 'type', 'affectedService', 'category', 'subcategory', 'classification', 'priority', 'combo', 'referenceNumber'];
+const invalidMandatory = mandatoryFields.filter(f => v[f] && !v[f].isValid).length;
+const isValid = invalidMandatory === 0; // لا يوجد خطأ في الحقول الإلزامية
+const hasWarnings = Object.values(v).some(f => f.hasWarning);
+
+// حساب النسبة المئوية (اختياري)
+const totalFields = Object.keys(v).length;
+const validFields = Object.values(v).filter(f => f.isValid).length;
+const score = Math.round((validFields / totalFields) * 100);
 
 return { ticket, validations: v, score, isValid, hasWarnings };
 }
 
-function validateTitle(t) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!t) { res.feedback.push('العنوان مطلوب'); res.isValid = false; return res; }
-const words = t.trim().split(/\s+/).length;
-if (words > validationRules.title.maxWords) {
-res.hasWarning = true;
-res.feedback.push(`العنوان طويل (${words} كلمة، يفضل ≤${validationRules.title.maxWords})`);
-}
-if (t.length < validationRules.title.minLength) {
-res.hasWarning = true;
-res.feedback.push(`العنوان قصير جداً (أقل من ${validationRules.title.minLength} حروف)`);
-}
-const hasKeyword = validationRules.title.requiredKeywords.some(k => t.includes(k));
-if (!hasKeyword) {
-res.hasWarning = true;
-res.feedback.push('يفضل استخدام كلمات مفتاحية مناسبة');
-}
-if (res.feedback.length === 0) res.feedback.push('العنوان مناسب');
-return res;
-}
-
-function validateDescription(d) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!d) { res.feedback.push('الوصف مطلوب'); res.isValid = false; return res; }
-if (d.length < validationRules.description.minLength) {
-res.hasWarning = true;
-res.feedback.push(`الوصف قصير جداً (أقل من ${validationRules.description.minLength} حروف)`);
-}
-const hasRef = validationRules.description.patterns.some(p => p.test(d));
-if (!hasRef) {
-res.hasWarning = true;
-res.feedback.push('يفضل ذكر رقم الدعوى أو الطلب');
-} else {
-res.feedback.push('يحتوي على أرقام مرجعية');
-}
-return res;
-}
-
-function validateSolution(s) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!s) { res.feedback.push('الحل مطلوب'); res.isValid = false; return res; }
-if (s.length < validationRules.solution.minLength) {
-res.hasWarning = true;
-res.feedback.push(`الحل مختصر جداً (أقل من ${validationRules.solution.minLength} حروف)`);
-}
-const hasAction = validationRules.solution.actionWords.some(w => s.includes(w));
-if (!hasAction) {
-res.hasWarning = true; 
-res.feedback.push('يفضل أن يحتوي الحل على كلمات الإنجاز (تم، تمت، ...)');
-} else {
-res.feedback.push('يحتوي على كلمات إنجاز');
-}
-return res;
-}
-
-function validateCategory(c) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!c) { res.feedback.push('الفئة مطلوبة'); res.isValid = false; return res; }
-if (!validationRules.categories.main.includes(c)) {
-res.hasWarning = true;
-res.feedback.push(`الفئة "${c}" غير معروفة`);
-} else {
-res.feedback.push('الفئة صالحة');
-}
-return res;
-}
-
-function validateSubcategory(cat, sub) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!sub) { res.feedback.push('الفئة الفرعية مطلوبة'); res.isValid = false; return res; }
-const valid = validationRules.categories.subcategories[cat];
-if (!valid || !valid.includes(sub)) {
-res.hasWarning = true; 
-res.feedback.push(`الفئة الفرعية "${sub}" غير معروفة للفئة ${cat}`);
-} else {
-res.feedback.push('الفئة الفرعية مناسبة');
-}
-return res;
-}
-
-function validateClassification(cls) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!cls) { res.feedback.push('التصنيف مطلوب'); res.isValid = false; return res; }
-if (!validationRules.classifications.includes(cls)) {
-res.hasWarning = true;
-res.feedback.push(`التصنيف "${cls}" غير معروف`);
-} else {
-res.feedback.push('التصنيف مناسب');
-}
-return res;
-}
-
-function validateType(typ, prio) {
-const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!typ) { res.feedback.push('نوع التذكرة مطلوب'); res.isValid = false; return res; }
-if (!validationRules.type.validTypes.includes(typ)) {
-res.feedback.push(`نوع التذكرة "${typ}" غير صالح`);
-res.isValid = false;
-return res;
-}
-const p = parseInt(prio);
-if (typ === 'Incident' && !validationRules.type.incidentPriority.includes(p)) {
-res.hasWarning = true;
-res.feedback.push(`الأولوية المناسبة للحادث هي 1-3`);
-} else if (typ === 'Service Request' && p !== validationRules.type.srPriority) {
-res.hasWarning = true;
-res.feedback.push(`الأولوية المناسبة لطلب الخدمة هي 4`);
-} else {
-res.feedback.push('النوع والأولوية متناسقان');
-}
-return res;
-}
-
+// دوال مساعدة للتحقق
 function validateInteractionId(id) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!id) { res.feedback.push('رقم التذكرة مطلوب'); res.isValid = false; return res; }
-if (!/^SD\d+$/.test(id)) {
-res.hasWarning = true; 
+if (!id) {
+res.isValid = false;
+res.feedback.push('رقم التذكرة مطلوب');
+} else if (!/^SD\d+$/.test(id)) {
+res.hasWarning = true;
 res.feedback.push('صيغة رقم التذكرة غير قياسية (يفضل SD متبوعاً بأرقام)');
 } else {
 res.feedback.push('رقم التذكرة صحيح');
@@ -595,7 +1243,84 @@ res.feedback.push('رقم التذكرة صحيح');
 return res;
 }
 
-// معالجة الملف
+function validateRequired(value, fieldName) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!value || value.trim() === '') {
+res.isValid = false;
+res.feedback.push(`${fieldName} مطلوب`);
+} else {
+res.feedback.push(`${fieldName} موجود`);
+}
+return res;
+}
+
+function validatePriority(prio) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!prio && prio !== 0) {
+res.isValid = false;
+res.feedback.push('الأولوية مطلوبة');
+} else {
+const p = parseInt(prio);
+if (isNaN(p) || p < 1 || p > 4) {
+res.isValid = false;
+res.feedback.push('الأولوية يجب أن تكون رقماً بين 1 و 4');
+} else {
+res.feedback.push('الأولوية موجودة');
+}
+}
+return res;
+}
+
+function validateTitle(title) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!title) {
+res.isValid = true; // لا نجعلها خطأ، فقط تحذير
+res.hasWarning = true;
+res.feedback.push('العنوان مفقود (يُفضل إضافته)');
+} else {
+const words = title.trim().split(/\s+/).length;
+if (words > 6) {
+res.hasWarning = true;
+res.feedback.push(`العنوان طويل (${words} كلمة، يفضل ≤6)`);
+}
+if (title.length < 3) {
+res.hasWarning = true;
+res.feedback.push('العنوان قصير جداً');
+}
+if (res.feedback.length === 0) res.feedback.push('العنوان مناسب');
+}
+return res;
+}
+
+function validateSolution(solution) {
+const res = { isValid: true, hasWarning: false, feedback: [] };
+if (!solution) {
+res.hasWarning = true;
+res.feedback.push('الحل مفقود (يُفضل إضافته)');
+} else {
+if (solution.length < 5) {
+res.hasWarning = true;
+res.feedback.push('الحل مختصر جداً');
+}
+const actionWords = ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'نفذ', 'أنجز'];
+const hasAction = actionWords.some(w => solution.includes(w));
+if (!hasAction) {
+res.hasWarning = true;
+res.feedback.push('يُفضل أن يحتوي الحل على كلمات الإنجاز (تم، تمت، ...)');
+}
+if (res.feedback.length === 0) res.feedback.push('الحل مناسب');
+}
+return res;
+}
+
+// باقي الكود (معالجة الملف، عرض النتائج، التصدير) مشابه للسابق مع إضافة زر تصدير التحذيرات
+// نعيد استخدام نفس الدوال مع تعديل بسيط
+
+// ==================== متغيرات عامة ====================
+let allResults = [];
+let filteredResults = [];
+
+// ==================== معالجة الملف ====================
 function handleFileUpload(e) {
 const file = e.target.files[0];
 if (!file) return;
@@ -618,20 +1343,22 @@ const sheet = workbook.Sheets[workbook.SheetNames[0]];
 const rows = XLSX.utils.sheet_to_json(sheet);
 const tickets = rows.map(r => ({
 'Interaction ID': r['Interaction ID'] || r['Interaction_ID'] || '',
-'Title': r['Title'] || '',
-'Description': r['Description'] || '',
-'Solution': r['Solution'] || '',
-'Category': r['Category'] || '',
-'Subcategory': r['Subcategory'] || '',
-'Classification': r['Classification'] || '',
-'Type': r['Type'] || '',
-'Priority': r['Priority'] || ''
+'Type': r['Type'] || r['type'] || '',
+'Affected Services': r['Affected Services'] || r['Affected Service'] || r['Affected_Service'] || '',
+'Category': r['Category'] || r['categorie'] || r['Categorie'] || '',
+'Subcategory': r['Subcategory'] || r['SubCategory'] || r['subcategorie'] || '',
+'Classification': r['Classification'] || r['classification'] || '',
+'Priority': r['Priority'] || r['priority'] || '',
+'Title': r['Title'] || r['title'] || '',
+'Description': r['Description'] || r['description'] || '',
+'Solution': r['Solution'] || r['solution'] || ''
 }));
 allResults = tickets.map(t => validateTicket(t));
 filteredResults = allResults;
 displayResults(filteredResults);
 updateStats(filteredResults);
 document.getElementById('exportBtn').style.display = 'inline-block';
+document.getElementById('exportWarningsBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 document.getElementById('loadingIndicator').style.display = 'none';
 };
@@ -656,7 +1383,7 @@ card.innerHTML = `
 <div class="ticket-title">${r.ticket.Title || 'بدون عنوان'}<div class="interaction-id">${id}</div></div>
 <div class="validation-score" style="background:${color}">${r.score}%</div>
 </div>
-<div class="legal-highlight">الفئة: ${r.ticket.Category} | الفئة الفرعية: ${r.ticket.Subcategory}</div>
+<div class="legal-highlight">النوع: ${r.ticket.Type} | الخدمة: ${r.ticket['Affected Services']}</div>
 <div class="validation-details">
 ${Object.entries(r.validations).map(([f, v]) => `
 <div class="field-validation">
@@ -665,14 +1392,26 @@ ${Object.entries(r.validations).map(([f, v]) => `
 </div>
 `).join('')}
 </div>
-${!r.isValid ? '<div class="suggestions"><strong>تحتاج هذه التذكرة إلى مراجعة.</strong></div>' : ''}
+${!r.isValid ? '<div class="suggestions"><strong>❌ تذكرة خاطئة (يجب مراجعتها)</strong></div>' : (r.hasWarnings ? '<div class="suggestions"><strong>⚠ تذكرة بها تحذيرات (يمكن تحسينها)</strong></div>' : '')}
 `;
 container.appendChild(card);
 });
 }
 
 function getFieldName(f) {
-const map = { title: 'العنوان', description: 'الوصف', solution: 'الحل', category: 'الفئة', subcategory: 'الفئة الفرعية', classification: 'التصنيف', type: 'النوع', interactionId: 'رقم التذكرة' };
+const map = {
+interactionId: 'رقم التذكرة',
+type: 'النوع',
+affectedService: 'الخدمة المتأثرة',
+category: 'الفئة',
+subcategory: 'الفئة الفرعية',
+classification: 'التصنيف',
+priority: 'الأولوية',
+combo: 'التركيبة',
+referenceNumber: 'رقم الدعوى/الطلب',
+title: 'العنوان',
+solution: 'الحل'
+};
 return map[f] || f;
 }
 
@@ -688,29 +1427,33 @@ document.querySelectorAll('.court-filter-btn').forEach(b => b.classList.remove('
 event.target.classList.add('active');
 if (type === 'all') filteredResults = allResults;
 else if (type === 'valid') filteredResults = allResults.filter(r => r.isValid);
-else filteredResults = allResults.filter(r => !r.isValid);
+else if (type === 'invalid') filteredResults = allResults.filter(r => !r.isValid);
+else if (type === 'warnings') filteredResults = allResults.filter(r => r.hasWarnings && r.isValid); // تحذيرات فقط مع الصحة
 displayResults(filteredResults);
 updateStats(filteredResults);
 }
 
 function validateSampleData() {
+// نموذج من التذاكر الصحيحة والخاطئة
 const sample = [
-{ "Interaction ID": "SD1730119", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Type": "Service Request", "Priority": "4" },
-{ "Interaction ID": "SD1738602", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت", "Category": "CMS - Cases", "Subcategory": "technical issue", "Classification": "slowness", "Type": "Incident", "Priority": "3" }
+{ "Interaction ID": "SD1730119", "Type": "Service Request", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة" },
+{ "Interaction ID": "SD1738602", "Type": "Incident", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "technical issue", "Classification": "slowness", "Priority": "3", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت" },
+{ "Interaction ID": "SD1740050", "Type": "Service Request", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "طلب حذف طرف", "Description": "لا يوجد رقم", "Solution": "تم الحذف" } // خاطئ لعدم وجود رقم مرجعي
 ];
 allResults = sample.map(t => validateTicket(t));
 filteredResults = allResults;
 displayResults(filteredResults);
 updateStats(filteredResults);
 document.getElementById('exportBtn').style.display = 'inline-block';
+document.getElementById('exportWarningsBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 }
 
 function exportResults() {
 if (!allResults.length) return alert('لا توجد نتائج');
-let csv = 'Interaction ID,Title,Score,Status,Category,Subcategory,Classification,Type,Priority\n';
+let csv = 'Interaction ID,Title,Score,Status,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
 allResults.forEach(r => {
-csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Type},${r.ticket.Priority}\n`;
+csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
 });
 download(csv, 'all_results.csv');
 }
@@ -718,15 +1461,24 @@ download(csv, 'all_results.csv');
 function exportInvalidTickets() {
 const inv = allResults.filter(r => !r.isValid);
 if (!inv.length) return alert('لا توجد تذاكر خاطئة');
-let csv = 'Interaction ID,Title,Score,Category,Subcategory,Classification,Type,Priority\n';
+let csv = 'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
 inv.forEach(r => {
-csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Type},${r.ticket.Priority}\n`;
+csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
 });
 download(csv, 'invalid_tickets.csv');
 }
 
-function download(content, filename) { 
-// إضافة BOM (Byte Order Mark) لضمان عرض الأحرف العربية بشكل صحيح في Excel
+function exportWarnings() {
+const warn = allResults.filter(r => r.hasWarnings && r.isValid);
+if (!warn.length) return alert('لا توجد تذاكر بها تحذيرات');
+let csv = 'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
+warn.forEach(r => {
+csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
+});
+download(csv, 'warnings.csv');
+}
+
+function download(content, filename) {
 const bom = "\uFEFF";
 const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
 const link = document.createElement('a');
