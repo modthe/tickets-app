@@ -357,7 +357,7 @@ margin-top: 15px;
 <div class="container">
 <header>
 <h1>🎫 نظام التحقق من التذاكر - دليل HPSM V4</h1>
-<p class="subtitle">التحقق بناءً على التصنيفات ووجود رقم الدعوى/الطلب (الخدمة المتأثرة اختيارية)</p>
+<p class="subtitle">التحقق بناءً على التصنيفات ووجود رقم الدعوى/الطلب (مع استثناءات)</p>
 </header>
 
 <div id="mainApp">
@@ -373,8 +373,8 @@ margin-top: 15px;
 <li><strong>Classification</strong> (مثل Add Party, Delete Party) – إلزامي</li>
 <li><strong>Priority</strong> (1-4) – إلزامي</li>
 <li><strong>Title</strong> (العنوان) – اختياري (تحذير إذا كان ناقصاً)</li>
-<li><strong>Description</strong> (الوصف) – يجب أن يحتوي على رقم الدعوى/الطلب ما لم تكن التذكرة من نوع لا يتطلب رقماً (مثل طلبات الصلاحيات)</li>
-<li><strong>Solution</strong> (الحل) – اختياري (تحذير إذا كان ناقصاً)</li>
+<li><strong>Description</strong> (الوصف) – يجب أن يحتوي على رقم الدعوى/الطلب ما لم تكن التذكرة من نوع لا يتطلب رقماً (مثل الصلاحيات أو مشكلة تقنية)</li>
+<li><strong>Solution</strong> (الحل) – اختياري (تحذير إذا كان ناقصاً)، ويتم فحصه أيضاً بحثاً عن الرقم المرجعي</li>
 <li><strong>Affected Services</strong> (اختياري، يظهر في التصدير فقط)</li>
 </ul>
 <div class="upload-area" id="uploadArea">
@@ -387,12 +387,12 @@ margin-top: 15px;
 <div class="criteria-section">
 <h4>🔍 معايير التحقق الأساسية</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف على رقم الدعوى أو الطلب (مثل 1814/2026/تنفيذ/حكم/مدني) أو الرقم المرجعي (مثل 1-2063910251716) أو الرقم القديم (مثل 2003 - 001818 ت م ج) – إلزامي لمعظم التذاكر.</li>
-<li class="criteria-item"><strong>استثناءات:</strong> تذاكر الصلاحيات (User Access, Grant/Revoke Access) وتذاكر إعداد الدوائر (Court Rooms, Panel Team, Panel Details, Owner) لا تتطلب رقماً.</li>
+<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف أو الحل على رقم الدعوى أو الطلب (بأي صيغة معروفة) – إلزامي لمعظم التذاكر.</li>
+<li class="criteria-item"><strong>استثناءات:</strong> تذاكر الصلاحيات (User Access, Grant/Revoke Access) وتذاكر إعداد الدوائر (Court Rooms, Panel Team, Panel Details, Owner) وتذاكر المشاكل التقنية (technical issue / slowness) لا تتطلب رقماً.</li>
+<li class="criteria-item"><strong>الصيغ المدعومة:</strong> 1814/2026/تنفيذ/حكم/مدني، 1-2063910251716، 2025\144979، *2015*000535، 001818-ت م ج-2003، 005569-م د ك-2018، رقم 12345، إلخ.</li>
 <li class="criteria-item"><strong>التصنيفات:</strong> يجب أن تكون جميعها موجودة (Category, Subcategory, Classification).</li>
 <li class="criteria-item"><strong>الأولوية:</strong> يجب أن تكون رقماً بين 1 و4.</li>
 <li class="criteria-item"><strong>النوع:</strong> يجب أن يكون Service Request أو Incident.</li>
-<li class="criteria-item"><strong>العنوان والحل:</strong> اختياريان، لكن يُفضل إكمالهما.</li>
 </ul>
 </div>
 
@@ -454,7 +454,9 @@ const noReferenceNeeded = [
 // طلبات (Requests) - Owner
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
-// أي تركيبة تحتوي على "Owner" أو "Access" أو "Panel" بشكل عام يمكن إضافتها
+// مشاكل تقنية
+{ category: 'CMS - Cases', subcategory: 'technical issue', classification: 'slowness' },
+// مساعدة في المرفقات (قد تحتاج رقماً، لكن إذا وُجد يعتبر صحيحاً، وإلا فلا نستثنيها)
 ];
 
 // دالة للتحقق مما إذا كانت التذكرة تحتاج إلى رقم مرجعي
@@ -468,7 +470,7 @@ if (item.category === cat && item.subcategory === sub && item.classification ===
 return false;
 }
 }
-// يمكن إضافة استثناءات عامة مثل احتواء التصنيف على كلمات مفتاحية
+// استثناء عام بناءً على كلمات مفتاحية (اختياري)
 const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
 if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes('court room')) {
 return false;
@@ -478,26 +480,28 @@ return true;
 
 // ==================== دوال التحقق ====================
 
-// دالة التحقق من وجود رقم الدعوى/الطلب في الوصف (مع دعم الصيغ المختلفة)
-function hasReferenceNumber(description) {
-if (!description) return false;
+// دالة التحقق من وجود رقم الدعوى/الطلب في النص (الوصف أو الحل) مع دعم الصيغ المختلفة
+function containsReferenceNumber(text) {
+if (!text) return false;
 const patterns = [
 // الصيغة الحديثة: 1814/2026/تنفيذ/حكم/مدني
 /\d+\/\d+\/[^/\s]+(?:\/[^/\s]+)*/,
 // رقم مرجعي: 1-2063910251716
 /\b1-\d{13,}\b/,
-// الصيغة القديمة: 2003 - 001818 ت م ج
-/\b\d{4}\s*-\s*\d{6}\s+[أ-ي]+\s+[أ-ي]+\b/,
-// أي شيء يبدأ برقم ثم شرطة ثم رقم (مثل 001818-ت م ج-2003)
+// الصيغة القديمة مع شرطات وحروف: 001818-ت م ج-2003 أو 005569-م د ك-2018
 /\b\d{6}-[أ-ي]+\s+[أ-ي]+-\d{4}\b/,
+// الصيغة مع مسافات: 2003 - 001818 ت م ج
+/\b\d{4}\s*-\s*\d{6}\s+[أ-ي]+\s+[أ-ي]+\b/,
+// الصيغة مع نجوم: *2015*000535
+/\*\d{4}\*\d{6}/,
 // رقم الطلب: 2025\144979
 /\d{4}\\\d{6}/,
 // كلمة "رقم" متبوعة بأرقام
 /رقم\s*\d+/,
-// أي رقمين متتاليين بشرطة
+// أي رقمين متتاليين بشرطة (على الأقل)
 /\d+\/\d+/
 ];
-return patterns.some(p => p.test(description));
+return patterns.some(p => p.test(text));
 }
 
 // دالة للتحقق من وجود قيمة (إلزامي)
@@ -612,12 +616,13 @@ v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية'
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
 v.priority = validatePriority(ticket.Priority);
 
-// التحقق من رقم الدعوى/الطلب حسب الحاجة
+// التحقق من رقم الدعوى/الطلب حسب الحاجة (نفحص الوصف والحل معاً)
 const needRef = requiresReference(ticket);
 if (needRef) {
-v.referenceNumber = { isValid: hasReferenceNumber(ticket.Description), hasWarning: false, feedback: [] };
+const hasRef = containsReferenceNumber(ticket.Description) || containsReferenceNumber(ticket.Solution);
+v.referenceNumber = { isValid: hasRef, hasWarning: false, feedback: [] };
 if (!v.referenceNumber.isValid) {
-v.referenceNumber.feedback.push('يجب أن يحتوي الوصف على رقم الدعوى أو الطلب');
+v.referenceNumber.feedback.push('يجب أن يحتوي الوصف أو الحل على رقم الدعوى أو الطلب');
 } else {
 v.referenceNumber.feedback.push('يحتوي على رقم مرجعي');
 }
@@ -761,7 +766,7 @@ updateStats(filteredResults);
 
 function validateSampleData() {
 const sample = [
-// تذكرة عادية مع رقم
+// تذكرة عادية مع رقم حديث
 { "Interaction ID": "SD1730119", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة" },
 // تذكرة صلاحيات لا تحتاج لرقم
 { "Interaction ID": "SD1732474", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Access", "Subcategory": "User Access", "Classification": "Grant/Revoke Access", "Priority": "4", "Title": "صلاحية الاوامر على عرائض", "Description": "للتكرم بإعطائي صلاحية البحث في شاشة الطلبات", "Solution": "تم منح الصلاحية" },
@@ -769,6 +774,12 @@ const sample = [
 { "Interaction ID": "SD1740929", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Amend related party", "Priority": "4", "Title": "تعديل صفة طالب التنفيذ", "Description": "الرقم المرجعي: 1-2063910251716", "Solution": "تم التعديل" },
 // تذكرة برقم قديم 2003 - 001818 ت م ج
 { "Interaction ID": "SD1739195", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Add Party", "Priority": "4", "Title": "إضافة المنفذ له", "Description": "الدعوى رقم 001818-ت م ج-2003", "Solution": "تمت الإضافة" },
+// تذكرة برقم قديم آخر *2015*000535
+{ "Interaction ID": "SD1735728", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Add Party", "Priority": "4", "Title": "إضافة طرف", "Description": "الدعوى رقم *2015*000535", "Solution": "تمت الإضافة" },
+// تذكرة مشكلة تقنية (slowness) لا تحتاج لرقم
+{ "Interaction ID": "SD1738602", "Type": "Incident", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "technical issue", "Classification": "slowness", "Priority": "3", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت" },
+// تذكرة Help user مع رقم قديم في الحل (يجب اعتبارها صحيحة)
+{ "Interaction ID": "SD1738828", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Attachments", "Classification": "Help user", "Priority": "4", "Title": "تعديل الصحيفة", "Description": "طلب مساعدة", "Solution": "تم التعديل للدعوى 005569-م د ك-2018" },
 // تذكرة خاطئة بدون رقم وتحتاج رقم
 { "Interaction ID": "SD1740050", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "طلب حذف طرف", "Description": "لا يوجد رقم", "Solution": "تم الحذف" }
 ];
