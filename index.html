@@ -373,7 +373,7 @@ margin-top: 15px;
 <li><strong>Classification</strong> (مثل Add Party, Delete Party) – إلزامي</li>
 <li><strong>Priority</strong> (1-4) – إلزامي</li>
 <li><strong>Title</strong> (العنوان) – اختياري (تحذير إذا كان ناقصاً)</li>
-<li><strong>Description</strong> (الوصف) – إلزامي أن يحتوي على رقم الدعوى/الطلب</li>
+<li><strong>Description</strong> (الوصف) – يجب أن يحتوي على رقم الدعوى/الطلب ما لم تكن التذكرة من نوع لا يتطلب رقماً (مثل طلبات الصلاحيات)</li>
 <li><strong>Solution</strong> (الحل) – اختياري (تحذير إذا كان ناقصاً)</li>
 <li><strong>Affected Services</strong> (اختياري، يظهر في التصدير فقط)</li>
 </ul>
@@ -387,7 +387,8 @@ margin-top: 15px;
 <div class="criteria-section">
 <h4>🔍 معايير التحقق الأساسية</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف على رقم الدعوى أو الطلب (مثل 1814/2026/تنفيذ/حكم/مدني) – إلزامي.</li>
+<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف على رقم الدعوى أو الطلب (مثل 1814/2026/تنفيذ/حكم/مدني) أو الرقم المرجعي (مثل 1-2063910251716) أو الرقم القديم (مثل 2003 - 001818 ت م ج) – إلزامي لمعظم التذاكر.</li>
+<li class="criteria-item"><strong>استثناءات:</strong> تذاكر الصلاحيات (User Access, Grant/Revoke Access) وتذاكر إعداد الدوائر (Court Rooms, Panel Team, Panel Details, Owner) لا تتطلب رقماً.</li>
 <li class="criteria-item"><strong>التصنيفات:</strong> يجب أن تكون جميعها موجودة (Category, Subcategory, Classification).</li>
 <li class="criteria-item"><strong>الأولوية:</strong> يجب أن تكون رقماً بين 1 و4.</li>
 <li class="criteria-item"><strong>النوع:</strong> يجب أن يكون Service Request أو Incident.</li>
@@ -436,16 +437,65 @@ margin-top: 15px;
 </div>
 
 <script>
+// ==================== قائمة التصنيفات التي لا تتطلب رقم دعوى/طلب ====================
+const noReferenceNeeded = [
+// الصلاحيات
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant Access' },
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Revoke Access' },
+// قاعات المحاكم وإعداد الدوائر
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'add panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'change panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'delete panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'change member in session team' },
+{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'add a member from session team' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'add Panel' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'Change Panel' },
+// طلبات (Requests) - Owner
+{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
+{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
+// أي تركيبة تحتوي على "Owner" أو "Access" أو "Panel" بشكل عام يمكن إضافتها
+];
+
+// دالة للتحقق مما إذا كانت التذكرة تحتاج إلى رقم مرجعي
+function requiresReference(ticket) {
+const cat = ticket.Category;
+const sub = ticket.Subcategory;
+const cls = ticket.Classification;
+// إذا كانت أي من التركيبات المذكورة تطابق، فلا تحتاج لرقم
+for (let item of noReferenceNeeded) {
+if (item.category === cat && item.subcategory === sub && item.classification === cls) {
+return false;
+}
+}
+// يمكن إضافة استثناءات عامة مثل احتواء التصنيف على كلمات مفتاحية
+const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
+if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes('court room')) {
+return false;
+}
+return true;
+}
+
 // ==================== دوال التحقق ====================
 
-// دالة التحقق من وجود رقم الدعوى/الطلب في الوصف (إلزامي)
+// دالة التحقق من وجود رقم الدعوى/الطلب في الوصف (مع دعم الصيغ المختلفة)
 function hasReferenceNumber(description) {
 if (!description) return false;
 const patterns = [
-/\d+\/\d+\/[^/\s]+(?:\/[^/\s]+)*/, // مثل 1814/2026/تنفيذ/حكم/مدني
+// الصيغة الحديثة: 1814/2026/تنفيذ/حكم/مدني
+/\d+\/\d+\/[^/\s]+(?:\/[^/\s]+)*/,
+// رقم مرجعي: 1-2063910251716
+/\b1-\d{13,}\b/,
+// الصيغة القديمة: 2003 - 001818 ت م ج
+/\b\d{4}\s*-\s*\d{6}\s+[أ-ي]+\s+[أ-ي]+\b/,
+// أي شيء يبدأ برقم ثم شرطة ثم رقم (مثل 001818-ت م ج-2003)
+/\b\d{6}-[أ-ي]+\s+[أ-ي]+-\d{4}\b/,
+// رقم الطلب: 2025\144979
+/\d{4}\\\d{6}/,
+// كلمة "رقم" متبوعة بأرقام
 /رقم\s*\d+/,
-/\d+\/\d+/, // أي رقمين متتاليين بشرطة
-/SD\d+/ // أرقام التذاكر القديمة (قد تظهر في الوصف)
+// أي رقمين متتاليين بشرطة
+/\d+\/\d+/
 ];
 return patterns.some(p => p.test(description));
 }
@@ -561,11 +611,18 @@ v.category = validateRequired(ticket.Category, 'الفئة');
 v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية');
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
 v.priority = validatePriority(ticket.Priority);
+
+// التحقق من رقم الدعوى/الطلب حسب الحاجة
+const needRef = requiresReference(ticket);
+if (needRef) {
 v.referenceNumber = { isValid: hasReferenceNumber(ticket.Description), hasWarning: false, feedback: [] };
 if (!v.referenceNumber.isValid) {
 v.referenceNumber.feedback.push('يجب أن يحتوي الوصف على رقم الدعوى أو الطلب');
 } else {
 v.referenceNumber.feedback.push('يحتوي على رقم مرجعي');
+}
+} else {
+v.referenceNumber = { isValid: true, hasWarning: false, feedback: ['لا تتطلب هذه التذكرة رقماً مرجعياً'] };
 }
 
 // حقول تحذيرية فقط (لا تجعل التذكرة خاطئة)
@@ -704,9 +761,16 @@ updateStats(filteredResults);
 
 function validateSampleData() {
 const sample = [
-{ "Interaction ID": "SD1730119", "Type": "Service Request", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة" },
-{ "Interaction ID": "SD1738602", "Type": "Incident", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "technical issue", "Classification": "slowness", "Priority": "3", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت" },
-{ "Interaction ID": "SD1740050", "Type": "Service Request", "Affected Services": "CMS", "Category": "Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "طلب حذف طرف", "Description": "لا يوجد رقم", "Solution": "تم الحذف" } // خاطئ لعدم وجود رقم مرجعي
+// تذكرة عادية مع رقم
+{ "Interaction ID": "SD1730119", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة" },
+// تذكرة صلاحيات لا تحتاج لرقم
+{ "Interaction ID": "SD1732474", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Access", "Subcategory": "User Access", "Classification": "Grant/Revoke Access", "Priority": "4", "Title": "صلاحية الاوامر على عرائض", "Description": "للتكرم بإعطائي صلاحية البحث في شاشة الطلبات", "Solution": "تم منح الصلاحية" },
+// تذكرة برقم مرجعي 1-2063910251716
+{ "Interaction ID": "SD1740929", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Amend related party", "Priority": "4", "Title": "تعديل صفة طالب التنفيذ", "Description": "الرقم المرجعي: 1-2063910251716", "Solution": "تم التعديل" },
+// تذكرة برقم قديم 2003 - 001818 ت م ج
+{ "Interaction ID": "SD1739195", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Add Party", "Priority": "4", "Title": "إضافة المنفذ له", "Description": "الدعوى رقم 001818-ت م ج-2003", "Solution": "تمت الإضافة" },
+// تذكرة خاطئة بدون رقم وتحتاج رقم
+{ "Interaction ID": "SD1740050", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "طلب حذف طرف", "Description": "لا يوجد رقم", "Solution": "تم الحذف" }
 ];
 allResults = sample.map(t => validateTicket(t));
 filteredResults = allResults;
