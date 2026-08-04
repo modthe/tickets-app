@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام التحقق من التذاكر - دليل HPSM V4</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+</script>
 <style>
 * {
 margin: 0;
@@ -25,7 +26,7 @@ max-width: 1400px;
 margin: 0 auto;
 background: white;
 border-radius: 15px;
-box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 overflow: hidden;
 }
 
@@ -59,7 +60,8 @@ grid-template-columns: 1fr;
 }
 }
 
-.upload-section, .validation-section {
+.upload-section,
+.validation-section {
 background: #f8f9fa;
 padding: 2rem;
 border-radius: 10px;
@@ -107,7 +109,7 @@ margin: 5px;
 
 .btn:hover {
 transform: translateY(-2px);
-box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
@@ -137,7 +139,7 @@ background: white;
 border-radius: 10px;
 padding: 1.5rem;
 margin-bottom: 1rem;
-box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 border-left: 5px solid #3498db;
 }
 
@@ -200,6 +202,7 @@ align-items: center;
 justify-content: center;
 margin-left: 15px;
 font-weight: bold;
+flex-shrink: 0;
 }
 
 .valid {
@@ -252,7 +255,7 @@ background: white;
 padding: 1.5rem;
 border-radius: 10px;
 text-align: center;
-box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number {
@@ -261,9 +264,15 @@ font-weight: bold;
 display: block;
 }
 
-.stat-valid { color: #27ae60; }
-.stat-invalid { color: #e74c3c; }
-.stat-warning { color: #f39c12; }
+.stat-valid {
+color: #27ae60;
+}
+.stat-invalid {
+color: #e74c3c;
+}
+.stat-warning {
+color: #f39c12;
+}
 
 .loading {
 text-align: center;
@@ -281,8 +290,12 @@ margin: 0 auto 1rem;
 }
 
 @keyframes spin {
-0% { transform: rotate(0deg); }
-100% { transform: rotate(360deg); }
+0% {
+transform: rotate(0deg);
+}
+100% {
+transform: rotate(360deg);
+}
 }
 
 .criteria-section {
@@ -351,31 +364,53 @@ gap: 10px;
 flex-wrap: wrap;
 margin-top: 15px;
 }
+
+.quality-badge {
+display: inline-block;
+padding: 2px 10px;
+border-radius: 12px;
+font-size: 0.75rem;
+font-weight: bold;
+margin-right: 8px;
+}
+
+.quality-badge.good {
+background: #d4edda;
+color: #155724;
+}
+
+.quality-badge.warning {
+background: #fff3cd;
+color: #856404;
+}
 </style>
 </head>
 <body>
 <div class="container">
 <header>
 <h1>🎫 نظام التحقق من التذاكر - دليل HPSM V4</h1>
-<p class="subtitle">التحقق بناءً على التصنيفات ووجود رقم الدعوى/الطلب (مع استثناءات)</p>
+<p class="subtitle">التحقق الذكي مع محرك جودة مقاوم للتشكيل والاختلافات الإملائية</p>
 </header>
 
 <div id="mainApp">
 <div class="main-content">
 <div class="upload-section">
 <h2>📤 تحميل ملف Excel أو CSV</h2>
-<p>يجب أن يحتوي الملف على الأعمدة التالية (يمكن أن تتضمن أيضاً Affected Services):</p>
+<p>يجب أن يحتوي الملف على الأعمدة الأساسية بالإضافة إلى الحقول الإدارية الجديدة.</p>
 <ul style="margin: 1rem 0; padding-right: 2rem;">
 <li><strong>Interaction ID</strong> (رقم التذكرة) – إلزامي</li>
 <li><strong>Type</strong> (Service Request / Incident) – إلزامي</li>
-<li><strong>Category</strong> (مثل Cases, Requests) – إلزامي</li>
-<li><strong>Subcategory</strong> (مثل Parties, Attachments) – إلزامي</li>
-<li><strong>Classification</strong> (مثل Add Party, Delete Party) – إلزامي</li>
+<li><strong>Category</strong> – إلزامي</li>
+<li><strong>Subcategory</strong> – إلزامي</li>
+<li><strong>Classification</strong> – إلزامي</li>
 <li><strong>Priority</strong> (1-4) – إلزامي</li>
-<li><strong>Title</strong> (العنوان) – اختياري (تحذير إذا كان ناقصاً)</li>
-<li><strong>Description</strong> (الوصف) – يجب أن يحتوي على رقم الدعوى/الطلب ما لم تكن التذكرة من نوع لا يتطلب رقماً (مثل الصلاحيات أو مشكلة تقنية)</li>
-<li><strong>Solution</strong> (الحل) – اختياري (تحذير إذا كان ناقصاً)، ويتم فحصه أيضاً بحثاً عن الرقم المرجعي</li>
-<li><strong>Affected Services</strong> (اختياري، يظهر في التصدير فقط)</li>
+<li><strong>Title</strong> – اختياري (تحذير)</li>
+<li><strong>Description</strong> – يجب أن يحتوي على رقم الدعوى ما لم يكن مستثنى</li>
+<li><strong>Solution</strong> – اختياري (تحذير)</li>
+<li><strong>Completion code</strong> – اختياري (تحذير في الجودة)</li>
+<li><strong>Resolution Method</strong> – اختياري (تحذير)</li>
+<li><strong>Categories.Id</strong> – اختياري (تحذير)</li>
+<li><strong>Categories.Display label</strong> – اختياري (تحذير)</li>
 </ul>
 <div class="upload-area" id="uploadArea">
 <div class="upload-icon">📊</div>
@@ -385,14 +420,12 @@ margin-top: 15px;
 </div>
 
 <div class="criteria-section">
-<h4>🔍 معايير التحقق الأساسية</h4>
+<h4>🔍 معايير التحقق الأساسية + محرك الجودة الذكي</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> يجب أن يحتوي الوصف أو الحل على رقم الدعوى أو الطلب (بأي صيغة معروفة) – إلزامي لمعظم التذاكر.</li>
-<li class="criteria-item"><strong>استثناءات:</strong> تذاكر الصلاحيات (User Access, Grant/Revoke Access) وتذاكر إعداد الدوائر (Court Rooms, Panel Team, Panel Details, Owner) وتذاكر المشاكل التقنية (technical issue / slowness) لا تتطلب رقماً.</li>
-<li class="criteria-item"><strong>الصيغ المدعومة:</strong> 1814/2026/تنفيذ/حكم/مدني، 1-2063910251716، 2025\144979، *2015*000535، 001818-ت م ج-2003، 005569-م د ك-2018، رقم 12345، إلخ.</li>
-<li class="criteria-item"><strong>التصنيفات:</strong> يجب أن تكون جميعها موجودة (Category, Subcategory, Classification).</li>
-<li class="criteria-item"><strong>الأولوية:</strong> يجب أن تكون رقماً بين 1 و4.</li>
-<li class="criteria-item"><strong>النوع:</strong> يجب أن يكون Service Request أو Incident.</li>
+<li class="criteria-item"><strong>رقم الدعوى/الطلب:</strong> إلزامي لمعظم التذاكر مع استثناءات (الصلاحيات، المشاكل التقنية، إعداد الدوائر).</li>
+<li class="criteria-item"><strong>محرك الجودة (مقاوم للتشكيل):</strong> يتحقق من تطابق دلالة العنوان مع التصنيف (مثل "حذف" مع Delete) بغض النظر عن التشكيل أو كتابة الألف (إ/أ/ا).</li>
+<li class="criteria-item"><strong>تدقيق Completion Code:</strong> يتحقق من صحة الكود بناءً على التصنيف (مثل Delete Party يحتاج caseamended_c).</li>
+<li class="criteria-item"><strong>التحقق من Display Label:</strong> يتأكد من أن التسمية الظاهرة تحتوي على الكلمة الدلالية المناسبة (مثل "إضافة" مع Add Party) باستخدام الجذور.</li>
 </ul>
 </div>
 
@@ -437,13 +470,32 @@ margin-top: 15px;
 </div>
 
 <script>
-// ==================== قائمة التصنيفات التي لا تتطلب رقم دعوى/طلب ====================
+// ==================== دوال التطبيع والمطابقة الذكية ====================
+function normalizeArabic(text) {
+if (!text) return '';
+return text
+.replace(/[\u064B-\u065F]/g, '') // إزالة التشكيل (الفتحة، الضمة، الكسرة، السكون، إلخ)
+.replace(/[أإآ]/g, 'ا') // توحيد الألف
+.replace(/ة/g, 'ه') // توحيد التاء المربوطة
+.replace(/ئ/g, 'ء') // توحيد الهمزة المتطرفة
+.replace(/ي/g, 'ى') // توحيد الياء المقصورة
+.toLowerCase();
+}
+
+function hasKeyword(text, keywords) {
+if (!text) return false;
+const norm = normalizeArabic(text);
+for (let kw of keywords) {
+if (norm.includes(normalizeArabic(kw))) return true;
+}
+return false;
+}
+
+// ==================== قائمة التصنيفات المستثناة من رقم الدعوى ====================
 const noReferenceNeeded = [
-// الصلاحيات
 { category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
 { category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant Access' },
 { category: 'CMS - Access', subcategory: 'User Access', classification: 'Revoke Access' },
-// قاعات المحاكم وإعداد الدوائر
 { category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'add panel member' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'change panel member' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'delete panel member' },
@@ -451,60 +503,44 @@ const noReferenceNeeded = [
 { category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'add a member from session team' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'add Panel' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'Change Panel' },
-// طلبات (Requests) - Owner
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
-// مشاكل تقنية
 { category: 'CMS - Cases', subcategory: 'technical issue', classification: 'slowness' },
-// مساعدة في المرفقات (قد تحتاج رقماً، لكن إذا وُجد يعتبر صحيحاً، وإلا فلا نستثنيها)
 ];
 
-// دالة للتحقق مما إذا كانت التذكرة تحتاج إلى رقم مرجعي
 function requiresReference(ticket) {
 const cat = ticket.Category;
 const sub = ticket.Subcategory;
 const cls = ticket.Classification;
-// إذا كانت أي من التركيبات المذكورة تطابق، فلا تحتاج لرقم
 for (let item of noReferenceNeeded) {
 if (item.category === cat && item.subcategory === sub && item.classification === cls) {
 return false;
 }
 }
-// استثناء عام بناءً على كلمات مفتاحية (اختياري)
 const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
-if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes('court room')) {
+if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes(
+'court room')) {
 return false;
 }
 return true;
 }
 
-// ==================== دوال التحقق ====================
-
-// دالة التحقق من وجود رقم الدعوى/الطلب في النص (الوصف أو الحل) مع دعم الصيغ المختلفة
+// ==================== دوال التحقق الأساسية ====================
 function containsReferenceNumber(text) {
 if (!text) return false;
 const patterns = [
-// الصيغة الحديثة: 1814/2026/تنفيذ/حكم/مدني
 /\d+\/\d+\/[^/\s]+(?:\/[^/\s]+)*/,
-// رقم مرجعي: 1-2063910251716
 /\b1-\d{13,}\b/,
-// الصيغة القديمة مع شرطات وحروف: 001818-ت م ج-2003 أو 005569-م د ك-2018
 /\b\d{6}-[أ-ي]+\s+[أ-ي]+-\d{4}\b/,
-// الصيغة مع مسافات: 2003 - 001818 ت م ج
 /\b\d{4}\s*-\s*\d{6}\s+[أ-ي]+\s+[أ-ي]+\b/,
-// الصيغة مع نجوم: *2015*000535
 /\*\d{4}\*\d{6}/,
-// رقم الطلب: 2025\144979
 /\d{4}\\\d{6}/,
-// كلمة "رقم" متبوعة بأرقام
 /رقم\s*\d+/,
-// أي رقمين متتاليين بشرطة (على الأقل)
 /\d+\/\d+/
 ];
 return patterns.some(p => p.test(text));
 }
 
-// دالة للتحقق من وجود قيمة (إلزامي)
 function validateRequired(value, fieldName) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!value || value.trim() === '') {
@@ -516,7 +552,6 @@ res.feedback.push(`${fieldName} موجود`);
 return res;
 }
 
-// دالة للتحقق من الأولوية (إلزامي)
 function validatePriority(prio) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!prio && prio !== 0) {
@@ -534,7 +569,6 @@ res.feedback.push('الأولوية موجودة');
 return res;
 }
 
-// دالة للتحقق من رقم التذكرة (إلزامي مع تحذير على الصيغة)
 function validateInteractionId(id) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!id) {
@@ -549,7 +583,6 @@ res.feedback.push('رقم التذكرة صحيح');
 return res;
 }
 
-// دالة للتحقق من العنوان (اختياري، تحذير فقط)
 function validateTitle(title) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!title) {
@@ -570,7 +603,6 @@ if (res.feedback.length === 0) res.feedback.push('العنوان مناسب');
 return res;
 }
 
-// دالة للتحقق من الحل (اختياري، تحذير فقط)
 function validateSolution(solution) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!solution) {
@@ -592,7 +624,6 @@ if (res.feedback.length === 0) res.feedback.push('الحل مناسب');
 return res;
 }
 
-// دالة للتحقق من الخدمة المتأثرة (اختياري، تحذير فقط)
 function validateAffectedService(service) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!service) {
@@ -604,11 +635,13 @@ res.feedback.push('الخدمة المتأثرة موجودة');
 return res;
 }
 
-// دالة التحقق الرئيسية
+// ================================================================
+// validateTicket() – النسخة المطورة
+// ================================================================
 function validateTicket(ticket) {
 const v = {};
 
-// حقول إلزامية تسبب خطأ إذا كانت مفقودة
+// Mandatory fields
 v.interactionId = validateInteractionId(ticket['Interaction ID']);
 v.type = validateRequired(ticket.Type, 'النوع');
 v.category = validateRequired(ticket.Category, 'الفئة');
@@ -616,35 +649,174 @@ v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية'
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
 v.priority = validatePriority(ticket.Priority);
 
-// التحقق من رقم الدعوى/الطلب حسب الحاجة (نفحص الوصف والحل معاً)
-const needRef = requiresReference(ticket);
-if (needRef) {
-const hasRef = containsReferenceNumber(ticket.Description) || containsReferenceNumber(ticket.Solution);
-v.referenceNumber = { isValid: hasRef, hasWarning: false, feedback: [] };
-if (!v.referenceNumber.isValid) {
-v.referenceNumber.feedback.push('يجب أن يحتوي الوصف أو الحل على رقم الدعوى أو الطلب');
-} else {
-v.referenceNumber.feedback.push('يحتوي على رقم مرجعي');
-}
-} else {
-v.referenceNumber = { isValid: true, hasWarning: false, feedback: ['لا تتطلب هذه التذكرة رقماً مرجعياً'] };
-}
-
-// حقول تحذيرية فقط (لا تجعل التذكرة خاطئة)
 v.title = validateTitle(ticket.Title);
 v.solution = validateSolution(ticket.Solution);
 v.affectedService = validateAffectedService(ticket['Affected Services'] || ticket['Affected Service']);
 
-// حساب النتيجة: التذكرة خاطئة إذا كان أي من الحقول الإلزامية غير صحيح
-const mandatoryFields = ['interactionId', 'type', 'category', 'subcategory', 'classification', 'priority', 'referenceNumber'];
-const invalidMandatory = mandatoryFields.filter(f => v[f] && !v[f].isValid).length;
-const isValid = invalidMandatory === 0;
-const hasWarnings = Object.values(v).some(f => f.hasWarning);
+// Reference Number
+const needReference = requiresReference(ticket);
+if (needReference) {
+const referenceFound = containsReferenceNumber(ticket.Description) || containsReferenceNumber(ticket
+.Solution);
+v.referenceNumber = {
+isValid: referenceFound,
+hasWarning: false,
+feedback: referenceFound ? ['رقم الدعوى موجود'] : ['رقم الدعوى أو الطلب غير موجود']
+};
+} else {
+v.referenceNumber = {
+isValid: true,
+hasWarning: false,
+feedback: ['هذه التذكرة لا تحتاج رقم دعوى']
+};
+}
 
-// حساب النسبة المئوية (للعرض فقط)
+// =====================
+// QUALITY ENGINE (ذكي ومقاوم للتشكيل)
+// =====================
+v.qualityEngine = {
+isValid: true,
+hasWarning: false,
+feedback: []
+};
+
+const title = (ticket.Title || '');
+const classification = (ticket.Classification || '').toLowerCase();
+const completionCode = (ticket['Completion code'] || ticket['Completion Code'] || '').toLowerCase();
+const displayLabel = (ticket['Categories.Display label'] || '');
+
+// --- 1. التحقق من تطابق العنوان مع التصنيف (باستخدام الجذور) ---
+
+// حذف
+if (hasKeyword(title, ['حذف', 'احذف', 'محذوف'])) {
+if (!classification.includes('delete')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير إلى حذف بينما التصنيف ليس Delete Party');
+}
+}
+
+// إضافة طرف / ورثة
+if (hasKeyword(title, ['ضاف', 'ورث', 'طرف'])) {
+if (!classification.includes('add party') && !classification.includes('add related party')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير لإضافة طرف والتصنيف لا يتطابق');
+}
+}
+
+// السجل التجاري
+if (hasKeyword(title, ['سجل تجاري', 'قيد منشأة'])) {
+if (!classification.includes('commercial')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير للسجل التجاري والتصنيف مختلف');
+}
+}
+
+// إعلان
+if (hasKeyword(title, ['علان'])) {
+if (!classification.includes('announcement')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير لإعلان والتصنيف مختلف');
+}
+}
+
+// صلاحيات
+if (hasKeyword(title, ['صلاح'])) {
+if (!classification.includes('grant') && !classification.includes('access')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير لصلاحيات لكن التصنيف مختلف');
+}
+}
+
+// حالة الطلب
+if (hasKeyword(title, ['حالة', 'طلب'])) {
+if (!classification.includes('request status')) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('العنوان يشير لتغيير حالة الطلب والتصنيف مختلف');
+}
+}
+
+// --- 2. التحقق من Completion Code ---
+if (classification.includes('delete party')) {
+if (!['caseamended_c', 'noactiontakenrequired_c'].includes(completionCode)) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Completion Code غير متوقع لـ Delete Party');
+}
+}
+if (classification.includes('add party')) {
+if (!['caseamended_c', 'noactiontakenrequired_c'].includes(completionCode)) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Completion Code غير متوقع لـ Add Party');
+}
+}
+if (classification.includes('create announcements')) {
+if (!['caseamended_c', 'noactiontakenrequired_c'].includes(completionCode)) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Completion Code غير متوقع لـ Announcement');
+}
+}
+
+// --- 3. التحقق من Categories.Display label (ذكي) ---
+if (displayLabel) {
+let labelConsistent = true;
+if (classification.includes('add party')) {
+if (!hasKeyword(displayLabel, ['ضاف', 'طرف', 'ورث'])) {
+labelConsistent = false;
+}
+} else if (classification.includes('delete party')) {
+if (!hasKeyword(displayLabel, ['حذف'])) {
+labelConsistent = false;
+}
+} else if (classification.includes('announcement')) {
+if (!hasKeyword(displayLabel, ['علان'])) {
+labelConsistent = false;
+}
+} else if (classification.includes('commercial')) {
+if (!hasKeyword(displayLabel, ['سجل', 'تجاري', 'منشأة'])) {
+labelConsistent = false;
+}
+}
+// إذا كان التصنيف يحتوي على نص إنجليزي ولا نعرف له مرادفاً، نمرره
+if (!labelConsistent) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Display Label لا يتناسب دلالياً مع التصنيف');
+}
+}
+
+// --- 4. التحقق من الحقول الإدارية المفقودة ---
+if (!ticket['Completion code'] && !ticket['Completion Code']) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Completion Code مفقود');
+}
+if (!ticket['Resolution Method']) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Resolution Method مفقود');
+}
+if (!ticket['Categories.Id']) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Categories.Id مفقود');
+}
+if (!ticket['Categories.Display label']) {
+v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Categories.Display Label مفقود');
+}
+
+if (v.qualityEngine.feedback.length === 0) {
+v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
+}
+
+// ===================== حساب النتيجة =====================
+const mandatoryFields = [
+'interactionId', 'type', 'category', 'subcategory',
+'classification', 'priority', 'referenceNumber'
+];
+const invalidMandatory = mandatoryFields.filter(f => !v[f].isValid).length;
+const isValid = invalidMandatory === 0;
+const hasWarnings = Object.values(v).some(x => x.hasWarning);
+
 const totalFields = Object.keys(v).length;
-const validFields = Object.values(v).filter(f => f.isValid).length;
-const score = Math.round((validFields / totalFields) * 100);
+const validFields = Object.values(v).filter(x => x.isValid && !x.hasWarning).length;
+const warningPenalty = Object.values(v).filter(x => x.hasWarning).length * 5;
+const score = Math.max(0, Math.round((validFields / totalFields) * 100) - warningPenalty);
 
 return { ticket, validations: v, score, isValid, hasWarnings };
 }
@@ -683,7 +855,11 @@ const tickets = rows.map(r => ({
 'Priority': r['Priority'] || r['priority'] || '',
 'Title': r['Title'] || r['title'] || '',
 'Description': r['Description'] || r['description'] || '',
-'Solution': r['Solution'] || r['solution'] || ''
+'Solution': r['Solution'] || r['solution'] || '',
+'Completion code': r['Completion code'] || r['Completion Code'] || '',
+'Resolution Method': r['Resolution Method'] || '',
+'Categories.Id': r['Categories.Id'] || '',
+'Categories.Display label': r['Categories.Display label'] || '',
 }));
 allResults = tickets.map(t => validateTicket(t));
 filteredResults = allResults;
@@ -710,9 +886,14 @@ const card = document.createElement('div');
 card.className = `ticket-card arabic-text ${!r.isValid ? 'invalid' : ''}`;
 const color = r.isValid ? '#27ae60' : '#e74c3c';
 const id = r.ticket['Interaction ID'] || 'غير معروف';
+const hasQualityWarn = r.validations.qualityEngine.hasWarning;
+const qualityBadge = hasQualityWarn ?
+'<span class="quality-badge warning">⚠️ تحذيرات جودة</span>' :
+'<span class="quality-badge good">✅ جودة جيدة</span>';
+
 card.innerHTML = `
 <div class="ticket-header">
-<div class="ticket-title">${r.ticket.Title || 'بدون عنوان'}<div class="interaction-id">${id}</div></div>
+<div class="ticket-title">${r.ticket.Title || 'بدون عنوان'} ${qualityBadge}<div class="interaction-id">${id}</div></div>
 <div class="validation-score" style="background:${color}">${r.score}%</div>
 </div>
 <div class="legal-highlight">النوع: ${r.ticket.Type} | الخدمة: ${r.ticket['Affected Services'] || 'غير محددة'}</div>
@@ -741,7 +922,8 @@ priority: 'الأولوية',
 referenceNumber: 'رقم الدعوى/الطلب',
 title: 'العنوان',
 solution: 'الحل',
-affectedService: 'الخدمة المتأثرة'
+affectedService: 'الخدمة المتأثرة',
+qualityEngine: 'محرك الجودة'
 };
 return map[f] || f;
 }
@@ -764,25 +946,144 @@ displayResults(filteredResults);
 updateStats(filteredResults);
 }
 
+// ==================== البيانات النموذجية ====================
 function validateSampleData() {
-const sample = [
-// تذكرة عادية مع رقم حديث
-{ "Interaction ID": "SD1730119", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "حذف اسم المنفذ له", "Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني", "Solution": "تم حذف المنفذ له وتحديث الصحيفة" },
-// تذكرة صلاحيات لا تحتاج لرقم
-{ "Interaction ID": "SD1732474", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Access", "Subcategory": "User Access", "Classification": "Grant/Revoke Access", "Priority": "4", "Title": "صلاحية الاوامر على عرائض", "Description": "للتكرم بإعطائي صلاحية البحث في شاشة الطلبات", "Solution": "تم منح الصلاحية" },
-// تذكرة برقم مرجعي 1-2063910251716
-{ "Interaction ID": "SD1740929", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Amend related party", "Priority": "4", "Title": "تعديل صفة طالب التنفيذ", "Description": "الرقم المرجعي: 1-2063910251716", "Solution": "تم التعديل" },
-// تذكرة برقم قديم 2003 - 001818 ت م ج
-{ "Interaction ID": "SD1739195", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Add Party", "Priority": "4", "Title": "إضافة المنفذ له", "Description": "الدعوى رقم 001818-ت م ج-2003", "Solution": "تمت الإضافة" },
-// تذكرة برقم قديم آخر *2015*000535
-{ "Interaction ID": "SD1735728", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Add Party", "Priority": "4", "Title": "إضافة طرف", "Description": "الدعوى رقم *2015*000535", "Solution": "تمت الإضافة" },
-// تذكرة مشكلة تقنية (slowness) لا تحتاج لرقم
-{ "Interaction ID": "SD1738602", "Type": "Incident", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "technical issue", "Classification": "slowness", "Priority": "3", "Title": "مشكلة بطئ في النظام", "Description": "أواجه بطئ شديد في النظام", "Solution": "تم معالجة البطئ المؤقت" },
-// تذكرة Help user مع رقم قديم في الحل (يجب اعتبارها صحيحة)
-{ "Interaction ID": "SD1738828", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Attachments", "Classification": "Help user", "Priority": "4", "Title": "تعديل الصحيفة", "Description": "طلب مساعدة", "Solution": "تم التعديل للدعوى 005569-م د ك-2018" },
-// تذكرة خاطئة بدون رقم وتحتاج رقم
-{ "Interaction ID": "SD1740050", "Type": "Service Request", "Affected Services": "CMS", "Category": "CMS - Cases", "Subcategory": "Parties", "Classification": "Delete Party", "Priority": "4", "Title": "طلب حذف طرف", "Description": "لا يوجد رقم", "Solution": "تم الحذف" }
-];
+const sample = [{
+"Interaction ID": "SD1730119",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Delete Party",
+"Priority": "4",
+"Title": "حذف اسم المنفذ له",
+"Description": "الرجاء حذف اسم المنفذ له في الدعوى رقم 1814/2026/تنفيذ/حكم/مدني",
+"Solution": "تم حذف المنفذ له وتحديث الصحيفة",
+"Completion code": "caseamended_c",
+"Resolution Method": "Updated",
+"Categories.Id": "123",
+"Categories.Display label": "Delete Party"
+}, {
+"Interaction ID": "SD1732474",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Access",
+"Subcategory": "User Access",
+"Classification": "Grant/Revoke Access",
+"Priority": "4",
+"Title": "صلاحية الاوامر على عرائض",
+"Description": "للتكرم بإعطائي صلاحية البحث في شاشة الطلبات",
+"Solution": "تم منح الصلاحية",
+"Completion code": "noactiontakenrequired_c",
+"Resolution Method": "Granted",
+"Categories.Id": "456",
+"Categories.Display label": "Access"
+}, {
+"Interaction ID": "SD1740929",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Add related party",
+"Priority": "4",
+"Title": "إضافة وريث للدعوى",
+"Description": "الرقم المرجعي: 1-2063910251716",
+"Solution": "تم التعديل",
+"Completion code": "caseamended_c",
+"Resolution Method": "Amended",
+"Categories.Id": "789",
+"Categories.Display label": "إضافة وريث"
+}, {
+"Interaction ID": "SD1739195",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Add Party",
+"Priority": "4",
+"Title": "أضف المنفذ له",
+"Description": "الدعوى رقم 001818-ت م ج-2003",
+"Solution": "تمت الإضافة",
+"Completion code": "caseamended_c",
+"Resolution Method": "Added",
+"Categories.Id": "101",
+"Categories.Display label": "إضافة طرف"
+}, {
+"Interaction ID": "SD1735728",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Add Party",
+"Priority": "4",
+"Title": "إضافة طرف للقضية",
+"Description": "الدعوى رقم *2015*000535",
+"Solution": "تمت الإضافة",
+"Completion code": "noactiontakenrequired_c",
+"Resolution Method": "Added",
+"Categories.Id": "202",
+"Categories.Display label": "إضافة"
+}, {
+"Interaction ID": "SD1738602",
+"Type": "Incident",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "technical issue",
+"Classification": "slowness",
+"Priority": "3",
+"Title": "مشكلة بطئ في النظام",
+"Description": "أواجه بطئ شديد في النظام",
+"Solution": "تم معالجة البطئ المؤقت",
+"Completion code": "noactiontakenrequired_c",
+"Resolution Method": "Fixed",
+"Categories.Id": "303",
+"Categories.Display label": "slowness"
+}, {
+"Interaction ID": "SD1738828",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Attachments",
+"Classification": "Help user",
+"Priority": "4",
+"Title": "تعديل الصحيفة",
+"Description": "طلب مساعدة",
+"Solution": "تم التعديل للدعوى 005569-م د ك-2018",
+"Completion code": "caseamended_c",
+"Resolution Method": "Helped",
+"Categories.Id": "404",
+"Categories.Display label": "Help user"
+}, {
+"Interaction ID": "SD1740050",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Delete Party",
+"Priority": "4",
+"Title": "طلب حذف طرف",
+"Description": "لا يوجد رقم",
+"Solution": "تم الحذف",
+"Completion code": "",
+"Resolution Method": "",
+"Categories.Id": "",
+"Categories.Display label": ""
+}, {
+"Interaction ID": "SD1740999",
+"Type": "Service Request",
+"Affected Services": "CMS",
+"Category": "CMS - Cases",
+"Subcategory": "Parties",
+"Classification": "Add Party",
+"Priority": "4",
+"Title": "احذف طرف من الدعوى",
+"Description": "الدعوى رقم 1234/2025/تنفيذ",
+"Solution": "تم الحذف",
+"Completion code": "caseamended_c",
+"Resolution Method": "Deleted",
+"Categories.Id": "505",
+"Categories.Display label": "إضافة طرف"
+}];
 allResults = sample.map(t => validateTicket(t));
 filteredResults = allResults;
 displayResults(filteredResults);
@@ -792,11 +1093,14 @@ document.getElementById('exportWarningsBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 }
 
+// ==================== دوال التصدير ====================
 function exportResults() {
 if (!allResults.length) return alert('لا توجد نتائج');
-let csv = 'Interaction ID,Title,Score,Status,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
+let csv =
+'Interaction ID,Title,Score,Status,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
 allResults.forEach(r => {
-csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
+csv +=
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
 });
 download(csv, 'all_results.csv');
 }
@@ -804,9 +1108,11 @@ download(csv, 'all_results.csv');
 function exportInvalidTickets() {
 const inv = allResults.filter(r => !r.isValid);
 if (!inv.length) return alert('لا توجد تذاكر خاطئة');
-let csv = 'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
+let csv =
+'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
 inv.forEach(r => {
-csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
+csv +=
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
 });
 download(csv, 'invalid_tickets.csv');
 }
@@ -814,9 +1120,11 @@ download(csv, 'invalid_tickets.csv');
 function exportWarnings() {
 const warn = allResults.filter(r => r.hasWarnings && r.isValid);
 if (!warn.length) return alert('لا توجد تذاكر بها تحذيرات');
-let csv = 'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority\n';
+let csv =
+'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
 warn.forEach(r => {
-csv += `"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority}\n`;
+csv +=
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
 });
 download(csv, 'warnings.csv');
 }
