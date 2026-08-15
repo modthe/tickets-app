@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام التحقق الذكي - متوافق مع بيانات التدريب</title>
+<title>نظام التحقق الذكي - دعم الأولوية حسب النوع</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
 </script>
 <style>
@@ -332,8 +332,8 @@ color: #856404;
 <body>
 <div class="container">
 <header>
-<h1>🎫 نظام التحقق الذكي - متوافق مع بيانات التدريب</h1>
-<p class="subtitle">يتعلم من ملف quality (2).xlsx، ويوضح أسباب الأخطاء عند التصدير</p>
+<h1>🎫 نظام التحقق الذكي - الأولوية حسب النوع</h1>
+<p class="subtitle">يدعم استثناءات النظام، والبحث عن الرقم في الحل، وتحقق من الأولوية فقط إذا كانت موجودة</p>
 </header>
 
 <div id="mainApp">
@@ -342,13 +342,14 @@ color: #856404;
 <h2>📤 تحميل ملف Excel أو CSV</h2>
 <ul style="margin: 1rem 0; padding-right: 2rem;">
 <li><strong>Interaction ID</strong> – إلزامي</li>
-<li><strong>Type</strong> – إلزامي</li>
+<li><strong>Type</strong> – إلزامي (Support Request / Service Request)</li>
 <li><strong>Category</strong> – إلزامي</li>
 <li><strong>Subcategory</strong> – إلزامي</li>
 <li><strong>Classification</strong> – إلزامي</li>
-<li><strong>Priority</strong> – إلزامي</li>
+<li><strong>Priority</strong> – اختياري (إذا وُجد، يتم التحقق منه حسب النوع)</li>
 <li><strong>Title</strong> – يجب أن يكون 5 كلمات أو أقل (تحذير)</li>
-<li><strong>Description</strong> – يجب أن يحتوي على رقم الدعوى</li>
+<li><strong>Description</strong> – يُبحث فيه عن رقم الدعوى</li>
+<li><strong>Solution</strong> – يُبحث فيه عن رقم الدعوى أيضاً</li>
 <li><strong>Completion code</strong> – يتم التحقق من صحته</li>
 </ul>
 <div class="upload-area" id="uploadArea">
@@ -359,13 +360,12 @@ color: #856404;
 </div>
 
 <div class="criteria-section">
-<h4>🔍 معايير التحقق</h4>
+<h4>🔍 معايير الأولوية</h4>
 <ul class="criteria-list">
-<li class="criteria-item">✅ <strong>الحقول الإلزامية</strong> يجب أن تكون موجودة.</li>
-<li class="criteria-item">📝 <strong>العنوان</strong> يفضل ألا يتجاوز 5 كلمات.</li>
-<li class="criteria-item">🔢 <strong>رقم الدعوى</strong> مطلوب في الوصف أو الحل (مع استثناءات).</li>
-<li class="criteria-item">📌 <strong>Completion Code</strong> يجب أن يكون متوافقاً مع نطاق التغيير (دعوى / طلب).</li>
-<li class="criteria-item">🔄 <strong>التناقض الجوهري</strong> يُبطل التذكرة (مثل "تغيير حالة الطلب" مع تصنيف "إعلان").</li>
+<li class="criteria-item">✅ <strong>إذا كانت الأولوية فارغة</strong> → تُعتبر صحيحة (سيُضيفها الفني لاحقاً).</li>
+<li class="criteria-item">📌 <strong>Support Request</strong> → الأولوية يجب أن تكون <strong>2 أو 3</strong>.</li>
+<li class="criteria-item">📌 <strong>Service Request</strong> → الأولوية يجب أن تكون <strong>4</strong>.</li>
+<li class="criteria-item">🔢 <strong>رقم الدعوى/الطلب</strong> مطلوب في الوصف أو الحل، مع استثناءات (مشاكل النظام، إضافة أعضاء، صلاحيات).</li>
 </ul>
 </div>
 
@@ -428,7 +428,7 @@ if (norm.includes(normalizeArabic(kw))) return true;
 return false;
 }
 
-// ==================== المجموعات الدلالية (موسعة قليلاً) ====================
+// ==================== المجموعات الدلالية ====================
 const semanticGroups = {
 'change_status': {
 keywords: ['حالة', 'تغيير', 'تغير', 'حاله', 'طلب', 'دعوى'],
@@ -459,7 +459,7 @@ classifications: [
 'modify_document': {
 keywords: ['تعديل', 'صحيفة', 'مرفق', 'ارفاق', 'تحميل'],
 classifications: [
-'change attachment type', 'amend case subject', 'change attachment type'
+'change attachment type', 'amend case subject'
 ]
 },
 'access': {
@@ -509,7 +509,7 @@ classifications: [
 }
 };
 
-// ==================== استثناءات رقم الدعوى ونطاق التغيير ====================
+// ==================== استثناءات رقم الدعوى ====================
 const noReferenceNeeded = [
 { category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
 { category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant Access' },
@@ -519,11 +519,19 @@ const noReferenceNeeded = [
 { category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'delete panel member' },
 { category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'change member in session team' },
 { category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'add a member from session team' },
+{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'delete a member from session team' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'add Panel' },
 { category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'Change Panel' },
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
 { category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
 { category: 'CMS - Cases', subcategory: 'technical issue', classification: 'slowness' },
+{ category: 'CMS - Cases', subcategory: 'technical issue', classification: 'error message' },
+{ category: 'CMS - Case Management', subcategory: 'technical issue', classification: 'error message' },
+{ category: 'CMS - Cases', subcategory: 'technical issue', classification: 'registration issue' },
+{ category: 'CMS', subcategory: 'Case Issue', classification: 'Registration Issue' },
+{ category: 'CMS', subcategory: 'Technical Issue', classification: 'Error Message' },
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Permission Issue' },
+{ category: 'CMS', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
 ];
 
 function requiresReference(ticket) {
@@ -536,20 +544,22 @@ return false;
 }
 }
 const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
-if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes(
-'court room')) {
+if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') ||
+combined.includes('court room') || combined.includes('technical issue') ||
+combined.includes('error message') || combined.includes('registration issue') ||
+combined.includes('slowness') || combined.includes('bug fixing') ||
+combined.includes('not accessible') || combined.includes('scheduling error')) {
 return false;
 }
 return true;
 }
 
-// ==================== تحديد نطاق التغيير (متوافق مع بيانات التدريب) ====================
+// ==================== تحديد نطاق التغيير ====================
 function getChangeScope(ticket) {
 const category = (ticket.Category || '').toLowerCase();
 const subcategory = (ticket.Subcategory || '').toLowerCase();
 const classification = (ticket.Classification || '').toLowerCase();
 
-// 1. استثناءات بناءً على noReferenceNeeded (صلاحيات، دوائر، إلخ)
 for (let item of noReferenceNeeded) {
 if (item.category === ticket.Category && item.subcategory === ticket.Subcategory &&
 item.classification === ticket.Classification) {
@@ -557,49 +567,28 @@ return 'none';
 }
 }
 
-// 2. تصنيفات help user و RFI
-if (classification.includes('help user') || classification.includes('rfi')) {
-return 'none';
-}
+if (classification.includes('help user') || classification.includes('rfi')) return 'none';
 
-// 3. تصنيفات لا تتطلب تغييراً
 const noChangeNeeded = ['slowness', 'error message', 'registration issue', 'payment issue', 'bug fixing',
 'not accessible', 'scheduling error', 'wrong status', 'parties issue'
 ];
 for (let nc of noChangeNeeded) {
-if (classification.includes(nc)) {
-return 'none';
-}
+if (classification.includes(nc)) return 'none';
 }
 
-// 4. تصنيفات owner تعتبر طلباً
-if (classification.includes('owner')) {
+if (classification.includes('owner')) return 'request';
+if (classification.includes('request') || category.includes('requests') || subcategory.includes('requests'))
 return 'request';
-}
 
-// 5. إذا كان التصنيف يحتوي على 'request'
-if (classification.includes('request') || category.includes('requests') || subcategory.includes('requests')) {
-return 'request';
-}
-
-// 6. إذا كان التصنيف يحتوي على كلمات خاصة بالدعوى
 const caseKeywords = ['case', 'party', 'attachment', 'commercial', 'announcement', 'hearing', 'judgment',
 'related', 'status', 'panel', 'session', 'dmands', 'finance', 'decision'
 ];
 for (let kw of caseKeywords) {
-if (classification.includes(kw) || category.includes(kw) || subcategory.includes(kw)) {
-return 'case';
-}
+if (classification.includes(kw) || category.includes(kw) || subcategory.includes(kw)) return 'case';
 }
 
-// 7. افتراضياً بناءً على Category
-if (category.includes('case') && !category.includes('request')) {
-return 'case';
-}
-if (category.includes('request')) {
-return 'request';
-}
-
+if (category.includes('case') && !category.includes('request')) return 'case';
+if (category.includes('request')) return 'request';
 return 'case';
 }
 
@@ -630,20 +619,48 @@ res.feedback.push(`${fieldName} موجود`);
 return res;
 }
 
-function validatePriority(prio) {
+// ==================== دالة الأولوية المطورة ====================
+function validatePriority(prio, type) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
+
+// 1. إذا كانت الأولوية فارغة، لا نتحقق منها (سيضيفها الفني لاحقاً)
 if (!prio && prio !== 0) {
-res.isValid = false;
-res.feedback.push('الأولوية مطلوبة');
-} else {
+res.feedback.push('الأولوية غير محددة (سيتم إضافتها لاحقاً)');
+return res;
+}
+
+// 2. التحقق من أن القيمة رقم صحيح بين 1 و 4
 const p = parseInt(prio);
 if (isNaN(p) || p < 1 || p > 4) {
 res.isValid = false;
 res.feedback.push('الأولوية يجب أن تكون رقماً بين 1 و 4');
+return res;
+}
+
+// 3. التحقق حسب النوع (فقط إذا كانت القيمة موجودة)
+const typeLower = (type || '').toLowerCase();
+
+if (typeLower.includes('support')) {
+// Support Request (مشكلة) -> الأولوية 2 أو 3
+if (p !== 2 && p !== 3) {
+res.isValid = false;
+res.feedback.push(`لـ Support Request، الأولوية يجب أن تكون 2 أو 3 (القيمة الحالية: ${p})`);
 } else {
-res.feedback.push('الأولوية موجودة');
+res.feedback.push(`الأولوية ${p} صحيحة لـ Support Request`);
 }
+} else if (typeLower.includes('service')) {
+// Service Request (طلب خدمة) -> الأولوية 4
+if (p !== 4) {
+res.isValid = false;
+res.feedback.push(`لـ Service Request، الأولوية يجب أن تكون 4 (القيمة الحالية: ${p})`);
+} else {
+res.feedback.push(`الأولوية ${p} صحيحة لـ Service Request`);
 }
+} else {
+// نوع غير معروف -> نسمح بأي قيمة (تسامح)
+res.feedback.push(`الأولوية ${p} موجودة (نوع غير معروف)`);
+}
+
 return res;
 }
 
@@ -684,17 +701,8 @@ if (!solution) {
 res.hasWarning = true;
 res.feedback.push('الحل مفقود (يُفضل إضافته)');
 } else {
-if (solution.length < 5) {
-res.hasWarning = true;
-res.feedback.push('الحل مختصر جداً');
-}
-const actionWords = ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'نفذ', 'أنجز'];
-const hasAction = actionWords.some(w => solution.includes(w));
-if (!hasAction) {
-res.hasWarning = true;
-res.feedback.push('يُفضل أن يحتوي الحل على كلمات الإنجاز');
-}
-if (res.feedback.length === 0) res.feedback.push('الحل مناسب');
+if (solution.length < 5) res.hasWarning = true;
+res.feedback.push('الحل موجود');
 }
 return res;
 }
@@ -714,18 +722,16 @@ return res;
 function validateTicket(ticket) {
 const v = {};
 
-// الحقول الإلزامية
 v.interactionId = validateInteractionId(ticket['Interaction ID']);
 v.type = validateRequired(ticket.Type, 'النوع');
 v.category = validateRequired(ticket.Category, 'الفئة');
 v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية');
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
-v.priority = validatePriority(ticket.Priority);
+v.priority = validatePriority(ticket.Priority, ticket.Type); // تم التعديل هنا
 v.title = validateTitleLength(ticket.Title);
 v.solution = validateSolution(ticket.Solution);
 v.affectedService = validateAffectedService(ticket['Affected Services'] || ticket['Affected Service']);
 
-// رقم الدعوى
 const needReference = requiresReference(ticket);
 if (needReference) {
 const referenceFound = containsReferenceNumber(ticket.Description) || containsReferenceNumber(ticket
@@ -733,64 +739,44 @@ const referenceFound = containsReferenceNumber(ticket.Description) || containsRe
 v.referenceNumber = {
 isValid: referenceFound,
 hasWarning: false,
-feedback: referenceFound ? ['رقم الدعوى موجود'] : ['رقم الدعوى أو الطلب غير موجود']
+feedback: referenceFound ? ['رقم الدعوى موجود (في الوصف أو الحل)'] : ['رقم الدعوى أو الطلب غير موجود']
 };
 } else {
 v.referenceNumber = {
 isValid: true,
 hasWarning: false,
-feedback: ['هذه التذكرة لا تحتاج رقم دعوى']
+feedback: ['هذه التذكرة لا تحتاج رقم دعوى (نظامية أو صلاحيات)']
 };
 }
 
 // ===================== محرك الجودة =====================
-v.qualityEngine = {
-isValid: true,
-hasWarning: false,
-feedback: []
-};
-
+v.qualityEngine = { isValid: true, hasWarning: false, feedback: [] };
 const title = (ticket.Title || '');
 const classification = (ticket.Classification || '').toLowerCase();
 const completionCode = (ticket['Completion code'] || ticket['Completion Code'] || '').toLowerCase();
 const displayLabel = (ticket['Categories.Display label'] || '');
 
-// 1. التحقق من وجود كلمات مفتاحية (تحذير)
 let keywordMatched = false;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
-if (hasKeyword(title, group.keywords)) {
-keywordMatched = true;
-break;
-}
+if (hasKeyword(title, group.keywords)) { keywordMatched = true; break; }
 }
 if (!keywordMatched && title) {
 v.qualityEngine.hasWarning = true;
 v.qualityEngine.feedback.push('العنوان لا يحتوي على كلمات مفتاحية مميزة');
 }
 
-// 2. التناقض الجوهري (فقط إذا كان التصنيف معروفاً في المجموعات)
 let currentGroup = null;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
-if (group.classifications.some(cls => classification.includes(cls))) {
-currentGroup = groupKey;
-break;
+if (group.classifications.some(cls => classification.includes(cls))) { currentGroup = groupKey; break; }
 }
-}
-
 let titleGroup = null;
 let maxMatches = 0;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
 let matches = 0;
-for (let kw of group.keywords) {
-if (hasKeyword(title, [kw])) matches++;
+for (let kw of group.keywords) { if (hasKeyword(title, [kw])) matches++; }
+if (matches > maxMatches) { maxMatches = matches;
+titleGroup = groupKey; }
 }
-if (matches > maxMatches) {
-maxMatches = matches;
-titleGroup = groupKey;
-}
-}
-
-// فقط إذا كان كلا المجموعتين معروفين ومختلفين، مع استثناء help_rfi و general
 if (currentGroup && titleGroup && currentGroup !== titleGroup) {
 if (titleGroup !== 'help_rfi' && titleGroup !== 'general' &&
 currentGroup !== 'help_rfi' && currentGroup !== 'general') {
@@ -801,10 +787,7 @@ v.qualityEngine.feedback.push(
 }
 }
 
-// ===================== التحقق من Completion Code =====================
 const scope = getChangeScope(ticket);
-
-// قائمة الرموز المتوقعة بناءً على النطاق (مستفادة من ملف التدريب)
 const completionCodeMap = {
 'case': ['caseamended_c', 'noactiontakenrequired_c', 'informationprovided_c',
 'application_c', 'duplicateticket_c', 'cmsapproved_c', 'accessgiven_c', 'accessremoved_c'
@@ -816,17 +799,12 @@ const completionCodeMap = {
 'accessgiven_c', 'accessremoved_c', 'duplicateticket_c'
 ]
 };
-
 let expectedCodes = completionCodeMap[scope] || completionCodeMap['case'];
-
 if (completionCode) {
 if (!expectedCodes.includes(completionCode)) {
 v.qualityEngine.hasWarning = true;
-const expectedStr = expectedCodes.slice(0, 3).join(' أو ') + (expectedCodes.length > 3 ? ' ...' : '');
 const scopeName = scope === 'case' ? 'الدعوى' : scope === 'request' ? 'الطلب' : 'هذه التصنيفات';
-v.qualityEngine.feedback.push(
-`Completion Code "${completionCode}" غير متوقع لـ ${scopeName} (المتوقع: ${expectedStr})`
-);
+v.qualityEngine.feedback.push(`Completion Code "${completionCode}" غير متوقع لـ ${scopeName}`);
 }
 } else {
 if (scope !== 'none') {
@@ -836,47 +814,16 @@ v.qualityEngine.feedback.push(`Completion Code مفقود (يفترض أن يك�
 }
 }
 
-// 4. Resolution Method
-if (!ticket['Resolution Method']) {
-v.qualityEngine.hasWarning = true;
-v.qualityEngine.feedback.push('Resolution Method مفقود');
-}
+if (!ticket['Resolution Method']) { v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Resolution Method مفقود'); }
+if (!ticket['Categories.Id']) { v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Categories.Id مفقود'); }
+if (!displayLabel) { v.qualityEngine.hasWarning = true;
+v.qualityEngine.feedback.push('Categories.Display Label مفقود'); }
+if (v.qualityEngine.feedback.length === 0) v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
 
-// 5. Categories.Id
-if (!ticket['Categories.Id']) {
-v.qualityEngine.hasWarning = true;
-v.qualityEngine.feedback.push('Categories.Id مفقود');
-}
-
-// 6. Display Label
-if (!displayLabel) {
-v.qualityEngine.hasWarning = true;
-v.qualityEngine.feedback.push('Categories.Display Label مفقود');
-} else {
-let labelOk = false;
-for (let [groupKey, group] of Object.entries(semanticGroups)) {
-if (group.classifications.some(cls => classification.includes(cls))) {
-if (hasKeyword(displayLabel, group.keywords)) {
-labelOk = true;
-break;
-}
-}
-}
-if (!labelOk && !classification.includes('help') && !classification.includes('rfi') && !classification
-.includes('general')) {
-v.qualityEngine.hasWarning = true;
-v.qualityEngine.feedback.push('Display Label لا يتناسب دلالياً مع التصنيف');
-}
-}
-
-if (v.qualityEngine.feedback.length === 0) {
-v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
-}
-
-// ===================== حساب النتيجة =====================
-const mandatoryFields = [
-'interactionId', 'type', 'category', 'subcategory',
-'classification', 'priority', 'referenceNumber'
+const mandatoryFields = ['interactionId', 'type', 'category', 'subcategory', 'classification', 'priority',
+'referenceNumber'
 ];
 const invalidMandatory = mandatoryFields.filter(f => !v[f].isValid).length;
 const qualityInvalid = !v.qualityEngine.isValid;
@@ -966,7 +913,7 @@ card.innerHTML = `
 <div class="ticket-title">${r.ticket.Title || 'بدون عنوان'} ${qualityBadge}<div class="interaction-id">${id}</div></div>
 <div class="validation-score" style="background:${color}">${r.score}%</div>
 </div>
-<div class="legal-highlight">النوع: ${r.ticket.Type} | الخدمة: ${r.ticket['Affected Services'] || 'غير محددة'}</div>
+<div class="legal-highlight">النوع: ${r.ticket.Type} | الأولوية: ${r.ticket.Priority || 'غير محددة'}</div>
 <div class="validation-details">
 ${Object.entries(r.validations).map(([f, v]) => `
 <div class="field-validation">
@@ -1016,7 +963,6 @@ displayResults(filteredResults);
 updateStats(filteredResults);
 }
 
-// ==================== بيانات نموذجية ====================
 function validateSampleData() {
 const sample = [{
 "Interaction ID": "SD1730119",
@@ -1035,19 +981,19 @@ const sample = [{
 "Categories.Display label": "Add Party"
 }, {
 "Interaction ID": "SD1732474",
-"Type": "Service Request",
+"Type": "Support Request",
 "Affected Services": "CMS",
-"Category": "CMS - Requests",
-"Subcategory": "Request Status",
-"Classification": "amend request status",
-"Priority": "4",
-"Title": "تغيير حالة الطلب",
-"Description": "طلب تغيير حالة الطلب",
-"Solution": "تم التغيير",
-"Completion code": "requestamendeddeleted_c",
-"Resolution Method": "Amended",
+"Category": "CMS - Cases",
+"Subcategory": "technical issue",
+"Classification": "error message",
+"Priority": "2",
+"Title": "خلل في نظام محاكم",
+"Description": "ظهور رسالة خطأ",
+"Solution": "تم الإصلاح",
+"Completion code": "noactiontakenrequired_c",
+"Resolution Method": "Fixed",
 "Categories.Id": "456",
-"Categories.Display label": "amend request status"
+"Categories.Display label": "error message"
 }, {
 "Interaction ID": "SD1740050",
 "Type": "Service Request",
@@ -1055,13 +1001,13 @@ const sample = [{
 "Category": "CMS - Requests",
 "Subcategory": "Request Status",
 "Classification": "amend request status",
-"Priority": "3",
+"Priority": "", // فارغة -> تعتبر صحيحة
 "Title": "تغيير حالة الطلب",
-"Description": "طلب تغيير حالة الطلب",
+"Description": "طلب تغيير",
 "Solution": "تم التغيير",
-"Completion code": "caseamended_c",
-"Resolution Method": "Updated",
-"Categories.Id": "999",
+"Completion code": "requestamendeddeleted_c",
+"Resolution Method": "Amended",
+"Categories.Id": "789",
 "Categories.Display label": "amend request status"
 }];
 allResults = sample.map(t => validateTicket(t));
@@ -1085,24 +1031,21 @@ csv +=
 download(csv, 'all_results.csv');
 }
 
-// ==================== زر التحميل المطور (يعرض أسباب الأخطاء) ====================
 function exportInvalidTickets() {
 const inv = allResults.filter(r => !r.isValid);
 if (!inv.length) return alert('🎉 لا توجد تذاكر خاطئة!');
 let csv =
-'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,سبب الخطأ\n';
+'Interaction ID,Title,Score,Type,Priority,Category,Subcategory,Classification,Completion Code,سبب الخطأ\n';
 inv.forEach(r => {
 let reasons = [];
-// جمع أسباب الفشل من جميع الحقول
 Object.entries(r.validations).forEach(([key, val]) => {
 if (!val.isValid) {
 reasons.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
 }
 });
-// إذا لم يتم العثور على سبب محدد (حماية)
-if (reasons.length === 0) reasons.push('خطأ غير محدد (يرجى مراجعة البيانات)');
+if (reasons.length === 0) reasons.push('خطأ غير محدد');
 csv +=
-`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${reasons.join(' | ')}"\n`;
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket.Priority},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},"${r.ticket['Completion code'] || ''}","${reasons.join(' | ')}"\n`;
 });
 download(csv, 'invalid_tickets_with_reasons.csv');
 }
@@ -1111,10 +1054,10 @@ function exportWarnings() {
 const warn = allResults.filter(r => r.hasWarnings && r.isValid);
 if (!warn.length) return alert('لا توجد تذاكر بها تحذيرات');
 let csv =
-'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
+'Interaction ID,Title,Score,Type,Priority,Category,Subcategory,Classification,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
 warn.forEach(r => {
 csv +=
-`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket.Priority},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
 });
 download(csv, 'warnings.csv');
 }
