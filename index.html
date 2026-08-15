@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام التحقق الذكي - العنوان 5 كلمات، دعم help user و RFI</title>
+<title>نظام التحقق الذكي - متوافق مع بيانات التدريب</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
 </script>
 <style>
@@ -13,14 +13,12 @@ padding: 0;
 box-sizing: border-box;
 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-
 body {
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 min-height: 100vh;
 padding: 20px;
 direction: rtl;
 }
-
 .container {
 max-width: 1400px;
 margin: 0 auto;
@@ -29,37 +27,31 @@ border-radius: 15px;
 box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 overflow: hidden;
 }
-
 header {
 background: linear-gradient(135deg, #2c3e50, #3498db);
 color: white;
 padding: 2rem;
 text-align: center;
 }
-
 h1 {
 font-size: 2.5rem;
 margin-bottom: 0.5rem;
 }
-
 .subtitle {
 opacity: 0.9;
 font-size: 1.1rem;
 }
-
 .main-content {
 padding: 2rem;
 display: grid;
 grid-template-columns: 1fr 1fr;
 gap: 2rem;
 }
-
 @media (max-width: 768px) {
 .main-content {
 grid-template-columns: 1fr;
 }
 }
-
 .upload-section,
 .validation-section {
 background: #f8f9fa;
@@ -67,7 +59,6 @@ padding: 2rem;
 border-radius: 10px;
 border: 2px dashed #dee2e6;
 }
-
 .upload-area {
 border: 3px dashed #3498db;
 border-radius: 10px;
@@ -78,22 +69,18 @@ cursor: pointer;
 transition: all 0.3s ease;
 margin-bottom: 1.5rem;
 }
-
 .upload-area:hover {
 background: #d6eaf8;
 border-color: #2980b9;
 }
-
 .upload-icon {
 font-size: 4rem;
 color: #3498db;
 margin-bottom: 1rem;
 }
-
 .file-input {
 display: none;
 }
-
 .btn {
 background: linear-gradient(135deg, #3498db, #2980b9);
 color: white;
@@ -106,34 +93,27 @@ cursor: pointer;
 transition: all 0.3s ease;
 margin: 5px;
 }
-
 .btn:hover {
 transform: translateY(-2px);
 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
-
 .btn-secondary {
 background: linear-gradient(135deg, #95a5a6, #7f8c8d);
 }
-
 .btn-success {
 background: linear-gradient(135deg, #27ae60, #2ecc71);
 }
-
 .btn-danger {
 background: linear-gradient(135deg, #e74c3c, #c0392b);
 }
-
 .btn-warning {
 background: linear-gradient(135deg, #f39c12, #e67e22);
 }
-
 .validation-results {
 margin-top: 2rem;
 max-height: 600px;
 overflow-y: auto;
 }
-
 .ticket-card {
 background: white;
 border-radius: 10px;
@@ -142,25 +122,21 @@ margin-bottom: 1rem;
 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 border-left: 5px solid #3498db;
 }
-
 .ticket-card.invalid {
 border-left-color: #e74c3c;
 background-color: #fff5f5;
 }
-
 .ticket-header {
 display: flex;
 justify-content: space-between;
 align-items: center;
 margin-bottom: 1rem;
 }
-
 .ticket-title {
 font-size: 1.3rem;
 font-weight: bold;
 color: #2c3e50;
 }
-
 .interaction-id {
 background: #e74c3c;
 color: white;
@@ -171,7 +147,6 @@ font-weight: bold;
 margin-top: 8px;
 display: inline-block;
 }
-
 .validation-score {
 background: #3498db;
 color: white;
@@ -179,11 +154,9 @@ padding: 5px 15px;
 border-radius: 20px;
 font-weight: bold;
 }
-
 .validation-details {
 margin-top: 1rem;
 }
-
 .field-validation {
 display: flex;
 align-items: center;
@@ -192,7 +165,6 @@ margin: 5px 0;
 border-radius: 5px;
 background: #f8f9fa;
 }
-
 .validation-icon {
 width: 30px;
 height: 30px;
@@ -204,37 +176,30 @@ margin-left: 15px;
 font-weight: bold;
 flex-shrink: 0;
 }
-
 .valid {
 background: #27ae60;
 color: white;
 }
-
 .invalid {
 background: #e74c3c;
 color: white;
 }
-
 .warning {
 background: #f39c12;
 color: white;
 }
-
 .field-info {
 flex: 1;
 }
-
 .field-name {
 font-weight: bold;
 color: #2c3e50;
 }
-
 .field-feedback {
 color: #7f8c8d;
 font-size: 0.9rem;
 margin-top: 2px;
 }
-
 .suggestions {
 background: #e8f4fd;
 border-right: 4px solid #3498db;
@@ -242,14 +207,12 @@ padding: 1rem;
 margin-top: 1rem;
 border-radius: 5px;
 }
-
 .summary-stats {
 display: grid;
 grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 gap: 1rem;
 margin-bottom: 2rem;
 }
-
 .stat-card {
 background: white;
 padding: 1.5rem;
@@ -257,13 +220,11 @@ border-radius: 10px;
 text-align: center;
 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
-
 .stat-number {
 font-size: 2rem;
 font-weight: bold;
 display: block;
 }
-
 .stat-valid {
 color: #27ae60;
 }
@@ -273,12 +234,10 @@ color: #e74c3c;
 .stat-warning {
 color: #f39c12;
 }
-
 .loading {
 text-align: center;
 padding: 2rem;
 }
-
 .spinner {
 border: 4px solid #f3f3f3;
 border-top: 4px solid #3498db;
@@ -288,7 +247,6 @@ height: 40px;
 animation: spin 1s linear infinite;
 margin: 0 auto 1rem;
 }
-
 @keyframes spin {
 0% {
 transform: rotate(0deg);
@@ -297,7 +255,6 @@ transform: rotate(0deg);
 transform: rotate(360deg);
 }
 }
-
 .criteria-section {
 background: #fff3cd;
 border-right: 4px solid #ffc107;
@@ -305,25 +262,20 @@ padding: 1rem;
 margin: 1rem 0;
 border-radius: 5px;
 }
-
 .criteria-list {
 list-style: none;
 padding-right: 0;
 }
-
 .criteria-item {
 padding: 0.5rem 0;
 border-bottom: 1px solid #ffeaa7;
 }
-
 .criteria-item:last-child {
 border-bottom: none;
 }
-
 .field-validation {
 text-align: right;
 }
-
 .legal-highlight {
 background: #fff3cd;
 border-right: 4px solid #ffc107;
@@ -331,14 +283,12 @@ padding: 0.5rem;
 margin: 0.5rem 0;
 border-radius: 3px;
 }
-
 .court-filter {
 display: flex;
 gap: 10px;
 margin-bottom: 1rem;
 flex-wrap: wrap;
 }
-
 .court-filter-btn {
 padding: 8px 16px;
 border: 2px solid #3498db;
@@ -347,24 +297,20 @@ border-radius: 20px;
 cursor: pointer;
 transition: all 0.3s;
 }
-
 .court-filter-btn.active {
 background: #3498db;
 color: white;
 }
-
 .court-filter-btn:hover {
 background: #2980b9;
 color: white;
 }
-
 .button-group {
 display: flex;
 gap: 10px;
 flex-wrap: wrap;
 margin-top: 15px;
 }
-
 .quality-badge {
 display: inline-block;
 padding: 2px 10px;
@@ -373,12 +319,10 @@ font-size: 0.75rem;
 font-weight: bold;
 margin-right: 8px;
 }
-
 .quality-badge.good {
 background: #d4edda;
 color: #155724;
 }
-
 .quality-badge.warning {
 background: #fff3cd;
 color: #856404;
@@ -388,15 +332,14 @@ color: #856404;
 <body>
 <div class="container">
 <header>
-<h1>🎫 نظام التحقق الذكي - العنوان 5 كلمات، دعم help user و RFI</h1>
-<p class="subtitle">يتسامح مع تصنيفات المساعدة والاستفسار، ويراقب طول العنوان</p>
+<h1>🎫 نظام التحقق الذكي - متوافق مع بيانات التدريب</h1>
+<p class="subtitle">يتعلم من ملف quality (2).xlsx، ويوضح أسباب الأخطاء عند التصدير</p>
 </header>
 
 <div id="mainApp">
 <div class="main-content">
 <div class="upload-section">
 <h2>📤 تحميل ملف Excel أو CSV</h2>
-<p>يجب أن يحتوي الملف على الأعمدة الأساسية.</p>
 <ul style="margin: 1rem 0; padding-right: 2rem;">
 <li><strong>Interaction ID</strong> – إلزامي</li>
 <li><strong>Type</strong> – إلزامي</li>
@@ -405,28 +348,24 @@ color: #856404;
 <li><strong>Classification</strong> – إلزامي</li>
 <li><strong>Priority</strong> – إلزامي</li>
 <li><strong>Title</strong> – يجب أن يكون 5 كلمات أو أقل (تحذير)</li>
-<li><strong>Description</strong> – يجب أن يحتوي على رقم الدعوى ما لم يكن مستثنى</li>
-<li><strong>Solution</strong> – اختياري (تحذير)</li>
-<li><strong>Completion code</strong> – يتم التحقق من صحته بناءً على نطاق التغيير (Case/Request)</li>
-<li><strong>Resolution Method</strong> – اختياري (تحذير)</li>
-<li><strong>Categories.Id</strong> – اختياري (تحذير)</li>
-<li><strong>Categories.Display label</strong> – اختياري (تحذير)</li>
+<li><strong>Description</strong> – يجب أن يحتوي على رقم الدعوى</li>
+<li><strong>Completion code</strong> – يتم التحقق من صحته</li>
 </ul>
 <div class="upload-area" id="uploadArea">
 <div class="upload-icon">📊</div>
 <h3>اسحب ملف Excel أو CSV هنا</h3>
-<p>أو انقر للتصفح (يدعم Excel و CSV)</p>
+<p>أو انقر للتصفح</p>
 <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls, .csv, .txt">
 </div>
 
 <div class="criteria-section">
-<h4>🔍 ملخص المعايير</h4>
+<h4>🔍 معايير التحقق</h4>
 <ul class="criteria-list">
-<li class="criteria-item"><strong>عدد كلمات العنوان:</strong> يجب أن يكون 5 كلمات أو أقل (تحذير إذا زاد).</li>
-<li class="criteria-item"><strong>تصنيفات help user و RFI:</strong> تعتبر صحيحة ولا تحتاج إلى تغيير فعلي (يُسمح بـ informationprovided_c أو noactiontakenrequired_c).</li>
-<li class="criteria-item"><strong>amend owner وتعديل أعضاء الدائرة (panel):</strong> تعتبر صحيحة ضمن نطاقها (طلب أو دعوى).</li>
-<li class="criteria-item"><strong>التناقض الجوهري:</strong> إذا كان العنوان يشير إلى تغيير حالة الطلب والتصنيف من نطاق الدعوى، أو العكس، يُعتبر خطأ.</li>
-<li class="criteria-item"><strong>Completion Code:</strong> يتوقع CaseAmended_c لتغييرات الدعوى، و RequestAmendedDeleted_c لتغييرات الطلب، مع استثناءات للتصنيفات غير التغييرية.</li>
+<li class="criteria-item">✅ <strong>الحقول الإلزامية</strong> يجب أن تكون موجودة.</li>
+<li class="criteria-item">📝 <strong>العنوان</strong> يفضل ألا يتجاوز 5 كلمات.</li>
+<li class="criteria-item">🔢 <strong>رقم الدعوى</strong> مطلوب في الوصف أو الحل (مع استثناءات).</li>
+<li class="criteria-item">📌 <strong>Completion Code</strong> يجب أن يكون متوافقاً مع نطاق التغيير (دعوى / طلب).</li>
+<li class="criteria-item">🔄 <strong>التناقض الجوهري</strong> يُبطل التذكرة (مثل "تغيير حالة الطلب" مع تصنيف "إعلان").</li>
 </ul>
 </div>
 
@@ -441,21 +380,18 @@ color: #856404;
 
 <div class="validation-section">
 <h2>📋 نتائج التحقق</h2>
-
 <div class="court-filter">
 <button class="court-filter-btn active" onclick="filterTickets('all')">الكل</button>
 <button class="court-filter-btn" onclick="filterTickets('valid')">الصالحة فقط</button>
 <button class="court-filter-btn" onclick="filterTickets('invalid')">الخاطئة فقط</button>
 <button class="court-filter-btn" onclick="filterTickets('warnings')">تحذيرات فقط</button>
 </div>
-
 <div id="summaryStats" class="summary-stats">
 <div class="stat-card"><span class="stat-number stat-valid" id="validCount">0</span><span>صحيحة</span></div>
 <div class="stat-card"><span class="stat-number stat-warning" id="warningCount">0</span><span>تحذيرات</span></div>
 <div class="stat-card"><span class="stat-number stat-invalid" id="invalidCount">0</span><span>خاطئة</span></div>
 <div class="stat-card"><span class="stat-number" id="totalCount" style="color:#3498db;">0</span><span>الإجمالي</span></div>
 </div>
-
 <div id="validationResults" class="validation-results">
 <div class="loading" id="loadingIndicator" style="display: none;">
 <div class="spinner"></div>
@@ -492,34 +428,26 @@ if (norm.includes(normalizeArabic(kw))) return true;
 return false;
 }
 
-// ==================== المجموعات الدلالية ====================
+// ==================== المجموعات الدلالية (موسعة قليلاً) ====================
 const semanticGroups = {
 'change_status': {
-keywords: ['حالة', 'تغيير', 'تغير', 'حاله'],
+keywords: ['حالة', 'تغيير', 'تغير', 'حاله', 'طلب', 'دعوى'],
 classifications: [
-'amend request status',
-'change case status',
-'amend hearing session status',
-'change judment status',
-'wrong status'
+'amend request status', 'change case status', 'amend hearing session status',
+'change judment status', 'wrong status', 'amend dmands'
 ]
 },
 'add_party': {
-keywords: ['إضافة', 'اضافة', 'اضف', 'طرف', 'ورث', 'منفذ له', 'منفذ ضده', 'مخول', 'توقيع', 'وكيل'],
+keywords: ['إضافة', 'اضافة', 'اضف', 'طرف', 'ورث', 'منفذ', 'مخول', 'توقيع', 'وكيل'],
 classifications: [
-'add party',
-'add related party',
-'add commercial record',
-'amend related party',
-'update party from moi'
+'add party', 'add related party', 'add commercial record',
+'amend related party', 'update party from moi'
 ]
 },
 'delete_party': {
 keywords: ['حذف', 'ازالة', 'مسح'],
 classifications: [
-'delete party',
-'delete related case',
-'delete panel member'
+'delete party', 'delete related case', 'delete panel member'
 ]
 },
 'create_announcement': {
@@ -531,78 +459,110 @@ classifications: [
 'modify_document': {
 keywords: ['تعديل', 'صحيفة', 'مرفق', 'ارفاق', 'تحميل'],
 classifications: [
-'change attachment type',
-'amend case subject'
+'change attachment type', 'amend case subject', 'change attachment type'
 ]
 },
 'access': {
-keywords: ['صلاحية', 'صلاحيات', 'فتح', 'غلق', 'الغاء'],
+keywords: ['صلاحية', 'صلاحيات', 'فتح', 'غلق', 'الغاء', 'كاتب', 'قاضي', 'عضو'],
 classifications: [
-'grant/revoke access',
-'add panel member',
-'change panel member',
-'delete panel member',
-'change member in session team',
-'add a member from session team',
-'delete a member from session team'
+'grant/revoke access', 'add panel member', 'change panel member',
+'delete panel member', 'change member in session team',
+'add a member from session team', 'delete a member from session team'
 ]
 },
 'case_related': {
-keywords: ['ربط', 'دعوى', 'تحريك', 'وقف', 'استئناف'],
+keywords: ['ربط', 'تحريك', 'وقف', 'استئناف', 'دعوى'],
 classifications: [
-'add related case',
-'delete related case'
+'add related case', 'delete related case'
 ]
 },
 'commercial': {
 keywords: ['سجل تجاري', 'قيد منشأة', 'سجل', 'تجاري'],
 classifications: [
-'add commercial record',
-'amend commercial record',
-'amend organization number'
+'add commercial record', 'amend commercial record', 'amend organization number'
 ]
 },
 'owner': {
 keywords: ['حائز', 'مالك', 'اختصاص', 'تخصيص'],
 classifications: [
-'amend owner',
-'add owner'
+'amend owner', 'add owner', 'add ownership'
 ]
 },
 'help_rfi': {
-keywords: ['مساعدة', 'استفسار', 'طلب', 'معلومة', 'إفادة'],
+keywords: ['مساعدة', 'استفسار', 'طلب', 'معلومة', 'إفادة', 'تدقيق'],
 classifications: [
-'help user',
-'rfi'
+'help user', 'rfi'
 ]
 },
 'general': {
-keywords: ['خلل', 'مشكلة', 'خطأ', 'رسالة', 'بطء'],
+keywords: ['خلل', 'مشكلة', 'خطأ', 'رسالة', 'بطء', 'دفع', 'مبلغ', 'جلسة', 'حكم', 'قرار', 'جدولة'],
 classifications: [
-'error message',
-'registration issue',
-'payment issue',
-'bug fixing',
-'not accessible',
-'scheduling error',
-'parties issue',
-'slowness'
+'error message', 'registration issue', 'payment issue', 'bug fixing',
+'not accessible', 'scheduling error', 'parties issue', 'slowness',
+'amend the amount', 'change payment status', 'add judgment record',
+'amend hearing session type', 'add hearing session', 'delete hearing session',
+'edit duration', 'add expert committees', 'change decision status',
+'add session date', 'change panel role for a member', 'amend payment holder',
+'case not showing', 'wrong announcements data', 'judgment approval issue',
+'internet explorer', 'data issue', 'portal - sharepoint - general support'
 ]
 }
 };
 
-// ==================== تحديد نطاق التغيير ====================
+// ==================== استثناءات رقم الدعوى ونطاق التغيير ====================
+const noReferenceNeeded = [
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant Access' },
+{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Revoke Access' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'add panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'change panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'delete panel member' },
+{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'change member in session team' },
+{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'add a member from session team' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'add Panel' },
+{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'Change Panel' },
+{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
+{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
+{ category: 'CMS - Cases', subcategory: 'technical issue', classification: 'slowness' },
+];
+
+function requiresReference(ticket) {
+const cat = ticket.Category;
+const sub = ticket.Subcategory;
+const cls = ticket.Classification;
+for (let item of noReferenceNeeded) {
+if (item.category === cat && item.subcategory === sub && item.classification === cls) {
+return false;
+}
+}
+const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
+if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes(
+'court room')) {
+return false;
+}
+return true;
+}
+
+// ==================== تحديد نطاق التغيير (متوافق مع بيانات التدريب) ====================
 function getChangeScope(ticket) {
 const category = (ticket.Category || '').toLowerCase();
 const subcategory = (ticket.Subcategory || '').toLowerCase();
 const classification = (ticket.Classification || '').toLowerCase();
 
-// 1. تصنيفات help user و RFI تعتبر "none" (لا تغيير مطلوب)
+// 1. استثناءات بناءً على noReferenceNeeded (صلاحيات، دوائر، إلخ)
+for (let item of noReferenceNeeded) {
+if (item.category === ticket.Category && item.subcategory === ticket.Subcategory &&
+item.classification === ticket.Classification) {
+return 'none';
+}
+}
+
+// 2. تصنيفات help user و RFI
 if (classification.includes('help user') || classification.includes('rfi')) {
 return 'none';
 }
 
-// 2. تصنيفات لا تتطلب تغييراً (مثل slowness, error message)
+// 3. تصنيفات لا تتطلب تغييراً
 const noChangeNeeded = ['slowness', 'error message', 'registration issue', 'payment issue', 'bug fixing',
 'not accessible', 'scheduling error', 'wrong status', 'parties issue'
 ];
@@ -612,24 +572,19 @@ return 'none';
 }
 }
 
-// 3. تصنيفات owner (amend owner, add owner) تعتبر طلباً
+// 4. تصنيفات owner تعتبر طلباً
 if (classification.includes('owner')) {
 return 'request';
 }
 
-// 4. تصنيفات panel (أعضاء الدائرة) تعتبر دعوى أو طلب حسب السياق، لكن نفضل اعتبارها دعوى (لأنها مرتبطة بالدائرة)
-if (classification.includes('panel') || classification.includes('session team')) {
-return 'case';
-}
-
-// 5. إذا كان التصنيف يحتوي على 'request' في أي مكان، فهو نطاق طلب
+// 5. إذا كان التصنيف يحتوي على 'request'
 if (classification.includes('request') || category.includes('requests') || subcategory.includes('requests')) {
 return 'request';
 }
 
-// 6. إذا كان التصنيف يحتوي على 'case' أو 'party' أو 'attachment' أو 'commercial' أو 'announcement' أو 'hearing' أو 'judgment'
+// 6. إذا كان التصنيف يحتوي على كلمات خاصة بالدعوى
 const caseKeywords = ['case', 'party', 'attachment', 'commercial', 'announcement', 'hearing', 'judgment',
-'related', 'status'
+'related', 'status', 'panel', 'session', 'dmands', 'finance', 'decision'
 ];
 for (let kw of caseKeywords) {
 if (classification.includes(kw) || category.includes(kw) || subcategory.includes(kw)) {
@@ -637,17 +592,15 @@ return 'case';
 }
 }
 
-// 7. افتراضياً، إذا كان التصنيف من 'CMS - Cases' أو 'CMS - Case Management'
+// 7. افتراضياً بناءً على Category
 if (category.includes('case') && !category.includes('request')) {
 return 'case';
 }
-
-// 8. أخيراً، إذا كان التصنيف من 'CMS - Requests'
 if (category.includes('request')) {
 return 'request';
 }
 
-return 'case'; // افتراضي
+return 'case';
 }
 
 // ==================== دوال التحقق الأساسية ====================
@@ -708,7 +661,6 @@ res.feedback.push('رقم التذكرة صحيح');
 return res;
 }
 
-// دالة التحقق من عدد كلمات العنوان (بحد أقصى 5)
 function validateTitleLength(title) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 if (!title) {
@@ -719,9 +671,9 @@ return res;
 const words = title.trim().split(/\s+/).length;
 if (words > 5) {
 res.hasWarning = true;
-res.feedback.push(`العنوان طويل (${words} كلمة، يفضل ≤5 كلمات)`);
+res.feedback.push(`العنوان طويل (${words} كلمات، يفضل ≤5)`);
 } else {
-res.feedback.push(`عدد الكلمات مناسب (${words} كلمات)`);
+res.feedback.push(`عدد الكلمات مناسب (${words})`);
 }
 return res;
 }
@@ -740,7 +692,7 @@ const actionWords = ['تم', 'تمت', 'انتهى', 'أكمل', 'أنهى', 'ن
 const hasAction = actionWords.some(w => solution.includes(w));
 if (!hasAction) {
 res.hasWarning = true;
-res.feedback.push('يُفضل أن يحتوي الحل على كلمات الإنجاز (تم، تمت، ...)');
+res.feedback.push('يُفضل أن يحتوي الحل على كلمات الإنجاز');
 }
 if (res.feedback.length === 0) res.feedback.push('الحل مناسب');
 }
@@ -758,40 +710,6 @@ res.feedback.push('الخدمة المتأثرة موجودة');
 return res;
 }
 
-// ==================== استثناءات رقم الدعوى ====================
-const noReferenceNeeded = [
-{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant/Revoke Access' },
-{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Grant Access' },
-{ category: 'CMS - Access', subcategory: 'User Access', classification: 'Revoke Access' },
-{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'add panel member' },
-{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'change panel member' },
-{ category: 'CMS - Court Rooms', subcategory: 'Panel Team', classification: 'delete panel member' },
-{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'change member in session team' },
-{ category: 'CMS - Court Rooms', subcategory: 'Session Team', classification: 'add a member from session team' },
-{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'add Panel' },
-{ category: 'CMS - Court Rooms', subcategory: 'Panel Details', classification: 'Change Panel' },
-{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'add Owner' },
-{ category: 'CMS - Requests', subcategory: 'Owner', classification: 'amend Owner' },
-{ category: 'CMS - Cases', subcategory: 'technical issue', classification: 'slowness' },
-];
-
-function requiresReference(ticket) {
-const cat = ticket.Category;
-const sub = ticket.Subcategory;
-const cls = ticket.Classification;
-for (let item of noReferenceNeeded) {
-if (item.category === cat && item.subcategory === sub && item.classification === cls) {
-return false;
-}
-}
-const combined = (cat + ' ' + sub + ' ' + cls).toLowerCase();
-if (combined.includes('access') || combined.includes('owner') || combined.includes('panel') || combined.includes(
-'court room')) {
-return false;
-}
-return true;
-}
-
 // ==================== وظيفة التحقق الرئيسية ====================
 function validateTicket(ticket) {
 const v = {};
@@ -803,10 +721,7 @@ v.category = validateRequired(ticket.Category, 'الفئة');
 v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية');
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
 v.priority = validatePriority(ticket.Priority);
-
-// التحقق من طول العنوان (حد أقصى 5 كلمات)
 v.title = validateTitleLength(ticket.Title);
-
 v.solution = validateSolution(ticket.Solution);
 v.affectedService = validateAffectedService(ticket['Affected Services'] || ticket['Affected Service']);
 
@@ -850,10 +765,10 @@ break;
 }
 if (!keywordMatched && title) {
 v.qualityEngine.hasWarning = true;
-v.qualityEngine.feedback.push('العنوان لا يحتوي على كلمات مفتاحية مميزة (قد يكون غير واضح)');
+v.qualityEngine.feedback.push('العنوان لا يحتوي على كلمات مفتاحية مميزة');
 }
 
-// 2. التناقض الجوهري بين العنوان والتصنيف
+// 2. التناقض الجوهري (فقط إذا كان التصنيف معروفاً في المجموعات)
 let currentGroup = null;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
 if (group.classifications.some(cls => classification.includes(cls))) {
@@ -875,8 +790,8 @@ titleGroup = groupKey;
 }
 }
 
+// فقط إذا كان كلا المجموعتين معروفين ومختلفين، مع استثناء help_rfi و general
 if (currentGroup && titleGroup && currentGroup !== titleGroup) {
-// استثناء: إذا كانت إحدى المجموعتين هي help_rfi أو general، فلا نعتبره تناقضاً جوهرياً
 if (titleGroup !== 'help_rfi' && titleGroup !== 'general' &&
 currentGroup !== 'help_rfi' && currentGroup !== 'general') {
 v.qualityEngine.isValid = false;
@@ -888,44 +803,52 @@ v.qualityEngine.feedback.push(
 
 // ===================== التحقق من Completion Code =====================
 const scope = getChangeScope(ticket);
-let expectedCompletionCodes = [];
 
-if (scope === 'case') {
-expectedCompletionCodes = ['caseamended_c', 'noactiontakenrequired_c'];
-} else if (scope === 'request') {
-expectedCompletionCodes = ['requestamendeddeleted_c', 'noactiontakenrequired_c'];
-} else if (scope === 'none') {
-expectedCompletionCodes = ['informationprovided_c', 'noactiontakenrequired_c', 'application_c'];
-}
+// قائمة الرموز المتوقعة بناءً على النطاق (مستفادة من ملف التدريب)
+const completionCodeMap = {
+'case': ['caseamended_c', 'noactiontakenrequired_c', 'informationprovided_c',
+'application_c', 'duplicateticket_c', 'cmsapproved_c', 'accessgiven_c', 'accessremoved_c'
+],
+'request': ['requestamendeddeleted_c', 'noactiontakenrequired_c', 'informationprovided_c',
+'duplicateticket_c', 'application_c'
+],
+'none': ['informationprovided_c', 'noactiontakenrequired_c', 'application_c',
+'accessgiven_c', 'accessremoved_c', 'duplicateticket_c'
+]
+};
 
-if (scope !== 'none' && completionCode) {
-if (!expectedCompletionCodes.includes(completionCode)) {
+let expectedCodes = completionCodeMap[scope] || completionCodeMap['case'];
+
+if (completionCode) {
+if (!expectedCodes.includes(completionCode)) {
 v.qualityEngine.hasWarning = true;
-const expectedStr = expectedCompletionCodes.join(' أو ');
-const scopeName = scope === 'case' ? 'الدعوى (Case)' : 'الطلب (Request)';
+const expectedStr = expectedCodes.slice(0, 3).join(' أو ') + (expectedCodes.length > 3 ? ' ...' : '');
+const scopeName = scope === 'case' ? 'الدعوى' : scope === 'request' ? 'الطلب' : 'هذه التصنيفات';
 v.qualityEngine.feedback.push(
-`Completion Code غير متوقع لتغيير ${scopeName} (المتوقع: ${expectedStr})`
+`Completion Code "${completionCode}" غير متوقع لـ ${scopeName} (المتوقع: ${expectedStr})`
 );
 }
-} else if (scope !== 'none' && !completionCode) {
+} else {
+if (scope !== 'none') {
 v.qualityEngine.hasWarning = true;
-const scopeName = scope === 'case' ? 'الدعوى (Case)' : 'الطلب (Request)';
+const scopeName = scope === 'case' ? 'الدعوى' : 'الطلب';
 v.qualityEngine.feedback.push(`Completion Code مفقود (يفترض أن يكون لتغيير ${scopeName})`);
 }
+}
 
-// 4. التحقق من Resolution Method
+// 4. Resolution Method
 if (!ticket['Resolution Method']) {
 v.qualityEngine.hasWarning = true;
 v.qualityEngine.feedback.push('Resolution Method مفقود');
 }
 
-// 5. التحقق من Categories.Id
+// 5. Categories.Id
 if (!ticket['Categories.Id']) {
 v.qualityEngine.hasWarning = true;
 v.qualityEngine.feedback.push('Categories.Id مفقود');
 }
 
-// 6. التحقق من Categories.Display label
+// 6. Display Label
 if (!displayLabel) {
 v.qualityEngine.hasWarning = true;
 v.qualityEngine.feedback.push('Categories.Display Label مفقود');
@@ -947,7 +870,7 @@ v.qualityEngine.feedback.push('Display Label لا يتناسب دلالياً م
 }
 
 if (v.qualityEngine.feedback.length === 0) {
-v.qualityEngine.feedback.push('جودة التصنيف ممتازة ومطابقة للأنماط المعروفة');
+v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
 }
 
 // ===================== حساب النتيجة =====================
@@ -968,7 +891,7 @@ const score = Math.max(0, Math.round((validFields / totalFields) * 100) - warnin
 return { ticket, validations: v, score, isValid, hasWarnings };
 }
 
-// ==================== باقي الكود (معالجة الملف، العرض، التصدير) ====================
+// ==================== معالجة الملف والعرض ====================
 let allResults = [];
 let filteredResults = [];
 
@@ -1067,7 +990,7 @@ subcategory: 'الفئة الفرعية',
 classification: 'التصنيف',
 priority: 'الأولوية',
 referenceNumber: 'رقم الدعوى/الطلب',
-title: 'العنوان (عدد الكلمات)',
+title: 'العنوان',
 solution: 'الحل',
 affectedService: 'الخدمة المتأثرة',
 qualityEngine: 'محرك الجودة'
@@ -1140,36 +1063,6 @@ const sample = [{
 "Resolution Method": "Updated",
 "Categories.Id": "999",
 "Categories.Display label": "amend request status"
-}, {
-"Interaction ID": "SD1743000",
-"Type": "Service Request",
-"Affected Services": "CMS",
-"Category": "CMS - Cases",
-"Subcategory": "Attachments",
-"Classification": "Help user",
-"Priority": "3",
-"Title": "طلب مساعدة في رفع مرفق",
-"Description": "لا يمكن رفع المرفق",
-"Solution": "تم الرفع",
-"Completion code": "informationprovided_c",
-"Resolution Method": "Helped",
-"Categories.Id": "888",
-"Categories.Display label": "Help user"
-}, {
-"Interaction ID": "SD1744000",
-"Type": "Service Request",
-"Affected Services": "CMS",
-"Category": "CMS - Cases",
-"Subcategory": "Parties",
-"Classification": "Add Party",
-"Priority": "3",
-"Title": "إضافة طرف في الدعوى مع تعديل الصحيفة ورفع مرفق",
-"Description": "طلب إضافة طرف",
-"Solution": "تم",
-"Completion code": "caseamended_c",
-"Resolution Method": "Updated",
-"Categories.Id": "777",
-"Categories.Display label": "Add Party"
 }];
 allResults = sample.map(t => validateTicket(t));
 filteredResults = allResults;
@@ -1192,16 +1085,26 @@ csv +=
 download(csv, 'all_results.csv');
 }
 
+// ==================== زر التحميل المطور (يعرض أسباب الأخطاء) ====================
 function exportInvalidTickets() {
 const inv = allResults.filter(r => !r.isValid);
-if (!inv.length) return alert('لا توجد تذاكر خاطئة');
+if (!inv.length) return alert('🎉 لا توجد تذاكر خاطئة!');
 let csv =
-'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,Resolution Method,Categories.Id,Categories.Display label\n';
+'Interaction ID,Title,Score,Type,Affected Services,Category,Subcategory,Classification,Priority,Completion Code,سبب الخطأ\n';
 inv.forEach(r => {
-csv +=
-`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Id'] || ''}","${r.ticket['Categories.Display label'] || ''}"\n`;
+let reasons = [];
+// جمع أسباب الفشل من جميع الحقول
+Object.entries(r.validations).forEach(([key, val]) => {
+if (!val.isValid) {
+reasons.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
+}
 });
-download(csv, 'invalid_tickets.csv');
+// إذا لم يتم العثور على سبب محدد (حماية)
+if (reasons.length === 0) reasons.push('خطأ غير محدد (يرجى مراجعة البيانات)');
+csv +=
+`"${r.ticket['Interaction ID']}","${r.ticket.Title}",${r.score},${r.ticket.Type},${r.ticket['Affected Services']},${r.ticket.Category},${r.ticket.Subcategory},${r.ticket.Classification},${r.ticket.Priority},"${r.ticket['Completion code'] || ''}","${reasons.join(' | ')}"\n`;
+});
+download(csv, 'invalid_tickets_with_reasons.csv');
 }
 
 function exportWarnings() {
