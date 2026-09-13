@@ -4,329 +4,84 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>نظام التحقق الذكي - البحث عن الرقم في الحل</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-body {
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-min-height: 100vh;
-padding: 20px;
-direction: rtl;
-}
-.container {
-max-width: 1400px;
-margin: 0 auto;
-background: white;
-border-radius: 15px;
-box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-overflow: hidden;
-}
-header {
-background: linear-gradient(135deg, #2c3e50, #3498db);
-color: white;
-padding: 2rem;
-text-align: center;
-}
-h1 {
-font-size: 2.5rem;
-margin-bottom: 0.5rem;
-}
-.subtitle {
-opacity: 0.9;
-font-size: 1.1rem;
-}
-.main-content {
-padding: 2rem;
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 2rem;
-}
-@media (max-width: 768px) {
-.main-content {
-grid-template-columns: 1fr;
-}
-}
-.upload-section,
-.validation-section {
-background: #f8f9fa;
-padding: 2rem;
-border-radius: 10px;
-border: 2px dashed #dee2e6;
-}
-.upload-area {
-border: 3px dashed #3498db;
-border-radius: 10px;
-padding: 3rem 2rem;
-text-align: center;
-background: #ecf0f1;
-cursor: pointer;
-transition: all 0.3s ease;
-margin-bottom: 1.5rem;
-}
-.upload-area:hover {
-background: #d6eaf8;
-border-color: #2980b9;
-}
-.upload-icon {
-font-size: 4rem;
-color: #3498db;
-margin-bottom: 1rem;
-}
-.file-input {
-display: none;
-}
-.btn {
-background: linear-gradient(135deg, #3498db, #2980b9);
-color: white;
-border: none;
-padding: 12px 30px;
-border-radius: 25px;
-font-size: 1rem;
-font-weight: 600;
-cursor: pointer;
-transition: all 0.3s ease;
-margin: 5px;
-}
-.btn:hover {
-transform: translateY(-2px);
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-.btn-secondary {
-background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-}
-.btn-success {
-background: linear-gradient(135deg, #27ae60, #2ecc71);
-}
-.btn-danger {
-background: linear-gradient(135deg, #e74c3c, #c0392b);
-}
-.btn-warning {
-background: linear-gradient(135deg, #f39c12, #e67e22);
-}
-.validation-results {
-margin-top: 2rem;
-max-height: 600px;
-overflow-y: auto;
-}
-.ticket-card {
-background: white;
-border-radius: 10px;
-padding: 1.5rem;
-margin-bottom: 1rem;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-border-left: 5px solid #3498db;
-}
-.ticket-card.invalid {
-border-left-color: #e74c3c;
-background-color: #fff5f5;
-}
-.ticket-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 1rem;
-}
-.ticket-title {
-font-size: 1.3rem;
-font-weight: bold;
-color: #2c3e50;
-}
-.interaction-id {
-background: #e74c3c;
-color: white;
-padding: 6px 12px;
-border-radius: 20px;
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; direction: rtl; }
+.container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; }
+header { background: linear-gradient(135deg, #2c3e50, #3498db); color: white; padding: 2rem; text-align: center; }
+h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+.subtitle { opacity: 0.9; font-size: 1.1rem; }
+.main-content { padding: 2rem; display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+@media (max-width: 768px) { .main-content { grid-template-columns: 1fr; } }
+.upload-section, .validation-section { background: #f8f9fa; padding: 2rem; border-radius: 10px; border: 2px dashed #dee2e6; }
+.upload-area { border: 3px dashed #3498db; border-radius: 10px; padding: 3rem 2rem; text-align: center; background: #ecf0f1; cursor: pointer; transition: all 0.3s ease; margin-bottom: 1.5rem; }
+.upload-area:hover { background: #d6eaf8; border-color: #2980b9; }
+.upload-icon { font-size: 4rem; color: #3498db; margin-bottom: 1rem; }
+.file-input { display: none; }
+.btn { background: linear-gradient(135deg, #3498db, #2980b9); color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; margin: 5px; }
+.btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+.btn-secondary { background: linear-gradient(135deg, #95a5a6, #7f8c8d); }
+.btn-success { background: linear-gradient(135deg, #27ae60, #2ecc71); }
+.btn-danger { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.btn-warning { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.validation-results { margin-top: 2rem; max-height: 600px; overflow-y: auto; }
+.ticket-card { background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-left: 5px solid #3498db; }
+.ticket-card.invalid { border-left-color: #e74c3c; background-color: #fff5f5; }
+.ticket-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 10px; }
+.ticket-title { font-size: 1.2rem; font-weight: bold; color: #2c3e50; flex: 1; }
+/* ===== شارة رقم التذكرة ===== */
+.ticket-id-badge {
+display: inline-block;
+background: #2c3e50;
+color: #fff;
+padding: 5px 14px;
+border-radius: 8px;
 font-size: 0.9rem;
 font-weight: bold;
-margin-top: 8px;
-display: inline-block;
+margin-bottom: 8px;
+direction: ltr;
+font-family: 'Consolas', monospace;
+letter-spacing: 0.5px;
+border: 2px solid #1a252f;
 }
-.validation-score {
-background: #3498db;
-color: white;
-padding: 5px 15px;
-border-radius: 20px;
-font-weight: bold;
-}
-.validation-details {
-margin-top: 1rem;
-}
-.field-validation {
-display: flex;
-align-items: center;
-padding: 10px;
-margin: 5px 0;
-border-radius: 5px;
-background: #f8f9fa;
-}
-.validation-icon {
-width: 30px;
-height: 30px;
-border-radius: 50%;
-display: flex;
-align-items: center;
-justify-content: center;
-margin-left: 15px;
-font-weight: bold;
-flex-shrink: 0;
-}
-.valid {
-background: #27ae60;
-color: white;
-}
-.invalid {
-background: #e74c3c;
-color: white;
-}
-.warning {
-background: #f39c12;
-color: white;
-}
-.field-info {
-flex: 1;
-}
-.field-name {
-font-weight: bold;
-color: #2c3e50;
-}
-.field-feedback {
-color: #7f8c8d;
-font-size: 0.9rem;
-margin-top: 2px;
-}
-.suggestions {
-background: #e8f4fd;
-border-right: 4px solid #3498db;
-padding: 1rem;
-margin-top: 1rem;
-border-radius: 5px;
-}
-.summary-stats {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-gap: 1rem;
-margin-bottom: 2rem;
-}
-.stat-card {
-background: white;
-padding: 1.5rem;
-border-radius: 10px;
-text-align: center;
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-.stat-number {
-font-size: 2rem;
-font-weight: bold;
-display: block;
-}
-.stat-valid {
-color: #27ae60;
-}
-.stat-invalid {
-color: #e74c3c;
-}
-.stat-warning {
-color: #f39c12;
-}
-.loading {
-text-align: center;
-padding: 2rem;
-}
-.spinner {
-border: 4px solid #f3f3f3;
-border-top: 4px solid #3498db;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-animation: spin 1s linear infinite;
-margin: 0 auto 1rem;
-}
-@keyframes spin {
-0% {
-transform: rotate(0deg);
-}
-100% {
-transform: rotate(360deg);
-}
-}
-.criteria-section {
-background: #fff3cd;
-border-right: 4px solid #ffc107;
-padding: 1rem;
-margin: 1rem 0;
-border-radius: 5px;
-}
-.criteria-list {
-list-style: none;
-padding-right: 0;
-}
-.criteria-item {
-padding: 0.5rem 0;
-border-bottom: 1px solid #ffeaa7;
-}
-.criteria-item:last-child {
-border-bottom: none;
-}
-.field-validation {
-text-align: right;
-}
-.legal-highlight {
-background: #fff3cd;
-border-right: 4px solid #ffc107;
-padding: 0.5rem;
-margin: 0.5rem 0;
-border-radius: 3px;
-}
-.court-filter {
-display: flex;
-gap: 10px;
-margin-bottom: 1rem;
-flex-wrap: wrap;
-}
-.court-filter-btn {
-padding: 8px 16px;
-border: 2px solid #3498db;
-background: white;
-border-radius: 20px;
-cursor: pointer;
-transition: all 0.3s;
-}
-.court-filter-btn.active {
-background: #3498db;
-color: white;
-}
-.court-filter-btn:hover {
-background: #2980b9;
-color: white;
-}
-.button-group {
-display: flex;
-gap: 10px;
-flex-wrap: wrap;
-margin-top: 15px;
-}
-.quality-badge {
-display: inline-block;
-padding: 2px 10px;
-border-radius: 12px;
-font-size: 0.75rem;
-font-weight: bold;
-margin-right: 8px;
-}
-.quality-badge.good {
-background: #d4edda;
-color: #155724;
-}
-.quality-badge.warning {
-background: #fff3cd;
-color: #856404;
-}
+.ticket-id-badge.missing { background: #e74c3c; border-color: #c0392b; }
+.id-label { color: #f1c40f; font-family: 'Segoe UI', sans-serif; }
+.validation-score { background: #3498db; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; white-space: nowrap; }
+.validation-details { margin-top: 1rem; }
+.field-validation { display: flex; align-items: center; padding: 10px; margin: 5px 0; border-radius: 5px; background: #f8f9fa; text-align: right; }
+.validation-icon { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 15px; font-weight: bold; flex-shrink: 0; }
+.valid { background: #27ae60; color: white; }
+.invalid { background: #e74c3c; color: white; }
+.warning { background: #f39c12; color: white; }
+.field-info { flex: 1; }
+.field-name { font-weight: bold; color: #2c3e50; }
+.field-feedback { color: #7f8c8d; font-size: 0.9rem; margin-top: 2px; }
+.suggestions { background: #e8f4fd; border-right: 4px solid #3498db; padding: 1rem; margin-top: 1rem; border-radius: 5px; }
+.summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.stat-card { background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+.stat-number { font-size: 2rem; font-weight: bold; display: block; }
+.stat-valid { color: #27ae60; }
+.stat-invalid { color: #e74c3c; }
+.stat-warning { color: #f39c12; }
+.loading { text-align: center; padding: 2rem; }
+.spinner { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.criteria-section { background: #fff3cd; border-right: 4px solid #ffc107; padding: 1rem; margin: 1rem 0; border-radius: 5px; }
+.criteria-list { list-style: none; padding-right: 0; }
+.criteria-item { padding: 0.5rem 0; border-bottom: 1px solid #ffeaa7; }
+.criteria-item:last-child { border-bottom: none; }
+.legal-highlight { background: #fff3cd; border-right: 4px solid #ffc107; padding: 0.5rem; margin: 0.5rem 0; border-radius: 3px; }
+.court-filter { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+.court-filter-btn { padding: 8px 16px; border: 2px solid #3498db; background: white; border-radius: 20px; cursor: pointer; transition: all 0.3s; font-family: inherit; }
+.court-filter-btn.active { background: #3498db; color: white; }
+.court-filter-btn:hover { background: #2980b9; color: white; }
+.id-search { flex: 1; min-width: 220px; padding: 9px 16px; border: 2px solid #3498db; border-radius: 20px; font-family: inherit; font-size: 0.95rem; direction: ltr; text-align: left; }
+.id-search:focus { outline: none; border-color: #2980b9; box-shadow: 0 0 0 3px rgba(52,152,219,0.2); }
+.button-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 15px; }
+.quality-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; margin-right: 8px; }
+.quality-badge.good { background: #d4edda; color: #155724; }
+.quality-badge.warning { background: #fff3cd; color: #856404; }
 </style>
 </head>
 <body>
@@ -344,6 +99,7 @@ color: #856404;
 <li><strong>التصنيف (Classification)</strong> – إلزامي</li>
 <li><strong>الفئة الفرعية (Subcategory)</strong> – إلزامي</li>
 <li><strong>الحل (Solution)</strong> – يُبحث فيه عن رقم الدعوى/الطلب</li>
+<li><strong>Interaction ID</strong> – رقم التذكرة (يظهر في النتائج وكل التقارير)</li>
 <li><strong>Completion code, Resolution Method, Categories.Display label</strong> – اختيارية (تحذير)</li>
 </ul>
 <div class="upload-area" id="uploadArea">
@@ -357,6 +113,7 @@ color: #856404;
 <h4>🔍 معايير التحقق المحدثة</h4>
 <ul class="criteria-list">
 <li class="criteria-item">✅ <strong>الحقول الإلزامية:</strong> التصنيف (Classification) والفئة الفرعية (Subcategory).</li>
+<li class="criteria-item">🆔 <strong>رقم التذكرة (Interaction ID):</strong> يُعرض في بطاقة كل تذكرة وفي جميع ملفات التصدير (صحيحة / خاطئة / تحذيرات).</li>
 <li class="criteria-item">📌 <strong>رقم الدعوى/الطلب:</strong> يُبحث في الحل (Solution) أولاً، ثم الوصف (Description)، ثم العنوان (Title). إذا لم يُوجد في أي منها (باستثناء الحالات النظامية) تُعتبر التذكرة خاطئة.</li>
 <li class="criteria-item">🔧 <strong>Completion Code, Resolution Method, Display Label:</strong> تُفحص للتحذير فقط.</li>
 <li class="criteria-item">📝 <strong>عدد كلمات العنوان</strong> (تحذير إذا تجاوز 5).</li>
@@ -367,19 +124,20 @@ color: #856404;
 <div class="button-group">
 <button class="btn" onclick="document.getElementById('fileInput').click()">اختر ملف</button>
 <button class="btn btn-secondary" onclick="validateSampleData()">تجربة بيانات نموذجية</button>
-<button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">تصدير النتائج</button>
-<button class="btn btn-warning" onclick="exportWarnings()" id="exportWarningsBtn" style="display: none;">تحميل التحذيرات</button>
-<button class="btn btn-danger" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">تحميل التذاكر الخاطئة</button>
+<button class="btn btn-success" onclick="exportResults()" id="exportBtn" style="display: none;">تصدير كل النتائج (Excel)</button>
+<button class="btn btn-warning" onclick="exportWarnings()" id="exportWarningsBtn" style="display: none;">تحميل التحذيرات (Excel)</button>
+<button class="btn btn-danger" onclick="exportInvalidTickets()" id="exportInvalidBtn" style="display: none;">تحميل التذاكر الخاطئة (Excel)</button>
 </div>
 </div>
 
 <div class="validation-section">
 <h2>📋 نتائج التحقق</h2>
 <div class="court-filter">
-<button class="court-filter-btn active" onclick="filterTickets('all')">الكل</button>
-<button class="court-filter-btn" onclick="filterTickets('valid')">الصالحة فقط</button>
-<button class="court-filter-btn" onclick="filterTickets('invalid')">الخاطئة فقط</button>
-<button class="court-filter-btn" onclick="filterTickets('warnings')">تحذيرات فقط</button>
+<button class="court-filter-btn active" onclick="filterTickets('all', this)">الكل</button>
+<button class="court-filter-btn" onclick="filterTickets('valid', this)">الصالحة فقط</button>
+<button class="court-filter-btn" onclick="filterTickets('invalid', this)">الخاطئة فقط</button>
+<button class="court-filter-btn" onclick="filterTickets('warnings', this)">تحذيرات فقط</button>
+<input type="text" id="idSearch" class="id-search" placeholder="🔎 ابحث برقم التذكرة (ID)..." oninput="applyFilters()">
 </div>
 <div id="summaryStats" class="summary-stats">
 <div class="stat-card"><span class="stat-number stat-valid" id="validCount">0</span><span>صحيحة</span></div>
@@ -405,7 +163,7 @@ color: #856404;
 // ==================== دوال التطبيع ====================
 function normalizeArabic(text) {
 if (!text) return '';
-return text
+return String(text)
 .replace(/[\u064B-\u065F]/g, '')
 .replace(/[أإآ]/g, 'ا')
 .replace(/ة/g, 'ه')
@@ -417,90 +175,70 @@ return text
 function hasKeyword(text, keywords) {
 if (!text) return false;
 const norm = normalizeArabic(text);
-for (let kw of keywords) {
-if (norm.includes(normalizeArabic(kw))) return true;
-}
+for (let kw of keywords) { if (norm.includes(normalizeArabic(kw))) return true; }
 return false;
+}
+
+// ==================== قراءة حقول الملف بأسماء متعددة ====================
+function pickField(row, candidates) {
+const normalized = {};
+Object.keys(row).forEach(k => {
+normalized[String(k).toLowerCase().replace(/[\s_\-\.\u00A0]/g, '')] = row[k];
+});
+for (const c of candidates) {
+const key = String(c).toLowerCase().replace(/[\s_\-\.\u00A0]/g, '');
+if (normalized[key] !== undefined && normalized[key] !== null && normalized[key] !== '') {
+return normalized[key];
+}
+}
+return '';
 }
 
 // ==================== المجموعات الدلالية ====================
 const semanticGroups = {
 'change_status': {
 keywords: ['حالة', 'تغيير', 'تغير', 'حاله', 'طلب', 'دعوى'],
-classifications: [
-'amend request status', 'change case status', 'amend hearing session status',
-'change judment status', 'wrong status', 'amend dmands'
-]
+classifications: ['amend request status','change case status','amend hearing session status','change judment status','wrong status','amend dmands']
 },
 'add_party': {
 keywords: ['إضافة', 'اضافة', 'اضف', 'طرف', 'ورث', 'منفذ', 'مخول', 'توقيع', 'وكيل'],
-classifications: [
-'add party', 'add related party', 'add commercial record',
-'amend related party', 'update party from moi'
-]
+classifications: ['add party','add related party','add commercial record','amend related party','update party from moi']
 },
 'delete_party': {
 keywords: ['حذف', 'ازالة', 'مسح'],
-classifications: [
-'delete party', 'delete related case', 'delete panel member'
-]
+classifications: ['delete party','delete related case','delete panel member']
 },
 'create_announcement': {
 keywords: ['اعلان', 'إعلان', 'نشر'],
-classifications: [
-'create announcements'
-]
+classifications: ['create announcements']
 },
 'modify_document': {
 keywords: ['تعديل', 'صحيفة', 'مرفق', 'ارفاق', 'تحميل'],
-classifications: [
-'change attachment type', 'amend case subject'
-]
+classifications: ['change attachment type','amend case subject']
 },
 'access': {
 keywords: ['صلاحية', 'صلاحيات', 'فتح', 'غلق', 'الغاء', 'كاتب', 'قاضي', 'عضو'],
-classifications: [
-'grant/revoke access', 'add panel member', 'change panel member',
-'delete panel member', 'change member in session team',
-'add a member from session team', 'delete a member from session team'
-]
+classifications: ['grant/revoke access','add panel member','change panel member','delete panel member','change member in session team','add a member from session team','delete a member from session team']
 },
 'case_related': {
 keywords: ['ربط', 'تحريك', 'وقف', 'استئناف', 'دعوى'],
-classifications: [
-'add related case', 'delete related case'
-]
+classifications: ['add related case','delete related case']
 },
 'commercial': {
 keywords: ['سجل تجاري', 'قيد منشأة', 'سجل', 'تجاري'],
-classifications: [
-'add commercial record', 'amend commercial record', 'amend organization number'
-]
+classifications: ['add commercial record','amend commercial record','amend organization number']
 },
 'owner': {
 keywords: ['حائز', 'مالك', 'اختصاص', 'تخصيص'],
-classifications: [
-'amend owner', 'add owner', 'add ownership'
-]
+classifications: ['amend owner','add owner','add ownership']
 },
 'help_rfi': {
 keywords: ['مساعدة', 'استفسار', 'طلب', 'معلومة', 'إفادة', 'تدقيق'],
-classifications: [
-'help user', 'rfi'
-]
+classifications: ['help user','rfi']
 },
 'general': {
-keywords: ['خلل', 'مشكلة', 'خطأ', 'رسالة', 'بطء', 'دفع', 'مبلغ', 'جلسة', 'حكم', 'قرار', 'جدولة'],
-classifications: [
-'error message', 'registration issue', 'payment issue', 'bug fixing',
-'not accessible', 'scheduling error', 'parties issue', 'slowness',
-'amend the amount', 'change payment status', 'add judgment record',
-'amend hearing session type', 'add hearing session', 'delete hearing session',
-'edit duration', 'add expert committees', 'change decision status',
-'add session date', 'change panel role for a member', 'amend payment holder',
-'case not showing', 'wrong announcements data', 'judgment approval issue',
-'internet explorer', 'data issue', 'portal - sharepoint - general support'
-]
+keywords: ['خلل','مشكلة','خطأ','رسالة','بطء','دفع','مبلغ','جلسة','حكم','قرار','جدولة'],
+classifications: ['error message','registration issue','payment issue','bug fixing','not accessible','scheduling error','parties issue','slowness','amend the amount','change payment status','add judgment record','amend hearing session type','add hearing session','delete hearing session','edit duration','add expert committees','change decision status','add session date','change panel role for a member','amend payment holder','case not showing','wrong announcements data','judgment approval issue','internet explorer','data issue','portal - sharepoint - general support']
 }
 };
 
@@ -555,31 +293,22 @@ const classification = (ticket.Classification || '').toLowerCase();
 
 for (let item of noReferenceNeeded) {
 if (item.category === (ticket.Category || '') && item.subcategory === (ticket.Subcategory || '') &&
-item.classification === (ticket.Classification || '')) {
-return 'none';
+item.classification === (ticket.Classification || '')) return 'none';
 }
-}
-
 if (classification.includes('help user') || classification.includes('rfi')) return 'none';
 
-const noChange = ['slowness', 'error message', 'registration issue', 'payment issue', 'bug fixing',
-'not accessible', 'scheduling error', 'wrong status', 'parties issue'
-];
-for (let nc of noChange) {
-if (classification.includes(nc)) return 'none';
-}
+const noChange = ['slowness','error message','registration issue','payment issue','bug fixing',
+'not accessible','scheduling error','wrong status','parties issue'];
+for (let nc of noChange) { if (classification.includes(nc)) return 'none'; }
 
 if (classification.includes('owner')) return 'request';
-if (classification.includes('request') || category.includes('requests') || subcategory.includes('requests'))
-return 'request';
+if (classification.includes('request') || category.includes('requests') || subcategory.includes('requests')) return 'request';
 
-const caseWords = ['case', 'party', 'attachment', 'commercial', 'announcement', 'hearing', 'judgment',
-'related', 'status', 'panel', 'session', 'dmands', 'finance', 'decision'
-];
+const caseWords = ['case','party','attachment','commercial','announcement','hearing','judgment',
+'related','status','panel','session','dmands','finance','decision'];
 for (let kw of caseWords) {
 if (classification.includes(kw) || category.includes(kw) || subcategory.includes(kw)) return 'case';
 }
-
 if (category.includes('case') && !category.includes('request')) return 'case';
 if (category.includes('request')) return 'request';
 return 'case';
@@ -603,7 +332,7 @@ return patterns.some(p => p.test(text));
 
 function validateRequired(value, fieldName) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
-if (!value || value.trim() === '') {
+if (!value || String(value).trim() === '') {
 res.isValid = false;
 res.feedback.push(`${fieldName} مطلوب`);
 } else {
@@ -640,7 +369,6 @@ res.feedback.push(`عدد الكلمات مناسب (${words})`);
 return res;
 }
 
-// ==================== دالة البحث عن الرقم مع تحديد المصدر ====================
 function validateReferenceNumber(ticket) {
 const res = { isValid: true, hasWarning: false, feedback: [] };
 const needRef = requiresReference(ticket);
@@ -648,7 +376,6 @@ if (!needRef) {
 res.feedback.push('هذه التذكرة لا تحتاج رقم دعوى (نظامية)');
 return res;
 }
-
 const title = ticket.Title || '';
 const description = ticket.Description || '';
 const solution = ticket.Solution || '';
@@ -674,34 +401,24 @@ return res;
 function validateTicket(ticket) {
 const v = {};
 
-// الحقول الإلزامية: Subcategory و Classification
 v.subcategory = validateRequired(ticket.Subcategory, 'الفئة الفرعية');
 v.classification = validateRequired(ticket.Classification, 'التصنيف');
 
-// حقول جودة (تحذير)
 v.completionCode = validateQualityField(ticket['Completion code'] || ticket['Completion Code'], 'Completion Code');
 v.resolutionMethod = validateQualityField(ticket['Resolution Method'], 'Resolution Method');
 v.displayLabel = validateQualityField(ticket['Categories.Display label'], 'Categories.Display label');
 
-// العنوان (تحذير)
 v.title = validateTitleLength(ticket.Title);
-
-// رقم الدعوى (خطأ إذا لم يُوجد)
 v.referenceNumber = validateReferenceNumber(ticket);
 
-// ===================== محرك الجودة (التناقض الجوهري) =====================
-v.qualityEngine = {
-isValid: true,
-hasWarning: false,
-feedback: []
-};
+// ===================== محرك الجودة =====================
+v.qualityEngine = { isValid: true, hasWarning: false, feedback: [] };
 
 const title = (ticket.Title || '');
 const classification = (ticket.Classification || '').toLowerCase();
 
-// 1. التحقق من وجود كلمات مفتاحية (تحذير)
 let keywordMatched = false;
-for (let [groupKey, group] of Object.entries(semanticGroups)) {
+for (let group of Object.values(semanticGroups)) {
 if (hasKeyword(title, group.keywords)) { keywordMatched = true; break; }
 }
 if (!keywordMatched && title) {
@@ -709,41 +426,31 @@ v.qualityEngine.hasWarning = true;
 v.qualityEngine.feedback.push('العنوان لا يحتوي على كلمات مفتاحية مميزة');
 }
 
-// 2. التناقض الجوهري بين العنوان والتصنيف
 let currentGroup = null;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
 if (group.classifications.some(cls => classification.includes(cls))) { currentGroup = groupKey; break; }
 }
-let titleGroup = null;
-let maxMatches = 0;
+let titleGroup = null, maxMatches = 0;
 for (let [groupKey, group] of Object.entries(semanticGroups)) {
 let matches = 0;
 for (let kw of group.keywords) { if (hasKeyword(title, [kw])) matches++; }
-if (matches > maxMatches) { maxMatches = matches;
-titleGroup = groupKey; }
+if (matches > maxMatches) { maxMatches = matches; titleGroup = groupKey; }
 }
 if (currentGroup && titleGroup && currentGroup !== titleGroup) {
 if (titleGroup !== 'help_rfi' && titleGroup !== 'general' &&
 currentGroup !== 'help_rfi' && currentGroup !== 'general') {
 v.qualityEngine.isValid = false;
 v.qualityEngine.feedback.push(
-`تناقض جوهري: العنوان يشير إلى "${titleGroup.replace('_', ' ')}" بينما التصنيف من نوع "${currentGroup.replace('_', ' ')}"`
+`تناقض جوهري: العنوان يشير إلى "${titleGroup.replace('_',' ')}" بينما التصنيف من نوع "${currentGroup.replace('_',' ')}"`
 );
 }
 }
 
-// 3. التحقق من Completion Code (تحذير)
 const scope = getChangeScope(ticket);
 const completionCodeMap = {
-'case': ['caseamended_c', 'noactiontakenrequired_c', 'informationprovided_c',
-'application_c', 'duplicateticket_c', 'cmsapproved_c', 'accessgiven_c', 'accessremoved_c'
-],
-'request': ['requestamendeddeleted_c', 'noactiontakenrequired_c', 'informationprovided_c',
-'duplicateticket_c', 'application_c'
-],
-'none': ['informationprovided_c', 'noactiontakenrequired_c', 'application_c',
-'accessgiven_c', 'accessremoved_c', 'duplicateticket_c'
-]
+'case': ['caseamended_c','noactiontakenrequired_c','informationprovided_c','application_c','duplicateticket_c','cmsapproved_c','accessgiven_c','accessremoved_c'],
+'request': ['requestamendeddeleted_c','noactiontakenrequired_c','informationprovided_c','duplicateticket_c','application_c'],
+'none': ['informationprovided_c','noactiontakenrequired_c','application_c','accessgiven_c','accessremoved_c','duplicateticket_c']
 };
 const cc = (ticket['Completion code'] || ticket['Completion Code'] || '').toLowerCase();
 if (cc) {
@@ -761,9 +468,7 @@ v.qualityEngine.feedback.push(`Completion Code مفقود (يفترض أن يك�
 }
 }
 
-if (v.qualityEngine.feedback.length === 0) {
-v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
-}
+if (v.qualityEngine.feedback.length === 0) v.qualityEngine.feedback.push('جودة التصنيف ممتازة');
 
 // ===================== حساب النتيجة =====================
 const mandatoryFields = ['subcategory', 'classification', 'referenceNumber'];
@@ -783,6 +488,7 @@ return { ticket, validations: v, score, isValid, hasWarnings };
 // ==================== معالجة الملف والعرض ====================
 let allResults = [];
 let filteredResults = [];
+let currentFilter = 'all';
 
 function handleFileUpload(e) {
 const file = e.target.files[0];
@@ -796,30 +502,38 @@ const reader = new FileReader();
 reader.onload = function(e) {
 const data = new Uint8Array(e.target.result);
 let workbook;
-if (file.name.endsWith('.csv')) {
+if (file.name.toLowerCase().endsWith('.csv')) {
 const csv = new TextDecoder().decode(data);
 workbook = XLSX.read(csv, { type: 'string' });
 } else {
 workbook = XLSX.read(data, { type: 'array' });
 }
 const sheet = workbook.Sheets[workbook.SheetNames[0]];
-const rows = XLSX.utils.sheet_to_json(sheet);
-const tickets = rows.map(r => ({
-'Title': r['Title'] || r['title'] || '',
-'Completion code': r['Completion code'] || r['Completion Code'] || '',
-'Resolution Method': r['Resolution Method'] || '',
-'Classification': r['Classification'] || r['classification'] || '',
-'Subcategory': r['Subcategory'] || r['SubCategory'] || r['subcategorie'] || '',
-'Categories.Id': r['Categories.Id'] || '',
-'Categories.Display label': r['Categories.Display label'] || '',
-'Type': r['Type'] || r['type'] || '',
-'Category': r['Category'] || r['categorie'] || r['Categorie'] || '',
-'Priority': r['Priority'] || r['priority'] || '',
-'Description': r['Description'] || r['description'] || '',
-'Solution': r['Solution'] || r['solution'] || '',
-'Interaction ID': r['Interaction ID'] || r['Interaction_ID'] || '',
+const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+
+const tickets = rows.map((r, idx) => ({
+'_row': idx + 1,
+'Interaction ID': pickField(r, ['Interaction ID','Interaction Id','InteractionID','Interaction id','interaction_id','ID','Id','id','Ticket ID','Ticket Id','TicketID','رقم التذكرة','رقم التفاعل','معرف التذكرة']),
+'Title': pickField(r, ['Title','title','العنوان','عنوان التذكرة']),
+'Completion code': pickField(r, ['Completion code','Completion Code','Completioncode','كود الإنجاز']),
+'Resolution Method': pickField(r, ['Resolution Method','ResolutionMethod','طريقة الحل']),
+'Classification': pickField(r, ['Classification','classification','التصنيف']),
+'Subcategory': pickField(r, ['Subcategory','SubCategory','Sub category','subcategorie','الفئة الفرعية']),
+'Categories.Id': pickField(r, ['Categories.Id','Categories Id','CategoriesID']),
+'Categories.Display label': pickField(r, ['Categories.Display label','Categories Display label','CategoriesDisplaylabel','Display label']),
+'Type': pickField(r, ['Type','type','النوع']),
+'Category': pickField(r, ['Category','categorie','Categorie','الفئة']),
+'Priority': pickField(r, ['Priority','priority','الأولوية']),
+'Description': pickField(r, ['Description','description','الوصف']),
+'Solution': pickField(r, ['Solution','solution','الحل'])
 }));
+
 allResults = tickets.map(t => validateTicket(t));
+currentFilter = 'all';
+document.querySelectorAll('.court-filter-btn').forEach(b => b.classList.remove('active'));
+const firstBtn = document.querySelector('.court-filter-btn');
+if (firstBtn) firstBtn.classList.add('active');
+document.getElementById('idSearch').value = '';
 filteredResults = allResults;
 displayResults(filteredResults);
 updateStats(filteredResults);
@@ -828,8 +542,7 @@ document.getElementById('exportWarningsBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 document.getElementById('loadingIndicator').style.display = 'none';
 };
-if (file.name.endsWith('.csv')) reader.readAsArrayBuffer(file);
-else reader.readAsArrayBuffer(file);
+reader.readAsArrayBuffer(file);
 }
 
 function displayResults(results) {
@@ -841,29 +554,43 @@ return;
 }
 results.forEach(r => {
 const card = document.createElement('div');
-card.className = `ticket-card arabic-text ${!r.isValid ? 'invalid' : ''}`;
+card.className = `ticket-card ${!r.isValid ? 'invalid' : ''}`;
 const color = r.isValid ? '#27ae60' : '#e74c3c';
-const id = r.ticket['Interaction ID'] || 'غير معروف';
+const rawId = r.ticket['Interaction ID'];
+const hasId = rawId !== undefined && rawId !== null && String(rawId).trim() !== '';
+const idText = hasId ? String(rawId) : 'غير موجود في الملف';
+const idBadgeClass = hasId ? 'ticket-id-badge' : 'ticket-id-badge missing';
 const hasQualityWarn = r.validations.qualityEngine.hasWarning;
-const qualityBadge = hasQualityWarn ?
-'<span class="quality-badge warning">⚠️ تحذيرات جودة</span>' :
-'<span class="quality-badge good">✅ جودة جيدة</span>';
+const qualityBadge = hasQualityWarn
+? '<span class="quality-badge warning">⚠️ تحذيرات جودة</span>'
+: '<span class="quality-badge good">✅ جودة جيدة</span>';
 
 card.innerHTML = `
 <div class="ticket-header">
-<div class="ticket-title">${r.ticket.Title || 'بدون عنوان'} ${qualityBadge}<div class="interaction-id">${id}</div></div>
+<div class="ticket-title">
+<div class="${idBadgeClass}"><span class="id-label">🆔 رقم التذكرة ID:</span> ${idText}</div>
+<div style="margin-top:6px;">${r.ticket.Title || 'بدون عنوان'} ${qualityBadge}</div>
+</div>
 <div class="validation-score" style="background:${color}">${r.score}%</div>
 </div>
-<div class="legal-highlight">التصنيف: ${r.ticket.Classification || 'غير محدد'} | الفئة الفرعية: ${r.ticket.Subcategory || 'غير محددة'}</div>
+<div class="legal-highlight">
+<strong>🆔 ID:</strong> ${idText} &nbsp;|&nbsp;
+التصنيف: ${r.ticket.Classification || 'غير محدد'} | الفئة الفرعية: ${r.ticket.Subcategory || 'غير محددة'}
+</div>
 <div class="validation-details">
 ${Object.entries(r.validations).map(([f, v]) => `
 <div class="field-validation">
 <div class="validation-icon ${v.isValid ? (v.hasWarning ? 'warning' : 'valid') : 'invalid'}">${v.isValid ? (v.hasWarning ? '⚠' : '✓') : '✗'}</div>
-<div class="field-info"><div class="field-name">${getFieldName(f)}</div><div class="field-feedback">${v.feedback.join(' • ')}</div></div>
+<div class="field-info">
+<div class="field-name">${getFieldName(f)}</div>
+<div class="field-feedback">${v.feedback.join(' • ')}</div>
+</div>
 </div>
 `).join('')}
 </div>
-${!r.isValid ? '<div class="suggestions"><strong>❌ تذكرة خاطئة (يجب مراجعتها)</strong></div>' : (r.hasWarnings ? '<div class="suggestions"><strong>⚠ تذكرة بها تحذيرات (يمكن تحسينها)</strong></div>' : '')}
+${!r.isValid
+? '<div class="suggestions"><strong>❌ تذكرة خاطئة (يجب مراجعتها) — ID: ' + idText + '</strong></div>'
+: (r.hasWarnings ? '<div class="suggestions"><strong>⚠ تذكرة بها تحذيرات (يمكن تحسينها) — ID: ' + idText + '</strong></div>' : '')}
 `;
 container.appendChild(card);
 });
@@ -890,20 +617,33 @@ document.getElementById('invalidCount').textContent = results.filter(r => !r.isV
 document.getElementById('totalCount').textContent = results.length;
 }
 
-function filterTickets(type) {
+function filterTickets(type, btn) {
+currentFilter = type;
 document.querySelectorAll('.court-filter-btn').forEach(b => b.classList.remove('active'));
-event.target.classList.add('active');
-if (type === 'all') filteredResults = allResults;
-else if (type === 'valid') filteredResults = allResults.filter(r => r.isValid);
-else if (type === 'invalid') filteredResults = allResults.filter(r => !r.isValid);
-else if (type === 'warnings') filteredResults = allResults.filter(r => r.hasWarnings && r.isValid);
+if (btn) btn.classList.add('active');
+applyFilters();
+}
+
+function applyFilters() {
+const q = (document.getElementById('idSearch').value || '').trim().toLowerCase();
+let list = allResults.slice();
+if (currentFilter === 'valid') list = list.filter(r => r.isValid);
+else if (currentFilter === 'invalid') list = list.filter(r => !r.isValid);
+else if (currentFilter === 'warnings') list = list.filter(r => r.hasWarnings && r.isValid);
+
+if (q) {
+list = list.filter(r => String(r.ticket['Interaction ID'] || '').toLowerCase().includes(q));
+}
+filteredResults = list;
 displayResults(filteredResults);
 updateStats(filteredResults);
 }
 
 // ==================== بيانات نموذجية ====================
 function validateSampleData() {
-const sample = [{
+const sample = [
+{
+"Interaction ID": "1000001234567890",
 "Title": "إضافة طرف في الدعوى",
 "Solution": "تمت الإضافة للدعوى رقم 1814/2026/تنفيذ",
 "Completion code": "caseamended_c",
@@ -911,7 +651,9 @@ const sample = [{
 "Classification": "Add Party",
 "Subcategory": "Parties",
 "Categories.Display label": "Add Party"
-}, {
+},
+{
+"Interaction ID": "1000009876543210",
 "Title": "خلل في نظام محاكم",
 "Solution": "تم إصلاح الخلل",
 "Completion code": "noactiontakenrequired_c",
@@ -919,7 +661,9 @@ const sample = [{
 "Classification": "error message",
 "Subcategory": "technical issue",
 "Categories.Display label": "error message"
-}, {
+},
+{
+"Interaction ID": "1000005555555555",
 "Title": "تغيير حالة الطلب",
 "Solution": "تم تغيير حالة الطلب إلى مغلق",
 "Completion code": "requestamendeddeleted_c",
@@ -927,9 +671,12 @@ const sample = [{
 "Classification": "amend request status",
 "Subcategory": "Request Status",
 "Categories.Display label": "amend request status"
-}];
+}
+];
 allResults = sample.map(t => validateTicket(t));
 filteredResults = allResults;
+currentFilter = 'all';
+document.getElementById('idSearch').value = '';
 displayResults(filteredResults);
 updateStats(filteredResults);
 document.getElementById('exportBtn').style.display = 'inline-block';
@@ -937,62 +684,79 @@ document.getElementById('exportWarningsBtn').style.display = 'inline-block';
 document.getElementById('exportInvalidBtn').style.display = 'inline-block';
 }
 
-// ==================== دوال التصدير ====================
+// ==================== دوال التصدير (Excel) ====================
+function getTicketId(r) {
+const id = r.ticket['Interaction ID'];
+return (id === undefined || id === null || String(id).trim() === '') ? 'غير موجود' : String(id);
+}
+
+function collectIssues(r, kind) {
+const arr = [];
+Object.entries(r.validations).forEach(([key, val]) => {
+if (kind === 'error' && !val.isValid) arr.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
+if (kind === 'warning' && val.hasWarning) arr.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
+});
+return arr.join(' | ');
+}
+
+function buildExportRows(results, kind) {
+return results.map((r, i) => {
+const base = {
+'م': i + 1,
+'رقم التذكرة (Interaction ID)': getTicketId(r),
+'الحالة': r.isValid ? (r.hasWarnings ? 'صحيحة مع تحذيرات' : 'صحيحة') : 'خاطئة',
+'النتيجة %': r.score,
+'العنوان': r.ticket.Title || '',
+'التصنيف (Classification)': r.ticket.Classification || '',
+'الفئة الفرعية (Subcategory)': r.ticket.Subcategory || '',
+'الفئة (Category)': r.ticket.Category || '',
+'الحل (Solution)': r.ticket.Solution || '',
+'الوصف (Description)': r.ticket.Description || '',
+'Completion Code': r.ticket['Completion code'] || '',
+'Resolution Method': r.ticket['Resolution Method'] || '',
+'Categories.Display label': r.ticket['Categories.Display label'] || ''
+};
+if (kind === 'invalid') base['سبب الخطأ'] = collectIssues(r, 'error') || 'خطأ غير محدد';
+if (kind === 'warnings') base['التحذيرات'] = collectIssues(r, 'warning');
+if (kind === 'all') {
+base['سبب الخطأ'] = collectIssues(r, 'error');
+base['التحذيرات'] = collectIssues(r, 'warning');
+}
+return base;
+});
+}
+
+function writeXlsx(rows, filename, sheetName) {
+const ws = XLSX.utils.json_to_sheet(rows);
+const headers = Object.keys(rows[0] || {});
+ws['!cols'] = headers.map(h => {
+let maxLen = h.length;
+rows.forEach(row => {
+const val = row[h];
+if (val !== undefined && val !== null) maxLen = Math.max(maxLen, String(val).length);
+});
+return { wch: Math.min(Math.max(maxLen + 2, 12), 60) };
+});
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, (sheetName || 'Sheet1').substring(0, 31));
+XLSX.writeFile(wb, filename);
+}
+
 function exportResults() {
 if (!allResults.length) return alert('لا توجد نتائج');
-let csv =
-'Title,Classification,Subcategory,Solution,Completion Code,Resolution Method,Categories.Display label,Score,Status\n';
-allResults.forEach(r => {
-csv +=
-`"${r.ticket.Title}",${r.ticket.Classification},${r.ticket.Subcategory},"${r.ticket.Solution || ''}","${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Display label'] || ''}",${r.score},${r.isValid ? 'صحيحة' : 'خاطئة'}\n`;
-});
-download(csv, 'all_results.csv');
+writeXlsx(buildExportRows(allResults, 'all'), 'all_results.xlsx', 'كل النتائج');
 }
 
 function exportInvalidTickets() {
 const inv = allResults.filter(r => !r.isValid);
 if (!inv.length) return alert('🎉 لا توجد تذاكر خاطئة!');
-let csv =
-'Title,Classification,Subcategory,Solution,Completion Code,Resolution Method,Categories.Display label,سبب الخطأ\n';
-inv.forEach(r => {
-let reasons = [];
-Object.entries(r.validations).forEach(([key, val]) => {
-if (!val.isValid) {
-reasons.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
-}
-});
-if (reasons.length === 0) reasons.push('خطأ غير محدد');
-csv +=
-`"${r.ticket.Title}",${r.ticket.Classification},${r.ticket.Subcategory},"${r.ticket.Solution || ''}","${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Display label'] || ''}","${reasons.join(' | ')}"\n`;
-});
-download(csv, 'invalid_tickets_with_reasons.csv');
+writeXlsx(buildExportRows(inv, 'invalid'), 'invalid_tickets_with_reasons.xlsx', 'التذاكر الخاطئة');
 }
 
 function exportWarnings() {
 const warn = allResults.filter(r => r.hasWarnings && r.isValid);
 if (!warn.length) return alert('لا توجد تذاكر بها تحذيرات');
-let csv =
-'Title,Classification,Subcategory,Solution,Completion Code,Resolution Method,Categories.Display label,تحذيرات\n';
-warn.forEach(r => {
-let warns = [];
-Object.entries(r.validations).forEach(([key, val]) => {
-if (val.hasWarning) {
-warns.push(`${getFieldName(key)}: ${val.feedback.join('; ')}`);
-}
-});
-csv +=
-`"${r.ticket.Title}",${r.ticket.Classification},${r.ticket.Subcategory},"${r.ticket.Solution || ''}","${r.ticket['Completion code'] || ''}","${r.ticket['Resolution Method'] || ''}","${r.ticket['Categories.Display label'] || ''}","${warns.join(' | ')}"\n`;
-});
-download(csv, 'warnings.csv');
-}
-
-function download(content, filename) {
-const bom = "\uFEFF";
-const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
-const link = document.createElement('a');
-link.href = URL.createObjectURL(blob);
-link.download = filename;
-link.click();
+writeXlsx(buildExportRows(warn, 'warnings'), 'warnings.xlsx', 'التحذيرات');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
